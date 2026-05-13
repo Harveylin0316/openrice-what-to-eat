@@ -39,3 +39,7 @@ __pycache__/
 venv/
 env/
 ENV/
+
+# Rebuild workspace (2026-05-13 資料庫更新)
+_rebuild/backups/
+_rebuild/*.progress.json
