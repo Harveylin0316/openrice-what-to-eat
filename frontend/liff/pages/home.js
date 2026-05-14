@@ -1,11 +1,9 @@
 // 首頁：今天吃什麼（餐廳推薦功能）
 // 這個文件包含餐廳推薦頁面的所有邏輯
 
-import { 
-    FRONTEND_CUISINE_CATEGORIES, 
-    FRONTEND_TYPE_CATEGORIES,
-    cuisineIcons,
-    typeIcons
+import {
+    FRONTEND_CUISINE_CATEGORIES,
+    FRONTEND_TYPE_CATEGORIES
 } from '../shared/constants.js';
 import { 
     loadFilterOptions as apiLoadFilterOptions,
@@ -29,6 +27,12 @@ let locationOptions = {
 let userLocation = null;
 let displayedRestaurants = [];
 let locationRequestInProgress = false;
+
+// 更新「使用我的位置」按鈕內的文字（保留旁邊的 SVG icon）
+function setLocationBtnText(text) {
+    const el = document.getElementById('getLocationBtnText');
+    if (el) el.textContent = text;
+}
 
 // 顯示初始化進度
 function showInitProgress(message) {
@@ -101,9 +105,12 @@ export async function initHomePage() {
         
         // 設置表單提交事件
         setupFormSubmit();
-        
+
         // 設置重新選擇按鈕
         setupResetButton();
+
+        // 設置「更多設定」收合區的摘要更新
+        setupAdvancedOptionsSummary();
         
         // 隱藏載入進度，顯示主要內容
         hideInitProgress();
@@ -224,7 +231,7 @@ function setupLocationModeHandlers() {
             if (mode !== 'nearby') {
                 userLocation = null;
                 if (getLocationBtn) {
-                    getLocationBtn.textContent = '📍 使用我的位置';
+                    setLocationBtnText('使用我的位置');
                     getLocationBtn.style.background = '';
                 }
                 if (locationStatus) {
@@ -258,18 +265,12 @@ function renderForm() {
         cuisineContainer.innerHTML = `
             <label class="radio-label">
                 <input type="radio" name="cuisine_style" value="none" checked>
-                <span class="option-text">
-                    <span class="option-icon">🎲</span>
-                    <span>不限</span>
-                </span>
+                <span>不限</span>
             </label>
             ${filterOptions.cuisine_style.map(cuisine => `
                 <label class="radio-label">
                     <input type="radio" name="cuisine_style" value="${cuisine}">
-                    <span class="option-text">
-                        <span class="option-icon">${cuisineIcons[cuisine] || '🍽️'}</span>
-                        <span>${cuisine}</span>
-                    </span>
+                    <span>${cuisine}</span>
                 </label>
             `).join('')}
         `;
@@ -280,18 +281,12 @@ function renderForm() {
         typeContainer.innerHTML = `
             <label class="radio-label">
                 <input type="radio" name="type" value="none" checked>
-                <span class="option-text">
-                    <span class="option-icon">🎲</span>
-                    <span>不限</span>
-                </span>
+                <span>不限</span>
             </label>
             ${filterOptions.type.map(type => `
                 <label class="radio-label">
                     <input type="radio" name="type" value="${type}">
-                    <span class="option-text">
-                        <span class="option-icon">${typeIcons[type] || '🍴'}</span>
-                        <span>${type}</span>
-                    </span>
+                    <span>${type}</span>
                 </label>
             `).join('')}
         `;
@@ -305,8 +300,8 @@ function renderForm() {
                 <span>不限</span>
             </label>
             ${filterOptions.budget.map(budget => {
-                // 如果預算選項已經包含「元」，就不再加「元」
-                const displayText = budget.includes('元') ? budget : `${budget} 元`;
+                const hasSuffix = budget.includes('元') || budget.includes('以上') || budget.includes('以下');
+                const displayText = hasSuffix ? budget : `${budget}元`;
                 return `
                 <label class="radio-label">
                     <input type="radio" name="budget" value="${budget}">
@@ -316,6 +311,32 @@ function renderForm() {
             }).join('')}
         `;
     }
+}
+
+// 更新「更多設定」收合區的摘要文字
+function setupAdvancedOptionsSummary() {
+    const form = document.getElementById('recommendationForm');
+    const hint = document.getElementById('advancedSummary');
+    if (!form || !hint) return;
+
+    const diningTimeLabels = { all: '不限時段', lunch: '午餐', dinner: '晚餐' };
+
+    function update() {
+        const cuisine = form.querySelector('input[name="cuisine_style"]:checked')?.value || 'none';
+        const budget = form.querySelector('input[name="budget"]:checked')?.value || 'all';
+        const dining = form.querySelector('input[name="diningTime"]:checked')?.value || 'all';
+
+        const parts = [];
+        parts.push(cuisine === 'none' ? '不限料理' : cuisine);
+        parts.push(budget === 'all' ? '不限預算' : budget.replace(/\s+/g, ''));
+        parts.push(diningTimeLabels[dining] || '不限時段');
+        hint.textContent = parts.join(' · ');
+    }
+
+    form.addEventListener('change', (e) => {
+        if (['cuisine_style', 'budget', 'diningTime'].includes(e.target?.name)) update();
+    });
+    update();
 }
 
 // 設置表單提交
@@ -352,7 +373,7 @@ function setupFormSubmit() {
                     showError('正在獲取位置資訊，請稍候...');
                     showLocationStatus('正在獲取位置，請稍候', 'info');
                 } else {
-                    showError('無法取得位置資訊。請點擊「📍 使用我的位置」重試，或選擇「選擇地區」模式');
+                    showError('無法取得位置資訊，請點擊「使用我的位置」重試，或改為「選擇地區」模式');
                     showLocationStatus('請獲取位置才能使用距離篩選', 'error');
                 }
                 return;
@@ -472,7 +493,7 @@ function collectFormData() {
             throw new Error('請選擇交通方式（走路或開車）');
         }
         if (!userLocation) {
-            throw new Error('請先點擊「📍 使用我的位置」按鈕獲取您的位置');
+            throw new Error('請先點擊「使用我的位置」取得您的位置');
         }
         
         formData.userLocation = userLocation;
@@ -552,37 +573,36 @@ function displayResults(restaurants) {
                     </div>
                 ` : `
                     <div class="restaurant-image-placeholder">
-                        <span class="placeholder-icon">🍽️</span>
                         <span>無照片</span>
                     </div>
                 `}
                 <div class="restaurant-info">
                     <h3 class="restaurant-name">${restaurant.name}</h3>
-                    <p class="restaurant-address">📍 ${restaurant.address}</p>
+                    <p class="restaurant-address">${restaurant.address}</p>
                     <div class="restaurant-tags">
-                        ${restaurant.cuisine_style && restaurant.cuisine_style.length > 0 ? 
+                        ${restaurant.cuisine_style && restaurant.cuisine_style.length > 0 ?
                             filterGeneralTags(restaurant.cuisine_style)
                                 .map(cuisine => `<span class="tag cuisine">${cuisine}</span>`).join('') : ''
                         }
-                        ${restaurant.type && restaurant.type.length > 0 ? 
+                        ${restaurant.type && restaurant.type.length > 0 ?
                             filterGeneralTags(restaurant.type)
                                 .map(type => `<span class="tag type">${type}</span>`).join('') : ''
                         }
-                        ${restaurant.budget ? 
-                            `<span class="tag budget">${restaurant.budget} 元</span>` : 
+                        ${restaurant.budget ?
+                            `<span class="tag budget">${restaurant.budget} 元</span>` :
                             '<span class="tag">預算未標示</span>'
                         }
                     </div>
                     <div class="restaurant-actions">
-                        ${restaurant.url ? 
-                            `<a href="${restaurant.url}" target="_blank" class="restaurant-btn booking-btn">查看餐廳資訊/訂位</a>` : ''
+                        ${restaurant.url ?
+                            `<a href="${restaurant.url}" target="_blank" rel="noopener" class="restaurant-btn booking-btn">查看 / 訂位</a>` : ''
                         }
-                        ${restaurant.coordinates && restaurant.coordinates.lat && restaurant.coordinates.lng ? 
-                            `<a href="https://www.google.com/maps/dir/?api=1&destination=${restaurant.coordinates.lat},${restaurant.coordinates.lng}" 
-                               target="_blank" class="restaurant-btn navigation-btn">🗺️ 導航</a>` : 
-                            restaurant.address ? 
-                            `<a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(restaurant.address)}" 
-                               target="_blank" class="restaurant-btn navigation-btn">🗺️ 導航</a>` : ''
+                        ${restaurant.coordinates && restaurant.coordinates.lat && restaurant.coordinates.lng ?
+                            `<a href="https://www.google.com/maps/dir/?api=1&destination=${restaurant.coordinates.lat},${restaurant.coordinates.lng}"
+                               target="_blank" rel="noopener" class="restaurant-btn navigation-btn">導航</a>` :
+                            restaurant.address ?
+                            `<a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(restaurant.address)}"
+                               target="_blank" rel="noopener" class="restaurant-btn navigation-btn">導航</a>` : ''
                         }
                     </div>
                 </div>
@@ -685,7 +705,7 @@ function getUserLocation() {
     
     if (getLocationBtn) {
         getLocationBtn.disabled = true;
-        getLocationBtn.textContent = '📍 定位中...';
+        setLocationBtnText('定位中…');
     }
     showLocationStatus('正在獲取您的位置...', 'loading');
     
@@ -704,8 +724,8 @@ function getUserLocation() {
             };
             if (getLocationBtn) {
                 getLocationBtn.disabled = false;
-                getLocationBtn.textContent = '✅ 位置已獲取';
-                getLocationBtn.style.background = '#4caf50';
+                setLocationBtnText('已取得位置');
+                getLocationBtn.classList.add('is-success');
             }
             showLocationStatus(`已獲取位置`, 'success');
             console.log('位置獲取成功:', userLocation);
@@ -715,9 +735,10 @@ function getUserLocation() {
             
             if (getLocationBtn) {
                 getLocationBtn.disabled = false;
-                getLocationBtn.textContent = '📍 使用我的位置';
+                setLocationBtnText('使用我的位置');
+                getLocationBtn.classList.remove('is-success');
             }
-            
+
             // 友好的錯誤提示（簡短、明確、提供解決方案）
             let errorMsg = '';
             switch(error.code) {

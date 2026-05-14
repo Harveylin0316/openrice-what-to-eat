@@ -120,6 +120,15 @@ export function getLiffProfile() {
 
 // 頁面載入時初始化 LIFF
 document.addEventListener('DOMContentLoaded', () => {
+    // Dev bypass: ?dev=1 跳過 LIFF 初始化（本機預覽 / Storybook 用，正式 LIFF 不受影響）
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('dev') === '1') {
+        console.log('[dev] Bypassing LIFF init');
+        if (liffLoading) liffLoading.style.display = 'none';
+        initRouter();
+        return;
+    }
+
     // 檢查 LIFF SDK 是否已載入
     if (window.liff) {
         initLiff();

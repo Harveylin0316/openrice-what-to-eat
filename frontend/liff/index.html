@@ -2,91 +2,137 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>今天吃什麼？🍽️</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <title>今天吃什麼</title>
+    <link rel="preload" as="style" href="style.css">
     <link rel="stylesheet" href="style.css">
     <!-- LINE LIFF SDK -->
     <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 </head>
 <body>
+    <!-- Reusable SVG icon sprite -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <symbol id="icon-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="3 6 9 4 15 6 21 4 21 18 15 20 9 18 3 20 3 6"></polygon>
+          <line x1="9" y1="4" x2="9" y2="18"></line>
+          <line x1="15" y1="6" x2="15" y2="20"></line>
+        </symbol>
+        <symbol id="icon-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </symbol>
+        <symbol id="icon-walk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="13" cy="4" r="2"></circle>
+          <path d="M9 21l2-5 3-3 2 5 3 2"></path>
+          <path d="M7 14l3-4 4-2"></path>
+        </symbol>
+        <symbol id="icon-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 17h14M3 17V12l2-5h14l2 5v5"></path>
+          <circle cx="7.5" cy="17" r="2"></circle>
+          <circle cx="16.5" cy="17" r="2"></circle>
+        </symbol>
+        <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+        </symbol>
+        <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </symbol>
+        <symbol id="icon-shuffle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 3 21 3 21 8"></polyline>
+          <line x1="4" y1="20" x2="21" y2="3"></line>
+          <polyline points="21 16 21 21 16 21"></polyline>
+          <line x1="15" y1="15" x2="21" y2="21"></line>
+          <line x1="4" y1="4" x2="9" y2="9"></line>
+        </symbol>
+        <symbol id="icon-locate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <circle cx="12" cy="12" r="8"></circle>
+          <line x1="12" y1="2" x2="12" y2="4"></line>
+          <line x1="12" y1="20" x2="12" y2="22"></line>
+          <line x1="2" y1="12" x2="4" y2="12"></line>
+          <line x1="20" y1="12" x2="22" y2="12"></line>
+        </symbol>
+      </defs>
+    </svg>
+
     <div class="container">
-        <!-- 標題區域 -->
         <header class="header">
-            <h1>🍽️ 今天吃什麼？</h1>
-            <p class="subtitle">目前餐廳雙北較多，陸續新增</p>
+            <h1>今天吃什麼</h1>
+            <p class="subtitle">回答幾個問題，幫你挑五間餐廳</p>
         </header>
 
         <!-- LIFF 初始化載入中 -->
-        <div id="liffLoading" class="loading">
-            <div class="spinner"></div>
-            <p>正在初始化 LINE...</p>
-        </div>
-        
-        <!-- 頁面初始化載入中 -->
-        <div id="initLoading" class="loading" style="display: none;">
-            <div class="spinner"></div>
-            <p id="initLoadingText">正在初始化...</p>
+        <div id="liffLoading" class="loading" role="status" aria-live="polite">
+            <div class="spinner" aria-hidden="true"></div>
+            <p>正在連線 LINE</p>
         </div>
 
-        <!-- 主要內容（初始化後顯示） -->
+        <!-- 頁面初始化載入中 -->
+        <div id="initLoading" class="loading" style="display: none;" role="status" aria-live="polite">
+            <div class="spinner" aria-hidden="true"></div>
+            <p id="initLoadingText">載入中</p>
+        </div>
+
         <main class="main-content" id="mainContent" style="display: none;">
-            <!-- 地區選擇（在表單之前） -->
-            <section class="location-section">
-                <h2 class="location-title">下面選一個</h2>
+            <!-- 搜尋方式 -->
+            <section class="location-section" aria-labelledby="locationTitle">
+                <h2 class="location-title" id="locationTitle">搜尋方式</h2>
                 <div class="location-mode-options">
                     <label class="location-mode-option">
                         <input type="radio" name="locationMode" value="area" checked>
                         <div class="location-mode-card">
-                            <span class="location-mode-icon">🗺️</span>
+                            <svg class="icon-svg" aria-hidden="true"><use href="#icon-map"></use></svg>
                             <span class="location-mode-text">選擇地區</span>
                         </div>
                     </label>
                     <label class="location-mode-option">
                         <input type="radio" name="locationMode" value="nearby">
                         <div class="location-mode-card">
-                            <span class="location-mode-icon">📍</span>
+                            <svg class="icon-svg" aria-hidden="true"><use href="#icon-locate"></use></svg>
                             <span class="location-mode-text">附近餐廳</span>
                         </div>
                     </label>
                 </div>
-                
-                <!-- 選擇地區選項 -->
-                <div id="areaOptions" class="location-options">
+
+                <div id="areaOptions" class="location-options" style="margin-top: var(--space-4);">
                     <div class="area-select-group">
                         <label class="area-select-label">
-                            <span>縣市：</span>
-                            <select id="citySelect" name="city">
+                            <span>縣市</span>
+                            <select id="citySelect" name="city" aria-label="選擇縣市">
                                 <option value="">請選擇縣市</option>
                             </select>
                         </label>
                         <label class="area-select-label">
-                            <span>行政區：</span>
-                            <select id="districtSelect" name="district" disabled>
+                            <span>行政區</span>
+                            <select id="districtSelect" name="district" disabled aria-label="選擇行政區">
                                 <option value="">請先選擇縣市</option>
                             </select>
                         </label>
                     </div>
                 </div>
-                
-                <!-- 附近餐廳選項 -->
-                <div id="nearbyOptions" class="location-options" style="display: none;">
+
+                <div id="nearbyOptions" class="location-options" style="display: none; margin-top: var(--space-4);">
                     <button type="button" id="getLocationBtn" class="location-btn">
-                        📍 使用我的位置
+                        <svg class="icon-svg" aria-hidden="true"><use href="#icon-locate"></use></svg>
+                        <span id="getLocationBtnText">使用我的位置</span>
                     </button>
-                    <div id="locationStatus" class="location-status" style="display: none;"></div>
+                    <div id="locationStatus" class="location-status" style="display: none;" role="status" aria-live="polite"></div>
                     <div class="transport-options">
                         <label class="transport-option">
                             <input type="radio" name="transport" value="walking">
                             <div class="transport-card">
-                                <span class="transport-icon">🚶</span>
-                                <span class="transport-text">走路10分鐘內</span>
+                                <svg class="icon-svg" aria-hidden="true"><use href="#icon-walk"></use></svg>
+                                <span class="transport-text">走路 10 分鐘內</span>
                             </div>
                         </label>
                         <label class="transport-option">
                             <input type="radio" name="transport" value="driving">
                             <div class="transport-card">
-                                <span class="transport-icon">🚗</span>
-                                <span class="transport-text">開車10分鐘內</span>
+                                <svg class="icon-svg" aria-hidden="true"><use href="#icon-car"></use></svg>
+                                <span class="transport-text">開車 10 分鐘內</span>
                             </div>
                         </label>
                     </div>
@@ -94,101 +140,85 @@
             </section>
 
             <form id="recommendationForm" class="recommendation-form">
-                <!-- 料理風格 -->
-                <section class="form-section">
-                    <label class="section-label">
-                        <span class="label-icon">🍜</span>
-                        想吃的料理風格 <span class="required">*</span>
-                    </label>
-                    <div id="cuisineStyleOptions" class="radio-group">
-                        <!-- 動態載入 -->
-                    </div>
-                </section>
+                <details class="advanced-options" id="advancedOptions">
+                    <summary class="advanced-options__toggle">
+                        <span class="advanced-options__label">更多設定</span>
+                        <span class="advanced-options__hint" id="advancedSummary">料理／預算／時段</span>
+                        <svg class="advanced-options__chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </summary>
 
-                <!-- 餐廳類型（已隱藏） -->
-                <section class="form-section" style="display: none;">
-                    <label class="section-label">
-                        <span class="label-icon">🏪</span>
-                        餐廳類型 <span class="required">*</span>
-                    </label>
-                    <div id="restaurantTypeOptions" class="radio-group">
-                        <!-- 動態載入 -->
-                    </div>
-                </section>
+                    <div class="advanced-options__body">
+                        <section class="form-section">
+                            <label class="section-label" for="cuisineStyleOptions">想吃什麼料理</label>
+                            <div id="cuisineStyleOptions" class="radio-group" role="radiogroup" aria-label="料理風格"></div>
+                        </section>
 
-                <!-- 預算 -->
-                <section class="form-section">
-                    <label class="section-label">
-                        <span class="label-icon">💰</span>
-                        每人預算
-                    </label>
-                    <div id="budgetOptions" class="radio-group">
-                        <!-- 動態載入 -->
-                    </div>
-                </section>
+                        <section class="form-section" hidden>
+                            <label class="section-label">餐廳類型</label>
+                            <div id="restaurantTypeOptions" class="radio-group" role="radiogroup" aria-label="餐廳類型"></div>
+                        </section>
 
-                <!-- 用餐時段 -->
-                <section class="form-section">
-                    <label class="section-label">
-                        <span class="label-icon">🕐</span>
-                        選擇用餐時段
-                    </label>
-                    <div id="diningTimeOptions" class="dining-time-group">
-                        <label class="dining-time-option">
-                            <input type="radio" name="diningTime" value="all" checked>
-                            <div class="dining-time-card">
-                                <span class="dining-time-icon">🎲</span>
-                                <span class="dining-time-text">不限</span>
+                        <section class="form-section">
+                            <label class="section-label" for="budgetOptions">每人預算</label>
+                            <div id="budgetOptions" class="radio-group" role="radiogroup" aria-label="預算"></div>
+                        </section>
+
+                        <section class="form-section">
+                            <h3 class="section-label">用餐時段</h3>
+                            <div id="diningTimeOptions" class="dining-time-group" role="radiogroup" aria-label="用餐時段">
+                                <label class="dining-time-option">
+                                    <input type="radio" name="diningTime" value="all" checked>
+                                    <div class="dining-time-card">
+                                        <svg class="icon-svg" aria-hidden="true"><use href="#icon-shuffle"></use></svg>
+                                        <span class="dining-time-text">不限</span>
+                                    </div>
+                                </label>
+                                <label class="dining-time-option">
+                                    <input type="radio" name="diningTime" value="lunch">
+                                    <div class="dining-time-card">
+                                        <svg class="icon-svg" aria-hidden="true"><use href="#icon-sun"></use></svg>
+                                        <span class="dining-time-text">午餐</span>
+                                    </div>
+                                </label>
+                                <label class="dining-time-option">
+                                    <input type="radio" name="diningTime" value="dinner">
+                                    <div class="dining-time-card">
+                                        <svg class="icon-svg" aria-hidden="true"><use href="#icon-moon"></use></svg>
+                                        <span class="dining-time-text">晚餐</span>
+                                    </div>
+                                </label>
                             </div>
-                        </label>
-                        <label class="dining-time-option">
-                            <input type="radio" name="diningTime" value="lunch">
-                            <div class="dining-time-card">
-                                <span class="dining-time-icon">☀️</span>
-                                <span class="dining-time-text">午餐(11:00-14:30)</span>
-                            </div>
-                        </label>
-                        <label class="dining-time-option">
-                            <input type="radio" name="diningTime" value="dinner">
-                            <div class="dining-time-card">
-                                <span class="dining-time-icon">🌙</span>
-                                <span class="dining-time-text">晚餐(17:30-21:00)</span>
-                            </div>
-                        </label>
+                        </section>
                     </div>
-                </section>
+                </details>
 
-                <!-- 提交按鈕 -->
                 <button type="submit" class="submit-btn" id="submitBtn">
-                    <span>🎲 推薦我</span>
+                    推薦我五間餐廳
                 </button>
             </form>
 
-            <!-- 載入中 -->
-            <div id="loading" class="loading" style="display: none;">
-                <div class="spinner"></div>
-                <p>正在為你尋找餐廳...</p>
+            <div id="loading" class="loading" style="display: none;" role="status" aria-live="polite">
+                <div class="spinner" aria-hidden="true"></div>
+                <p>正在為你尋找餐廳</p>
             </div>
 
-            <!-- 結果區域 -->
             <div id="results" class="results" style="display: none;">
                 <h2 class="results-title">
-                    <span>✨</span> 為你推薦
+                    為你推薦
                     <span id="resultCount" class="result-count"></span>
                 </h2>
                 <div id="restaurantList" class="restaurant-list">
-                    <!-- 動態載入餐廳卡片 -->
                 </div>
                 <button id="resetBtn" class="reset-btn">換一批</button>
             </div>
 
-            <!-- 錯誤訊息 -->
-            <div id="error" class="error" style="display: none;">
+            <div id="error" class="error" style="display: none;" role="alert">
                 <p id="errorMessage"></p>
             </div>
         </main>
 
-        <!-- 頁尾 -->
         <footer class="footer">
             <p class="footer-line1">OpenRice 訂位回饋網</p>
             <p class="footer-line2">每一次訂位，都回饋現金</p>

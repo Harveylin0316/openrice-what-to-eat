@@ -18,25 +18,9 @@ export const FRONTEND_TYPE_CATEGORIES = [
     '咖啡廳'
 ];
 
-// 料理風格圖示映射
-export const cuisineIcons = {
-    '台式料理': '🍜',
-    '中式/港粵': '🥢',
-    '日式料理': '🍱',
-    '韓式料理': '🥘',
-    '美式料理': '🍔',
-    '東南亞料理': '🍲',
-    '多國料理': '🌍'
-};
-
-// 餐廳類型圖示映射
-export const typeIcons = {
-    '燒肉': '🥩',
-    '火鍋': '🍲',
-    '吃到飽': '🍱',
-    '餐酒館': '🍷',
-    '咖啡廳': '☕'
-};
+// 料理風格與餐廳類型的 icon map 已移除（新版 UI 改用純文字選項）
+// 如需重新加入 icon，請於 frontend/liff/index.html 內 svg <defs> 區新增 symbol
+// 並在 pages/home.js 渲染時 inline 引用
 
 // API 基礎 URL 配置
 export function getApiBaseUrl() {
