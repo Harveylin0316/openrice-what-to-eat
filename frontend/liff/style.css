@@ -18,9 +18,9 @@
     --gray-500: #8A857E;
     --gray-700: #3D3A35;
     --gray-900: #1A1815;
-    --accent-300: #F5A57A;
-    --accent-500: #E8754F;
-    --accent-700: #B85530;
+    --accent-300: #FF8B7A;
+    --accent-500: #DC2918;
+    --accent-700: #A91D11;
     --success-500: #2E9A66;
     --warning-500: #D9961F;
     --danger-500: #C0432E;
@@ -38,7 +38,7 @@
     --color-text-inverse: var(--gray-0);
     --color-accent: var(--accent-500);
     --color-accent-hover: var(--accent-700);
-    --color-accent-subtle: #FBEDE4;
+    --color-accent-subtle: #FFEEEC;
     --color-focus-ring: var(--accent-500);
 
     /* typography */
@@ -102,29 +102,13 @@
     --z-overlay: 500;
     --z-modal: 1000;
     --z-toast: 1500;
+
+    color-scheme: light;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-bg-base: #1A1815;
-      --color-bg-surface: #232019;
-      --color-bg-raised: #2B2720;
-      --color-bg-subtle: #2F2B23;
-      --color-border: #3D3A35;
-      --color-border-strong: #4F4B43;
-      --color-text-primary: #F4F2EF;
-      --color-text-body: #D4D0CA;
-      --color-text-muted: #8A857E;
-      --color-text-inverse: #1A1815;
-      --color-accent: var(--accent-300);
-      --color-accent-hover: #F8B891;
-      --color-accent-subtle: #3D2A22;
-      --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-      --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.6);
-    }
-  }
+  /* 不啟用深色模式：OpenRice 品牌為白底紅 accent，
+     LIFF 即使在用戶系統設為深色時也維持白底以保持品牌一致。
+     如未來要恢復深色，請補回 prefers-color-scheme media query。 */
 }
 
 /* ---------- Base ---------- */
@@ -902,9 +886,6 @@
   .tag.budget {
     background: var(--color-accent-subtle);
     color: var(--accent-700);
-  }
-  @media (prefers-color-scheme: dark) {
-    .tag.budget { color: var(--accent-300); }
   }
   .restaurant-actions {
     display: flex;
