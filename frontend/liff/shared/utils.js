@@ -39,6 +39,77 @@ export function filterGeneralTags(tags) {
     return (tags || []).filter(tag => tag !== '一般');
 }
 
+const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+function parseTimeToMinutes(str) {
+    // 接受 "11:30" / "17:00" 等；跨日的 "26:00" 解為 02:00 隔日
+    const m = str?.trim().match(/^(\d{1,2}):(\d{2})/);
+    if (!m) return null;
+    const h = parseInt(m[1], 10);
+    const min = parseInt(m[2], 10);
+    return h * 60 + min;
+}
+
+/**
+ * 判斷餐廳當前營業狀態
+ * @param {Object} openingHours - 七天的營業時間 map (monday..sunday)，每個 value 是 ["11:30-14:00", "17:00-22:00"]
+ * @param {Date} now - 當前時間（測試用，預設為現在）
+ * @returns {Object} { status: 'open' | 'closing-soon' | 'closed-today' | 'opens-later' | 'unknown',
+ *                     label: '營業中 · 22:00 打烊' / '17:30 開始' / '今日休息',
+ *                     openNow: bool }
+ */
+export function getOpeningStatus(openingHours, now = new Date()) {
+    if (!openingHours || typeof openingHours !== 'object') {
+        return { status: 'unknown', label: '', openNow: false };
+    }
+    const todayKey = DAY_KEYS[now.getDay()];
+    const todaySlots = openingHours[todayKey];
+    if (!Array.isArray(todaySlots) || todaySlots.length === 0) {
+        return { status: 'closed-today', label: '今日休息', openNow: false };
+    }
+
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    let nextOpen = null;
+    let currentClose = null;
+
+    for (const slot of todaySlots) {
+        const [openStr, closeStr] = (slot || '').split('-');
+        const open = parseTimeToMinutes(openStr);
+        let close = parseTimeToMinutes(closeStr);
+        if (open == null || close == null) continue;
+        // 跨日：close <= open 表示跨日，補 +24h
+        if (close <= open) close += 24 * 60;
+
+        if (nowMin >= open && nowMin < close) {
+            currentClose = close;
+            break;
+        } else if (nowMin < open) {
+            if (nextOpen == null || open < nextOpen) nextOpen = open;
+        }
+    }
+
+    if (currentClose != null) {
+        const closeH = Math.floor(currentClose / 60) % 24;
+        const closeM = currentClose % 60;
+        const closeStr = `${String(closeH).padStart(2, '0')}:${String(closeM).padStart(2, '0')}`;
+        // 30 分鐘內打烊 → closing-soon
+        if (currentClose - nowMin <= 30) {
+            return { status: 'closing-soon', label: `${closeStr} 打烊`, openNow: true };
+        }
+        return { status: 'open', label: `營業中 · ${closeStr} 打烊`, openNow: true };
+    }
+    if (nextOpen != null) {
+        const h = Math.floor(nextOpen / 60);
+        const m = nextOpen % 60;
+        return {
+            status: 'opens-later',
+            label: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')} 開始`,
+            openNow: false,
+        };
+    }
+    return { status: 'closed-today', label: '今日已打烊', openNow: false };
+}
+
 /**
  * 初始化照片輪播功能
  */

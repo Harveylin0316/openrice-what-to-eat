@@ -10,7 +10,7 @@ import {
     loadLocationOptions as apiLoadLocationOptions,
     fetchRecommendations
 } from '../shared/api.js';
-import { filterGeneralTags, initImageCarousels } from '../shared/utils.js';
+import { filterGeneralTags, initImageCarousels, calculateDistance, formatDistance, getOpeningStatus } from '../shared/utils.js';
 
 // 頁面狀態
 let filterOptions = {
@@ -579,6 +579,33 @@ function displayResults(restaurants) {
                 <div class="restaurant-info">
                     <h3 class="restaurant-name">${restaurant.name}</h3>
                     <p class="restaurant-address">${restaurant.address}</p>
+                    ${(() => {
+                        const meta = [];
+                        // 營業狀態
+                        const oh = getOpeningStatus(restaurant.opening_hours);
+                        if (oh.label) {
+                            const cls = oh.status === 'open' ? 'is-open'
+                                      : oh.status === 'closing-soon' ? 'is-closing'
+                                      : 'is-closed';
+                            meta.push(`<span class="meta-chip ${cls}"><span class="meta-dot"></span>${oh.label}</span>`);
+                        }
+                        // 距離（僅 nearby 模式有 userLocation）
+                        if (userLocation && restaurant.coordinates?.lat && restaurant.coordinates?.lng) {
+                            const d = calculateDistance(
+                                userLocation.lat, userLocation.lng,
+                                restaurant.coordinates.lat, restaurant.coordinates.lng
+                            );
+                            meta.push(`<span class="meta-chip">離你 ${formatDistance(d)}</span>`);
+                        }
+                        // 線上可訂位
+                        if (restaurant.bookable) {
+                            meta.push(`<span class="meta-chip is-accent">線上可訂位</span>`);
+                        }
+                        return meta.length ? `<div class="restaurant-meta">${meta.join('')}</div>` : '';
+                    })()}
+                    ${restaurant.dish && restaurant.dish.length > 0 ?
+                        `<p class="restaurant-dish"><span class="restaurant-dish__label">招牌</span>${filterGeneralTags(restaurant.dish).slice(0, 4).join('、')}</p>` : ''
+                    }
                     <div class="restaurant-tags">
                         ${restaurant.cuisine_style && restaurant.cuisine_style.length > 0 ?
                             filterGeneralTags(restaurant.cuisine_style)
