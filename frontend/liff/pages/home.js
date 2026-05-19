@@ -535,16 +535,13 @@ function buildCardHTML(restaurant, cardIndex) {
     const canSlide = images.length > 1;
 
     const diningTime = document.querySelector('input[name="diningTime"]:checked')?.value;
+    // 營業狀態 chip 暫時拿掉：DB 內 opening_hours 多筆過期 / OpenRice 範圍格式解析有 bug，
+    // 顯示「今日已打烊」會誤導。等下次完整重爬後再開回來。
+    // 但 omikuji 還是用 openNow 做語氣判斷（保留邏輯，避免籤詩語意斷裂）。
     const oh = getOpeningStatus(restaurant.opening_hours);
     const omikuji = generateOmikuji(restaurant, { diningTime, openNow: oh.openNow });
 
     const metaParts = [];
-    if (oh.label) {
-        const cls = oh.status === 'open' ? 'is-open'
-                  : oh.status === 'closing-soon' ? 'is-closing'
-                  : 'is-closed';
-        metaParts.push(`<span class="meta-chip ${cls}"><span class="meta-dot"></span>${oh.label}</span>`);
-    }
     if (userLocation && restaurant.coordinates?.lat && restaurant.coordinates?.lng) {
         const d = calculateDistance(
             userLocation.lat, userLocation.lng,
