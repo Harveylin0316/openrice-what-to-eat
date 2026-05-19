@@ -391,17 +391,22 @@ function setupFormSubmit() {
         
         showLoading();
         if (submitBtn) submitBtn.disabled = true;
-        
+
         try {
             const formData = collectFormData();
             console.log('表單資料:', formData);
-            
-            const restaurants = await fetchRecommendations(formData, []);
+
+            // 擲骰動畫至少跑 1 秒（即使 API 更快回來）
+            const minDelay = new Promise(r => setTimeout(r, 1000));
+            const [restaurants] = await Promise.all([
+                fetchRecommendations(formData, []),
+                minDelay,
+            ]);
             console.log('API 返回的餐廳數量:', restaurants.length);
-            
+
             displayedRestaurants = restaurants.map(r => r.name);
             displayResults(restaurants);
-            
+
         } catch (err) {
             showError(err.message || '抽選失敗，請稍後再試');
             console.error('推薦餐廳錯誤:', err);
@@ -727,13 +732,17 @@ function setupResetButton() {
         
         try {
             const formData = collectFormData();
-            const restaurants = await fetchRecommendations(formData, []);
-            
+            const minDelay = new Promise(r => setTimeout(r, 1000));
+            const [restaurants] = await Promise.all([
+                fetchRecommendations(formData, []),
+                minDelay,
+            ]);
+
             if (restaurants.length === 0) {
                 showError('沒抽到符合條件的餐廳，要不要放寬條件再抽一次？');
                 return;
             }
-            
+
             displayedRestaurants = restaurants.map(r => r.name);
             displayResults(restaurants);
             
