@@ -22,7 +22,7 @@ import sys
 import argparse
 from scraper import make_session, fetch_and_parse, sleep_jitter, CaptchaError
 
-DB_FILE = '_rebuild/new_restaurants_database.json'
+DEFAULT_DB = 'restaurants_database.json'
 PROGRESS = '_rebuild/rescrape.progress.json'
 
 def load_progress() -> dict:
@@ -40,9 +40,10 @@ def main():
     ap.add_argument('--only-needs-scrape', action='store_true')
     ap.add_argument('--limit', type=int, default=None)
     ap.add_argument('--base-delay', type=float, default=3.0)
+    ap.add_argument('--db', default=DEFAULT_DB, help='Database file to read URLs from')
     args = ap.parse_args()
 
-    with open(DB_FILE, encoding='utf-8') as f:
+    with open(args.db, encoding='utf-8') as f:
         data = json.load(f)
     restaurants = data['restaurants']
 

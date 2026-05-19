@@ -9265,20 +9265,20 @@
         "多國料理"
       ],
       "type": [
-        "一般"
+        "咖啡廳(店)",
+        "冰店"
       ],
-      "budget": "200-500",
+      "budget": "201-500",
       "images": [
-        "https://cdn-tw.orstatic.com/userphoto/File/0/1V/000D9613F939E7E1928034ax.jpg",
         "https://cdn-tw.orstatic.com/userphoto/doorphoto/G/CZ8/02KAL08140BE2C182CA78Cpx.jpg",
-        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALP3A6D52B6F3D1822Abx.jpg",
-        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALO1FB436234EF80E08bx.jpg",
-        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALN0FA31ABBB5F30877bx.jpg",
-        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALK8E50B680AABA245Abx.jpg",
-        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALJD7030B4BC6BD12B8bx.jpg",
-        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALI4EEC651A24D37FC2bx.jpg",
-        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALH27570E0AE45F3157bx.jpg",
-        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALF0C7A0C657849412Abx.jpg"
+        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALP3A6D52B6F3D1822Amx.jpg",
+        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALO1FB436234EF80E08mx.jpg",
+        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALN0FA31ABBB5F30877mx.jpg",
+        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALK8E50B680AABA245Amx.jpg",
+        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALJD7030B4BC6BD12B8mx.jpg",
+        "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ8/02KALI4EEC651A24D37FC2mx.jpg",
+        "https://cdn-tw.orstatic.com/userphoto/photo/0/C3/002E0T53BC352F3A32FF03lv.jpg",
+        "https://cdn-tw.orstatic.com/userphoto/photo/A/88A/01MIW4423455190948AEB2lv.jpg"
       ],
       "url": "https://tw.openrice.com/zh/taipei/r-%E6%A4%B0%E7%B3%96-coconut-sugar-%E5%8D%97%E6%B4%8B%E9%A4%90%E4%BA%8B-zhongshan-district-international-tea-r652246?_sUrl=https%3A%2F%2Fs.openrice.com%2FcHRSm02rlC900",
       "coordinates": {
@@ -9291,28 +9291,25 @@
       ],
       "is_buffet": false,
       "opening_hours": {
-        "monday": [
-          "12:00-15:30"
-        ],
+        "monday": [],
         "tuesday": [
-          "12:00-15:30"
+          "12:00-15:30",
+          "17:30-21:00"
         ],
-        "wednesday": [
-          "12:00-15:30"
-        ],
+        "wednesday": [],
         "thursday": [
-          "12:00-15:30"
+          "12:00-15:30",
+          "17:30-21:00"
         ],
-        "friday": [
-          "12:00-15:30"
-        ],
+        "friday": [],
         "saturday": [
-          "12:00-15:30"
+          "12:00-15:30",
+          "17:30-21:00"
         ],
         "sunday": [
-          "12:00-15:30"
-        ],
-        "is_24h": false
+          "12:00-15:30",
+          "17:30-21:00"
+        ]
       },
       "place_id": "ChIJT11PZvyrQjQRz3j8WOrNwSs",
       "address_legacy": "台北市中山區龍江路100巷1之1號1樓"
