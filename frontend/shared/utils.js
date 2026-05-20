@@ -137,52 +137,79 @@ export function generateOmikuji(restaurant, context = {}) {
     const types = restaurant.type || [];
     const bookable = restaurant.bookable;
     const budget = restaurant.budget || '';
-    const { diningTime } = context;
+    const { diningTime, exclude } = context;
+    const excludeSet = exclude instanceof Set ? exclude : new Set(exclude || []);
 
     const has = (arr, ...needles) => needles.some(n => arr.some(x => x && x.includes(n)));
 
     const pool = [];
 
-    // 料理 / 類型導向（不再使用 restaurant.dish，OpenRice 自填的「常見點餐」雜訊太多）
+    // 料理 / 類型導向（每組多個變體，避免 5 張卡都同一句）
     if (has(types, '燒肉', '烤肉') || has(cuisines, '燒肉')) {
-        pool.push('肉食控的命運抽選', '今天就是想吃肉');
+        pool.push('肉食控的命運抽選', '今天就是想吃肉', '碳烤香氣等你', '一份油花替今天打氣', '無肉不歡的選擇');
     }
     if (has(types, '火鍋', '鍋物') || has(cuisines, '火鍋')) {
-        pool.push('一鍋熱湯解決今天', '抽到鍋物的命運');
+        pool.push('一鍋熱湯解決今天', '抽到鍋物的命運', '湯頭一喝就懂', '今晚就涮一波', '熱呼呼填飽自己');
     }
     if (has(types, '居酒屋', '餐酒', '酒吧', 'Lounge', 'Bar')) {
-        if (diningTime !== 'lunch') pool.push('下班想喝兩杯就這家', '小酌一下吧');
+        if (diningTime !== 'lunch') {
+            pool.push('下班想喝兩杯就這家', '小酌一下吧', '抽到微醺的命運', '夜晚的避風港', '一杯放鬆模式啟動', '今天容許自己晚點回家');
+        }
     }
     if (has(types, '咖啡', 'Cafe', '甜點')) {
-        pool.push('來點甜的解壓', '咖啡因補給站');
+        pool.push('來點甜的解壓', '咖啡因補給站', '甜點救援啟動', '坐下來緩一緩', '今天值得一杯好的', '下午茶就這家');
     }
-    if (has(cuisines, '日式', '日本')) pool.push('精緻日式給今天加分');
-    if (has(cuisines, '韓式', '韓國')) pool.push('來點韓國風味');
-    if (has(cuisines, '泰式', '東南亞')) pool.push('辛香料的命運安排');
-    if (has(cuisines, '義式', '義大利', 'Italian')) pool.push('來盤義式經典');
-    if (has(cuisines, '美式', 'American')) pool.push('來點美式份量');
-    if (has(cuisines, '港式', '廣東', '粵', 'Hong Kong')) pool.push('港式風味在這家');
-    if (has(cuisines, '中式', '中華', '川菜', '湘菜')) pool.push('家常滋味來這家');
-    if (has(types, '吃到飽', '放題', 'Buffet')) pool.push('放開吃就對了');
-    if (has(types, '牛排', 'Steak')) pool.push('想吃牛排就這家');
-    if (has(types, '鐵板燒')) pool.push('來看師傅現場露一手');
+    if (has(cuisines, '日式', '日本')) {
+        pool.push('精緻日式給今天加分', '一份和食的療癒', '抽到島國味道', '今晚走日式路線');
+    }
+    if (has(cuisines, '韓式', '韓國')) {
+        pool.push('來點韓國風味', '辛香解膩的選擇', '抽到泡菜的命運', '今晚走韓系路線');
+    }
+    if (has(cuisines, '泰式', '東南亞')) {
+        pool.push('辛香料的命運安排', '酸辣補一波', '南洋風情等你', '今天就是要吃辛香');
+    }
+    if (has(cuisines, '義式', '義大利', 'Italian')) {
+        pool.push('來盤義式經典', '今天吃 Pasta 的日子', '抽到地中海風', '義式輕鬆系');
+    }
+    if (has(cuisines, '美式', 'American')) {
+        pool.push('來點美式份量', '吃飽吃滿的命運', '今天就是要爽吃');
+    }
+    if (has(cuisines, '港式', '廣東', '粵', 'Hong Kong')) {
+        pool.push('港式風味在這家', '抽到港點的命運', '今天走港式路線');
+    }
+    if (has(cuisines, '中式', '中華', '川菜', '湘菜')) {
+        pool.push('家常滋味來這家', '抽到媽媽味', '中式飯香的命運');
+    }
+    if (has(types, '吃到飽', '放題', 'Buffet')) {
+        pool.push('放開吃就對了', '熱量帳明天再算', '今天就是要吃飽飽');
+    }
+    if (has(types, '牛排', 'Steak')) {
+        pool.push('想吃牛排就這家', '一份肋眼壓壓驚');
+    }
+    if (has(types, '鐵板燒')) {
+        pool.push('來看師傅現場露一手', '鐵板火光的命運');
+    }
 
     // 預算導向
     if (/200/.test(budget) && !/500/.test(budget)) {
-        pool.push('銅板價的好選擇');
+        pool.push('銅板價的好選擇', '荷包友善區', '便宜又能吃到');
     } else if (/1500|1000-1500/.test(budget)) {
-        pool.push('值得犒賞自己一頓');
+        pool.push('值得犒賞自己一頓', '今天就吃高一階', '抽到輕奢等級');
     }
 
     // 訂位
-    if (bookable) pool.push('趕快訂位卡個位');
+    if (bookable) pool.push('記得先訂位');
 
-    // 兜底（避免空陣列）
+    // 兜底（避免空陣列 / 過度同質）
     if (pool.length === 0) {
-        pool.push('命運就是這家了', '機率讓你來這', '不選白不選', '就試試看吧');
+        pool.push('命運就是這家了', '機率讓你來這', '不選白不選', '就試試看吧',
+                  '抽到就是緣分', '相信骰子', '隨機推你一把');
     }
 
-    return pool[Math.floor(Math.random() * pool.length)];
+    // 本批已用的句子先排除（避免 5 張卡撞句）
+    const filtered = pool.filter(p => !excludeSet.has(p));
+    const finalPool = filtered.length > 0 ? filtered : pool;
+    return finalPool[Math.floor(Math.random() * finalPool.length)];
 }
 
 /**

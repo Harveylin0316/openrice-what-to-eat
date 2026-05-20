@@ -529,7 +529,7 @@ function collectFormData() {
 }
 
 // 建立單張餐廳卡 HTML
-function buildCardHTML(restaurant, cardIndex) {
+function buildCardHTML(restaurant, cardIndex, opts = {}) {
     const images = (restaurant.images || []).slice(0, 8);
     const hasImages = images.length > 0;
     const canSlide = images.length > 1;
@@ -539,7 +539,12 @@ function buildCardHTML(restaurant, cardIndex) {
     // 顯示「今日已打烊」會誤導。等下次完整重爬後再開回來。
     // 但 omikuji 還是用 openNow 做語氣判斷（保留邏輯，避免籤詩語意斷裂）。
     const oh = getOpeningStatus(restaurant.opening_hours);
-    const omikuji = generateOmikuji(restaurant, { diningTime, openNow: oh.openNow });
+    const omikuji = generateOmikuji(restaurant, {
+        diningTime,
+        openNow: oh.openNow,
+        exclude: opts.usedOmikujis,
+    });
+    if (opts.usedOmikujis) opts.usedOmikujis.add(omikuji);
 
     const metaParts = [];
     if (userLocation && restaurant.coordinates?.lat && restaurant.coordinates?.lng) {
@@ -630,8 +635,9 @@ function displayResults(restaurants) {
     if (resultCount) resultCount.textContent = `${restaurants.length} 間餐廳`;
 
     if (restaurantList) {
+        const usedOmikujis = new Set();
         restaurantList.innerHTML = restaurants.map((r, i) =>
-            `<div class="restaurant-card">${buildCardHTML(r, i)}</div>`
+            `<div class="restaurant-card">${buildCardHTML(r, i, { usedOmikujis })}</div>`
         ).join('');
     }
 
@@ -687,7 +693,13 @@ async function refreshSingleCard(cardIndex, currentList) {
         displayedRestaurants.push(newRestaurant.name);
 
         // 替換卡片內容（保留 .restaurant-card 外殼以維持動畫上下文）
-        card.innerHTML = buildCardHTML(newRestaurant, cardIndex);
+        // 把其他 4 張卡的籤詩當 exclude，避免新卡撞句
+        const siblingOmikujis = new Set(
+            Array.from(document.querySelectorAll('.restaurant-omikuji'))
+                .filter(e => !card.contains(e))
+                .map(e => e.textContent.replace(/[「」]/g, '').trim())
+        );
+        card.innerHTML = buildCardHTML(newRestaurant, cardIndex, { usedOmikujis: siblingOmikujis });
         card.classList.remove('is-refreshing');
         card.classList.add('is-new');
         setTimeout(() => card.classList.remove('is-new'), 600);
