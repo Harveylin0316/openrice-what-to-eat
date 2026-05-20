@@ -140,6 +140,13 @@ export function generateOmikuji(restaurant, context = {}) {
     const { diningTime, exclude } = context;
     const excludeSet = exclude instanceof Set ? exclude : new Set(exclude || []);
 
+    // 優先使用 LLM 預生成的 slogans（個性化、考量餐廳名稱）
+    if (Array.isArray(restaurant.slogans) && restaurant.slogans.length > 0) {
+        const usable = restaurant.slogans.filter(s => !excludeSet.has(s));
+        const finalPool = usable.length > 0 ? usable : restaurant.slogans;
+        return finalPool[Math.floor(Math.random() * finalPool.length)];
+    }
+
     const has = (arr, ...needles) => needles.some(n => arr.some(x => x && x.includes(n)));
 
     const pool = [];
