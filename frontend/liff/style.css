@@ -701,7 +701,7 @@
     to { transform: rotate(360deg); }
   }
 
-  /* Dice loading（隨機抽五間時的擲骰動畫，總長 1s） */
+  /* Dice loading（抽餐廳時的擲骰動畫，總長 1s） */
   .dice-loading {
     padding: var(--space-12) var(--space-4);
     gap: var(--space-6);
