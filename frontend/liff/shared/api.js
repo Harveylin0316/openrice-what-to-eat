@@ -71,7 +71,7 @@ export async function loadLocationOptions() {
  * @param {Array<string>} excludeNames - 要排除的餐廳名稱列表
  * @returns {Promise<Array>} 推薦的餐廳列表
  */
-export async function fetchRecommendations(formData, excludeNames = []) {
+export async function fetchRecommendations(formData, excludeNames = [], limitOverride = null) {
     // 建立查詢參數
     const params = new URLSearchParams();
     
@@ -114,7 +114,7 @@ export async function fetchRecommendations(formData, excludeNames = []) {
         params.append('exclude', excludeNames.join(','));
     }
     
-    params.append('limit', formData.limit || 5);
+    params.append('limit', limitOverride ?? formData.limit ?? 5);
     
     // 發送請求
     const url = `${API_BASE_URL}/restaurants/recommend?${params.toString()}`;

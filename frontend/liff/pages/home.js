@@ -397,9 +397,10 @@ function setupFormSubmit() {
             console.log('表單資料:', formData);
 
             // 擲骰動畫至少跑 1 秒（即使 API 更快回來）
+            // 一次只抽 1 間，強化「抽獎」感
             const minDelay = new Promise(r => setTimeout(r, 1000));
             const [restaurants] = await Promise.all([
-                fetchRecommendations(formData, []),
+                fetchRecommendations(formData, [], 1),
                 minDelay,
             ]);
             console.log('API 返回的餐廳數量:', restaurants.length);
@@ -604,9 +605,6 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
         ` : `
             <div class="restaurant-image-placeholder"><span>無照片</span></div>
         `}
-        <button type="button" class="card-refresh" data-card-index="${cardIndex}" aria-label="換掉這一家">
-            <svg aria-hidden="true"><use href="#icon-refresh"></use></svg>
-        </button>
         <div class="restaurant-info">
             <p class="restaurant-omikuji">「${omikuji}」</p>
             <h3 class="restaurant-name">${restaurant.name}</h3>
@@ -619,7 +617,7 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
     `;
 }
 
-// 顯示結果
+// 顯示結果（一次只 1 間）
 function displayResults(restaurants) {
     const resultCount = document.getElementById('resultCount');
     const restaurantList = document.getElementById('restaurantList');
@@ -632,17 +630,18 @@ function displayResults(restaurants) {
         return;
     }
 
-    if (resultCount) resultCount.textContent = `${restaurants.length} 間餐廳`;
+    // 計數：本回合已看過 N 家（含當前這家）
+    const seenCount = displayedRestaurants.length;
+    if (resultCount) {
+        resultCount.textContent = seenCount > 1 ? `已抽 ${seenCount} 家` : '';
+    }
 
     if (restaurantList) {
-        const usedOmikujis = new Set();
-        restaurantList.innerHTML = restaurants.map((r, i) =>
-            `<div class="restaurant-card">${buildCardHTML(r, i, { usedOmikujis })}</div>`
-        ).join('');
+        const r = restaurants[0];
+        restaurantList.innerHTML = `<div class="restaurant-card">${buildCardHTML(r, 0)}</div>`;
     }
 
     initImageCarousels();
-    setupCardRefreshButtons(restaurants);
 
     if (results) {
         results.style.display = 'block';
@@ -741,9 +740,10 @@ function setupResetButton() {
         
         try {
             const formData = collectFormData();
+            // 再抽一次：累加排除已看過的，跑擲骰動畫，再抽 1 間
             const minDelay = new Promise(r => setTimeout(r, 1000));
             const [restaurants] = await Promise.all([
-                fetchRecommendations(formData, []),
+                fetchRecommendations(formData, displayedRestaurants, 1),
                 minDelay,
             ]);
 
@@ -752,7 +752,7 @@ function setupResetButton() {
                 return;
             }
 
-            displayedRestaurants = restaurants.map(r => r.name);
+            displayedRestaurants.push(...restaurants.map(r => r.name));
             displayResults(restaurants);
             
         } catch (err) {

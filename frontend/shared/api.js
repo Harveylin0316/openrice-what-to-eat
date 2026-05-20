@@ -71,7 +71,7 @@ export async function loadLocationOptions() {
  * @param {Array<string>} excludeNames - 要排除的餐廳名稱列表
  * @returns {Promise<Array>} 推薦的餐廳列表
  */
-export async function fetchRecommendations(formData, excludeNames = []) {
+export async function fetchRecommendations(formData, excludeNames = [], limitOverride = null) {
     // 建立查詢參數
     const params = new URLSearchParams();
     
@@ -114,11 +114,13 @@ export async function fetchRecommendations(formData, excludeNames = []) {
         params.append('exclude', excludeNames.join(','));
     }
     
-    params.append('limit', formData.limit || 5);
+    params.append('limit', limitOverride ?? formData.limit ?? 5);
     
     // 發送請求
     const url = `${API_BASE_URL}/restaurants/recommend?${params.toString()}`;
     console.log('API 請求 URL:', url);
+    console.log('API 請求參數 - diningTime:', formData.diningTime);
+    console.log('API 請求參數 - 完整 params:', params.toString());
     
     const response = await fetch(url);
     
@@ -134,4 +136,116 @@ export async function fetchRecommendations(formData, excludeNames = []) {
     }
     
     return data.restaurants || [];
+}
+
+/**
+ * 抽獎相關 API
+ */
+
+/**
+ * 獲取用戶資料
+ * @param {string} lineId - LINE 用戶 ID
+ * @returns {Promise<Object>} 用戶資料
+ */
+export async function getLotteryUser(lineId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/lottery/user?lineId=${encodeURIComponent(lineId)}`);
+        if (!response.ok) {
+            throw new Error('無法載入用戶資料');
+        }
+        const data = await response.json();
+        if (data.success) {
+            return data.user;
+        } else {
+            throw new Error(data.error || '獲取用戶資料失敗');
+        }
+    } catch (err) {
+        console.error('獲取用戶資料錯誤:', err);
+        throw err;
+    }
+}
+
+/**
+ * 執行抽獎
+ * @param {string} lineId - LINE 用戶 ID
+ * @returns {Promise<Object>} 抽獎結果
+ */
+export async function drawLottery(lineId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/lottery/draw`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ lineId }),
+        });
+        if (!response.ok) {
+            throw new Error('抽獎請求失敗');
+        }
+        const data = await response.json();
+        if (data.success) {
+            return data;
+        } else {
+            throw new Error(data.error || '抽獎失敗');
+        }
+    } catch (err) {
+        console.error('抽獎錯誤:', err);
+        throw err;
+    }
+}
+
+/**
+ * 獲取抽獎記錄
+ * @param {string} lineId - LINE 用戶 ID
+ * @returns {Promise<Array>} 抽獎記錄列表
+ */
+export async function getLotteryRecords(lineId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/lottery/records?lineId=${encodeURIComponent(lineId)}`);
+        if (!response.ok) {
+            throw new Error('無法載入抽獎記錄');
+        }
+        const data = await response.json();
+        if (data.success) {
+            return data.records || [];
+        } else {
+            throw new Error(data.error || '獲取抽獎記錄失敗');
+        }
+    } catch (err) {
+        console.error('獲取抽獎記錄錯誤:', err);
+        throw err;
+    }
+}
+
+/**
+ * 記錄邀請
+ * @param {string} inviterLineId - 邀請者 LINE ID
+ * @param {string} newUserLineId - 新用戶 LINE ID
+ * @returns {Promise<Object>} 邀請結果
+ */
+export async function recordInvite(inviterLineId, newUserLineId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/lottery/invite`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                inviterLineId,
+                newUserLineId,
+            }),
+        });
+        if (!response.ok) {
+            throw new Error('邀請請求失敗');
+        }
+        const data = await response.json();
+        if (data.success) {
+            return data;
+        } else {
+            throw new Error(data.error || '記錄邀請失敗');
+        }
+    } catch (err) {
+        console.error('記錄邀請錯誤:', err);
+        throw err;
+    }
 }
