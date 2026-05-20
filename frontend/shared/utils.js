@@ -135,16 +135,15 @@ export function getOpeningStatus(openingHours, now = new Date()) {
 export function generateOmikuji(restaurant, context = {}) {
     const cuisines = restaurant.cuisine_style || [];
     const types = restaurant.type || [];
-    const dish = (restaurant.dish || []).filter(d => d && d !== '一般' && !/^外帶|外送$/.test(d))[0];
     const bookable = restaurant.bookable;
     const budget = restaurant.budget || '';
-    const { diningTime, openNow } = context;
+    const { diningTime } = context;
 
     const has = (arr, ...needles) => needles.some(n => arr.some(x => x && x.includes(n)));
 
     const pool = [];
 
-    // 料理 / 類型導向
+    // 料理 / 類型導向（不再使用 restaurant.dish，OpenRice 自填的「常見點餐」雜訊太多）
     if (has(types, '燒肉', '烤肉') || has(cuisines, '燒肉')) {
         pool.push('肉食控的命運抽選', '今天就是想吃肉');
     }
@@ -160,7 +159,13 @@ export function generateOmikuji(restaurant, context = {}) {
     if (has(cuisines, '日式', '日本')) pool.push('精緻日式給今天加分');
     if (has(cuisines, '韓式', '韓國')) pool.push('來點韓國風味');
     if (has(cuisines, '泰式', '東南亞')) pool.push('辛香料的命運安排');
+    if (has(cuisines, '義式', '義大利', 'Italian')) pool.push('來盤義式經典');
+    if (has(cuisines, '美式', 'American')) pool.push('來點美式份量');
+    if (has(cuisines, '港式', '廣東', '粵', 'Hong Kong')) pool.push('港式風味在這家');
+    if (has(cuisines, '中式', '中華', '川菜', '湘菜')) pool.push('家常滋味來這家');
     if (has(types, '吃到飽', '放題', 'Buffet')) pool.push('放開吃就對了');
+    if (has(types, '牛排', 'Steak')) pool.push('想吃牛排就這家');
+    if (has(types, '鐵板燒')) pool.push('來看師傅現場露一手');
 
     // 預算導向
     if (/200/.test(budget) && !/500/.test(budget)) {
@@ -169,12 +174,8 @@ export function generateOmikuji(restaurant, context = {}) {
         pool.push('值得犒賞自己一頓');
     }
 
-    // 招牌菜（最具體的賣點）
-    if (dish) pool.push(`為了${dish}值得一試`, `招牌${dish}在等你`);
-
-    // 訂位 + 現在營業
-    if (bookable && openNow) pool.push('現在就能訂位入座');
-    else if (bookable) pool.push('趕快訂位卡個位');
+    // 訂位
+    if (bookable) pool.push('趕快訂位卡個位');
 
     // 兜底（避免空陣列）
     if (pool.length === 0) {
