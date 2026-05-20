@@ -465,18 +465,12 @@ function setupFormSubmit() {
     
     function showLoading() {
         if (loading) loading.style.display = 'block';
-        if (form) {
-            form.style.opacity = '0.5';
-            form.style.pointerEvents = 'none';
-        }
+        document.body.classList.add('is-loading');
     }
-    
+
     function hideLoading() {
         if (loading) loading.style.display = 'none';
-        if (form) {
-            form.style.opacity = '1';
-            form.style.pointerEvents = 'auto';
-        }
+        document.body.classList.remove('is-loading');
     }
     
     function hideResults() {
@@ -657,8 +651,9 @@ function displayAd(ad) {
     const restaurantList = document.getElementById('restaurantList');
     const results = document.getElementById('results');
 
-    // 廣告模式：隱藏「抽到這家」標題（避免誤導，廣告不是餐廳），視覺聚焦在廣告卡
+    // 廣告模式：隱藏「抽到這家」標題、淡化上方表單區，視覺聚焦在廣告卡
     if (results) results.classList.add('is-ad');
+    document.body.classList.add('is-ad-mode');
     if (resultCount) resultCount.textContent = '';
 
     if (restaurantList) {
@@ -698,6 +693,7 @@ function displayResults(restaurants) {
 
     // 取消廣告模式（廣告完還原成餐廳模式）
     if (results) results.classList.remove('is-ad');
+    document.body.classList.remove('is-ad-mode');
 
     console.log('displayResults 被調用，餐廳數量:', restaurants.length);
 
@@ -868,22 +864,14 @@ function setupResetButton() {
     
     function showLoading() {
         const loading = document.getElementById('loading');
-        const form = document.getElementById('recommendationForm');
         if (loading) loading.style.display = 'block';
-        if (form) {
-            form.style.opacity = '0.5';
-            form.style.pointerEvents = 'none';
-        }
+        document.body.classList.add('is-loading');
     }
-    
+
     function hideLoading() {
         const loading = document.getElementById('loading');
-        const form = document.getElementById('recommendationForm');
         if (loading) loading.style.display = 'none';
-        if (form) {
-            form.style.opacity = '1';
-            form.style.pointerEvents = 'auto';
-        }
+        document.body.classList.remove('is-loading');
     }
 }
 

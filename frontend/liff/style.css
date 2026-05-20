@@ -862,6 +862,23 @@
     box-shadow: var(--shadow-focus);
   }
 
+  /* 抽選 / 廣告期間淡化上方表單區，讓視覺動線完全停在結果卡 */
+  .location-section,
+  .recommendation-form {
+    transition: opacity var(--duration-normal) var(--ease-out);
+  }
+  body.is-loading .location-section,
+  body.is-loading .recommendation-form {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  body.is-ad-mode .location-section,
+  body.is-ad-mode .recommendation-form {
+    opacity: 0.28;
+    pointer-events: none;
+    user-select: none;
+  }
+
   /* 廣告模式：聚焦廣告卡，隱藏「抽到這家」標題、廣告卡留更多空間 */
   .results.is-ad .results-title {
     display: none;
