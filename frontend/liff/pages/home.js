@@ -678,7 +678,13 @@ function displayAd(ad) {
 
     if (results) {
         results.style.display = 'block';
-        results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // 滾到卡片容器頂端（手動算位置，比 scrollIntoView 可靠）
+        const list = document.getElementById('restaurantList');
+        const target = list || results;
+        requestAnimationFrame(() => {
+            const top = target.getBoundingClientRect().top + window.scrollY - 24;
+            window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        });
     }
 }
 
@@ -710,7 +716,13 @@ function displayResults(restaurants) {
 
     if (results) {
         results.style.display = 'block';
-        results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // 滾到卡片容器頂端（手動算位置，比 scrollIntoView 可靠）
+        const list = document.getElementById('restaurantList');
+        const target = list || results;
+        requestAnimationFrame(() => {
+            const top = target.getBoundingClientRect().top + window.scrollY - 24;
+            window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        });
     }
 }
 
