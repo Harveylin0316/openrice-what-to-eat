@@ -434,6 +434,11 @@
     text-align: center;
     word-break: keep-all;
   }
+  /* 純文字卡（如「不限」）字加大補位 */
+  .transport-card--text-only .transport-text {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+  }
   .dining-time-group {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
