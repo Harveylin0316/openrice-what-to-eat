@@ -231,24 +231,12 @@
     .header h1 { font-size: var(--font-size-3xl); }
   }
 
-  /* OpenRice partner badge（header 上方品牌標示） */
-  .partner-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px var(--space-2);
+  /* OpenRice 官方 logo（header 上方品牌標示） */
+  .partner-logo {
+    display: block;
+    height: 28px;
+    width: auto;
     margin-bottom: var(--space-3);
-    background: var(--color-accent);
-    color: var(--gray-900);
-    border-radius: var(--radius-full);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-bold);
-    letter-spacing: 0.04em;
-  }
-  .partner-badge__bowl {
-    width: 14px;
-    height: 14px;
-    color: var(--gray-900);
   }
 
   /* Advanced options (collapsible) */
@@ -1265,20 +1253,16 @@
     color: var(--color-text-muted);
     font-size: var(--font-size-xs);
   }
-  .footer-brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: var(--space-1);
-  }
-  .footer-bowl {
-    width: 16px;
-    height: 16px;
-    color: var(--color-accent-text);
+  .footer-logo {
+    display: block;
+    height: 32px;
+    width: auto;
+    margin: 0 auto var(--space-3);
   }
   .footer-line1 {
     font-weight: var(--font-weight-medium);
     color: var(--color-text-body);
+    margin-bottom: var(--space-1);
   }
   .footer-line2 {
     font-size: var(--font-size-xs);
