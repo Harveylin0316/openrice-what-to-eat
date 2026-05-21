@@ -409,11 +409,30 @@
   }
 
   /* Backward-compat: legacy class names map to new look */
-  .location-mode-options,
-  .transport-options {
+  .location-mode-options {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: var(--space-2);
+  }
+  /* 交通方式：3 個並排一列（卡片較窄、文字較小） */
+  .transport-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+  }
+  .transport-card {
+    min-height: 56px !important;
+    padding: var(--space-2) 4px !important;
+  }
+  .transport-card .icon-svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  .transport-text {
+    font-size: var(--font-size-xs);
+    line-height: 1.2;
+    text-align: center;
+    word-break: keep-all;
   }
   .dining-time-group {
     display: grid;
