@@ -1560,7 +1560,7 @@
         "Coupon",
         "RMSLite"
       ],
-      "bookable": true,
+      "bookable": false,
       "enabled": true,
       "cuisine_style": [
         "日式料理",
@@ -2162,7 +2162,7 @@
         "Coupon",
         "RMSLite"
       ],
-      "bookable": true,
+      "bookable": false,
       "enabled": true,
       "cuisine_style": [
         "歐陸料理"
@@ -13272,7 +13272,7 @@
         "Coupon",
         "RMSLite"
       ],
-      "bookable": true,
+      "bookable": false,
       "enabled": true,
       "cuisine_style": [
         "多國料理"
@@ -29772,7 +29772,7 @@
         "Coupon",
         "RMSLite"
       ],
-      "bookable": true,
+      "bookable": false,
       "enabled": true,
       "cuisine_style": [
         "多國料理"
@@ -84499,7 +84499,7 @@
     }
   ],
   "_metadata": {
-    "updated_at": "2026-05-22T17:39:44.590219",
+    "updated_at": "2026-05-22T18:36:06.625424",
     "source": "openrice-crawler/exports/restaurants_for_app.xlsx",
     "total": 928,
     "enabled": 922,

@@ -199,7 +199,10 @@ def map_to_db_schema(rec, existing=None):
         'region': rec.get('region') or '',
         'district': rec.get('district') or '',
         'services': split_csv_field(rec.get('services_type')),
-        'bookable': bool(rec.get('is_bookable')),
+        # 嚴格 bookable：is_bookable=1 且 or_status='Normal'。
+        # 「Renovate / Hide / Moved」這類雖然 status=Normal 但 OpenRice 頁面
+        # 會顯示「網上訂位即將推出」或無法訂位，不該標「線上可訂位」chip。
+        'bookable': bool(rec.get('is_bookable')) and rec.get('or_status') == 'Normal',
         'enabled': bool(is_normal),
         'cuisine_style': cuisine_style,
         'type': type_list,
