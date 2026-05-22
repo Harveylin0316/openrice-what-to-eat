@@ -7012,7 +7012,7 @@
       "price_max": null,
       "door_photo_url": null,
       "images": [],
-      "disabled_reason": "status=Hide blacklisted=0"
+      "disabled_reason": "status=Hide"
     },
     {
       "or_id": 317077,
@@ -10376,7 +10376,7 @@
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/8/6ME/01B3DT7DAA6D02B91FA769mx.jpg"
       ],
-      "disabled_reason": "status=Closed blacklisted=0"
+      "disabled_reason": "status=Closed"
     },
     {
       "or_id": 425058,
@@ -11244,7 +11244,7 @@
         "Voucher"
       ],
       "bookable": true,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [
         "多國料理"
       ],
@@ -11288,7 +11288,8 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/E/B88/027ULPC1DD28C32F6B1C01mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/E/B88/027ULPC1DD28C32F6B1C01mx.jpg"
-      ]
+      ],
+      "disabled_reason": "test restaurant"
     },
     {
       "or_id": 436890,
@@ -13990,7 +13991,7 @@
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/E/BR9/02BLTV53434A90B8AE775Emx.jpg"
       ],
-      "disabled_reason": "status=Closed blacklisted=0"
+      "disabled_reason": "status=Closed"
     },
     {
       "or_id": 455522,
@@ -22969,7 +22970,7 @@
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/E/B2A/026OCJ1A81B1216E59CCE1mx.jpg"
       ],
-      "disabled_reason": "status=Closed blacklisted=0"
+      "disabled_reason": "status=Closed"
     },
     {
       "or_id": 505355,
@@ -32545,7 +32546,7 @@
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/F/BWD/02CM8X9880991E346CE1D3mx.jpg"
       ],
-      "disabled_reason": "status=Closed blacklisted=0"
+      "disabled_reason": "status=Closed"
     },
     {
       "or_id": 531154,
@@ -32749,7 +32750,7 @@
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/F/BX7/02CS6951F715122D2658C1mx.jpg"
       ],
-      "disabled_reason": "status=Closed blacklisted=0"
+      "disabled_reason": "status=Closed"
     },
     {
       "or_id": 532209,
@@ -84499,11 +84500,11 @@
     }
   ],
   "_metadata": {
-    "updated_at": "2026-05-22T18:36:06.625424",
+    "updated_at": "2026-05-22T18:37:49.204743",
     "source": "openrice-crawler/exports/restaurants_for_app.xlsx",
     "total": 928,
-    "enabled": 922,
-    "has_rating": 777,
+    "enabled": 921,
+    "has_rating": 776,
     "has_review_count": 348
   }
 }

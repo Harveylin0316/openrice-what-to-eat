@@ -108,6 +108,22 @@ def region_district_to_city(region, district):
     return region  # fallback 原值
 
 
+def is_test_restaurant(name):
+    """測試／佔位餐廳名稱模式（不該出現在使用者推薦中）"""
+    if not name:
+        return True  # 沒名字也跳過
+    n = str(name).strip()
+    # 純底線+數字：_0001 / _001 / _test001
+    if re.match(r'^_+[\d_]*$|^test\d*$', n, re.IGNORECASE):
+        return True
+    # 「測試餐廳」「test restaurant」等明顯關鍵字
+    if 'test_' in n.lower() or n.lower().startswith('test '):
+        return True
+    if '測試餐廳' in n or '測試店' in n:
+        return True
+    return False
+
+
 def normalize_budget(s):
     """OpenRice 原始 price_range_label → 乾淨中文。
     例：NT$1501-2147483647 → 1500 元以上、NT$201-500 → 200-500 元
@@ -181,7 +197,12 @@ def map_to_db_schema(rec, existing=None):
     """從 xlsx record 轉成我們 DB 的 restaurant 物件
     existing 為現有 DB 內同一 or_id 的舊資料（保留 images 陣列）"""
     poi_id = int(rec['poi_id'])
-    is_normal = rec.get('status') == 'Normal' and not rec.get('blacklisted')
+    name = rec.get('name_tc') or rec.get('name_en') or ''
+    is_normal = (
+        rec.get('status') == 'Normal'
+        and not rec.get('blacklisted')
+        and not is_test_restaurant(name)
+    )
     cuisines = split_csv_field(rec.get('cuisines'))
     categories = split_csv_field(rec.get('categories'))
     dishes = split_csv_field(rec.get('dishes'))
@@ -247,7 +268,14 @@ def map_to_db_schema(rec, existing=None):
         out['images'] = [out['door_photo_url']] if out['door_photo_url'] else []
 
     if not is_normal:
-        out['disabled_reason'] = f"status={rec.get('status')} blacklisted={rec.get('blacklisted')}"
+        reasons = []
+        if rec.get('status') != 'Normal':
+            reasons.append(f"status={rec.get('status')}")
+        if rec.get('blacklisted'):
+            reasons.append('blacklisted')
+        if is_test_restaurant(name):
+            reasons.append('test restaurant')
+        out['disabled_reason'] = ' / '.join(reasons) or 'unknown'
 
     return out
 
