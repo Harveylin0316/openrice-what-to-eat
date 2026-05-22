@@ -3,6 +3,22 @@ import { getApiBaseUrl } from './constants.js';
 const API_BASE_URL = getApiBaseUrl();
 
 /**
+ * 載入付費贊助餐廳（給廣告位輪播用）
+ * fire-and-forget 失敗時靜默
+ */
+export async function loadSponsoredRestaurants() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/restaurants/sponsored`);
+        if (!response.ok) return [];
+        const data = await response.json();
+        return data.success ? (data.restaurants || []) : [];
+    } catch (err) {
+        console.warn('[sponsored] load failed:', err);
+        return [];
+    }
+}
+
+/**
  * 載入篩選選項
  */
 export async function loadFilterOptions() {

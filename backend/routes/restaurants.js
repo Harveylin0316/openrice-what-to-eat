@@ -160,4 +160,33 @@ router.get('/all', (req, res) => {
   }
 });
 
+/**
+ * GET /api/restaurants/sponsored
+ * 拿付費合作餐廳（is_paid_account=true）的精簡列表，給廣告位輪播用
+ */
+router.get('/sponsored', (req, res) => {
+  try {
+    const { loadRestaurantDatabase } = require('../utils/recommendation');
+    const data = loadRestaurantDatabase();
+    const sponsored = (data.restaurants || [])
+      .filter(r => r.enabled && r.is_paid_account)
+      .map(r => ({
+        or_id: r.or_id,
+        name: r.name,
+        address: r.address,
+        url: r.url,
+        rating: r.rating,
+        review_count: r.review_count,
+        budget: r.budget,
+        cuisine_style: r.cuisine_style,
+        image: (r.images && r.images[0]) || r.door_photo_url || null,
+        landmarks: r.landmarks,
+      }));
+    res.json({ success: true, count: sponsored.length, restaurants: sponsored });
+  } catch (error) {
+    console.error('獲取贊助餐廳時發生錯誤:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;

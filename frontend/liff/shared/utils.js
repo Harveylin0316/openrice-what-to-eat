@@ -189,18 +189,18 @@ export function generateEvidence(restaurant, context = {}) {
         }
     }
 
-    // 預算
+    // 預算（已在 merge 時 normalize 為「200-500 元」「1500 元以上」這種乾淨格式）
     const budget = restaurant.budget || '';
-    if (/200|100/.test(budget) && !/500|1000|1500/.test(budget)) {
-        facts.push({ p: 7, t: '人均 200 元以內，銅板價' });
-    } else if (/1500/.test(budget)) {
+    if (budget.includes('元以內')) {
+        facts.push({ p: 7, t: `人均 ${budget}，銅板價` });
+    } else if (budget.includes('1500 元以上')) {
         facts.push({ p: 6, t: '人均 1500 元以上，犒賞自己' });
-    } else if (/1000-1500/.test(budget)) {
-        facts.push({ p: 5, t: `人均 ${budget} 元` });
-    } else if (/501-1000|500-1000/.test(budget)) {
-        facts.push({ p: 5, t: `人均 ${budget} 元` });
-    } else if (/200-500|201-500/.test(budget)) {
-        facts.push({ p: 5, t: `人均 ${budget} 元` });
+    } else if (budget.includes('元以上')) {
+        facts.push({ p: 6, t: `人均 ${budget}` });
+    } else if (budget.includes('100-200')) {
+        facts.push({ p: 7, t: `人均 ${budget}，銅板價` });
+    } else if (budget) {
+        facts.push({ p: 5, t: `人均 ${budget}` });
     }
 
     // 吃到飽

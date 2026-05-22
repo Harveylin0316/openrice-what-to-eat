@@ -5,9 +5,10 @@ import {
     FRONTEND_CUISINE_CATEGORIES,
     FRONTEND_TYPE_CATEGORIES
 } from '../shared/constants.js';
-import { 
+import {
     loadFilterOptions as apiLoadFilterOptions,
     loadLocationOptions as apiLoadLocationOptions,
+    loadSponsoredRestaurants,
     fetchRecommendations
 } from '../shared/api.js';
 import { filterGeneralTags, initImageCarousels, calculateDistance, formatDistance, getOpeningStatus, generateOmikuji, generateEvidence } from '../shared/utils.js';
@@ -30,29 +31,44 @@ let userLocation = null;
 let displayedRestaurants = [];
 let locationRequestInProgress = false;
 
-// 廣告插入：每抽 N 次插一個 OpenRice 小知識
+// 廣告插入：每抽 N 次插一個（OpenRice 小知識 + 贊助餐廳合併池）
 const AD_EVERY = 4;
 let drawCount = 0;
-// 廣告抽選用 shuffled queue：每輪洗牌一次，pop 完再洗
-// 比純 random 好：每 ADS.length 次必看完所有廣告，且本輪不重複
-let adQueue = [];
-let lastAdIdx = -1;
+let sponsoredRestaurants = []; // init 時從 /api/restaurants/sponsored 載入
+
+// 合併廣告池：tips（固定 4 條）+ sponsored 餐廳（動態，is_paid_account=true 的）
+function buildAdPool() {
+    return [
+        ...ADS.map(a => ({ kind: 'tip', data: a })),
+        ...sponsoredRestaurants.map(s => ({ kind: 'sponsored', data: s })),
+    ];
+}
+
+let adQueue = []; // 已洗牌的 entries
+let lastAdSig = null;
+
+function adSig(entry) {
+    return entry.kind === 'tip' ? `tip:${entry.data.title}` : `spo:${entry.data.or_id}`;
+}
+
 function pickNextAd() {
+    const pool = buildAdPool();
+    if (pool.length === 0) return null;
     if (adQueue.length === 0) {
-        adQueue = ADS.map((_, i) => i);
+        adQueue = pool.slice();
         for (let i = adQueue.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [adQueue[i], adQueue[j]] = [adQueue[j], adQueue[i]];
         }
-        // 防呆：新一輪第一個（queue 末尾）若跟上次一樣，跟前一個 swap
-        if (ADS.length > 1 && adQueue[adQueue.length - 1] === lastAdIdx) {
+        // 防接縫處撞同一個
+        if (pool.length > 1 && lastAdSig && adSig(adQueue[adQueue.length - 1]) === lastAdSig) {
             const last = adQueue.length - 1;
             [adQueue[last], adQueue[last - 1]] = [adQueue[last - 1], adQueue[last]];
         }
     }
-    const idx = adQueue.pop();
-    lastAdIdx = idx;
-    return ADS[idx];
+    const entry = adQueue.pop();
+    lastAdSig = adSig(entry);
+    return entry;
 }
 const ADS = [
     {
@@ -162,6 +178,12 @@ export async function initHomePage() {
 
         // 設置「更多設定」收合區的摘要更新
         setupAdvancedOptionsSummary();
+
+        // 背景載入贊助餐廳列表（給廣告位輪播用），失敗不影響主流程
+        loadSponsoredRestaurants().then(list => {
+            sponsoredRestaurants = list || [];
+            console.log(`[sponsored] loaded ${sponsoredRestaurants.length} 間付費餐廳`);
+        });
         
         // 隱藏載入進度，顯示主要內容
         hideInitProgress();
@@ -770,39 +792,22 @@ function buildShareFlex(restaurant, sharerName, bookingUrl, heroImage) {
     return bubble;
 }
 
-// 顯示 OpenRice 小知識廣告卡（取代當次的抽店）
-function displayAd(ad) {
+// 顯示廣告（取代當次的抽店）— 支援 tip / sponsored 兩種類型
+function displayAd(entry) {
     const resultCount = document.getElementById('resultCount');
     const restaurantList = document.getElementById('restaurantList');
     const results = document.getElementById('results');
 
-    // 廣告模式：隱藏「抽到這家」標題、淡化上方表單區，視覺聚焦在廣告卡
     if (results) results.classList.add('is-ad');
     document.body.classList.add('is-ad-mode');
     if (resultCount) resultCount.textContent = '';
 
-    if (restaurantList) {
-        const ctaHtml = ad.url
-            ? `<a href="${ad.url}" target="_blank" rel="noopener" class="ad-card__cta">${ad.ctaText || '前往看看'}</a>`
-            : '';
-        restaurantList.innerHTML = `
-            <div class="ad-card">
-                <div class="ad-card__badge">OpenRice 小知識</div>
-                <div class="ad-card__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><use href="#${ad.icon}"></use></svg>
-                </div>
-                <h3 class="ad-card__title">${ad.title}</h3>
-                <p class="ad-card__body">${ad.body}</p>
-                ${ctaHtml}
-            </div>
-        `;
-        track('ad_shown', { ad_title: ad.title, ad_icon: ad.icon });
-        const cta = restaurantList.querySelector('.ad-card__cta');
-        if (cta) {
-            cta.addEventListener('click', () => {
-                track('ad_cta_click', { ad_title: ad.title, url: ad.url });
-            });
-        }
+    if (!restaurantList) return;
+
+    if (entry.kind === 'sponsored') {
+        renderSponsoredAd(restaurantList, entry.data);
+    } else {
+        renderTipAd(restaurantList, entry.data);
     }
 
     if (results) {
@@ -814,6 +819,53 @@ function displayAd(ad) {
             const top = target.getBoundingClientRect().top + window.scrollY - 24;
             window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
         });
+    }
+}
+
+function renderTipAd(container, ad) {
+    const ctaHtml = ad.url
+        ? `<a href="${ad.url}" target="_blank" rel="noopener" class="ad-card__cta">${ad.ctaText || '前往看看'}</a>`
+        : '';
+    container.innerHTML = `
+        <div class="ad-card">
+            <div class="ad-card__badge">OpenRice 小知識</div>
+            <div class="ad-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><use href="#${ad.icon}"></use></svg>
+            </div>
+            <h3 class="ad-card__title">${ad.title}</h3>
+            <p class="ad-card__body">${ad.body}</p>
+            ${ctaHtml}
+        </div>
+    `;
+    track('ad_shown', { kind: 'tip', ad_title: ad.title });
+    const cta = container.querySelector('.ad-card__cta');
+    if (cta) {
+        cta.addEventListener('click', () => track('ad_cta_click', { kind: 'tip', ad_title: ad.title, url: ad.url }));
+    }
+}
+
+function renderSponsoredAd(container, r) {
+    const tags = filterGeneralTags(r.cuisine_style || []).slice(0, 2).map(c => `<span class="tag cuisine">${c}</span>`).join('');
+    const ratingHtml = (typeof r.rating === 'number' && r.rating > 0)
+        ? `<span class="ad-sponsored__rating">OpenRice ${r.rating.toFixed(1)} 星</span>`
+        : '';
+    const reviewHtml = r.review_count ? `<span class="ad-sponsored__reviews">${r.review_count} 篇食記</span>` : '';
+    const budgetHtml = r.budget ? `<span class="ad-sponsored__budget">人均 ${r.budget}</span>` : '';
+    container.innerHTML = `
+        <div class="ad-card ad-card--sponsored">
+            <div class="ad-card__badge ad-card__badge--sponsored">合作店家</div>
+            ${r.image ? `<div class="ad-sponsored__image"><img src="${r.image}" alt="${r.name}" onerror="this.style.display='none'"></div>` : ''}
+            <h3 class="ad-card__title">${r.name}</h3>
+            ${r.address ? `<p class="ad-sponsored__address">${r.address}</p>` : ''}
+            <div class="ad-sponsored__meta">${ratingHtml}${reviewHtml}${budgetHtml}</div>
+            ${tags ? `<div class="restaurant-tags ad-sponsored__tags">${tags}</div>` : ''}
+            ${r.url ? `<a href="${r.url}" target="_blank" rel="noopener" class="ad-card__cta">查看 / 訂位</a>` : ''}
+        </div>
+    `;
+    track('ad_shown', { kind: 'sponsored', or_id: r.or_id, name: r.name });
+    const cta = container.querySelector('.ad-card__cta');
+    if (cta) {
+        cta.addEventListener('click', () => track('ad_cta_click', { kind: 'sponsored', or_id: r.or_id, name: r.name }));
     }
 }
 

@@ -108,6 +108,35 @@ def region_district_to_city(region, district):
     return region  # fallback 原值
 
 
+def normalize_budget(s):
+    """OpenRice 原始 price_range_label → 乾淨中文。
+    例：NT$1501-2147483647 → 1500 元以上、NT$201-500 → 200-500 元
+    """
+    if not s:
+        return None
+    s = str(s).strip()
+    # 範圍：NT$1501-2147483647（int max sentinel）→ 「N 元以上」
+    m = re.match(r'NT\$(\d+)-(\d+)', s)
+    if m:
+        low, high = int(m.group(1)), int(m.group(2))
+        if high > 100000:
+            # 1501 → 1500、2001 → 2000，往下整百
+            rounded = ((low - 1) // 100) * 100
+            return f'{rounded} 元以上'
+        # 一般範圍：201 → 200 整百起點看起來舒服
+        low_disp = low if low % 100 == 0 else (low // 100) * 100 or low
+        return f'{low_disp}-{high} 元'
+    # 「<100」
+    m = re.match(r'NT\$<(\d+)', s)
+    if m:
+        return f'{m.group(1)} 元以內'
+    # 單值
+    m = re.match(r'NT\$(\d+)$', s)
+    if m:
+        return f'{m.group(1)} 元'
+    return s
+
+
 def parse_business_hours_json(json_str):
     """OpenRice business_hours_json → {monday:[...], ...}"""
     hours = {d: [] for d in DAYS}
@@ -174,7 +203,7 @@ def map_to_db_schema(rec, existing=None):
         'enabled': bool(is_normal),
         'cuisine_style': cuisine_style,
         'type': type_list,
-        'budget': rec.get('price_range_label') or None,
+        'budget': normalize_budget(rec.get('price_range_label')),
         'url': rec.get('or_url') or rec.get('short_url') or None,
         'coordinates': (
             {'lat': float(rec['lat']), 'lng': float(rec['lng'])}

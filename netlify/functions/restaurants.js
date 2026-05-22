@@ -281,6 +281,8 @@ exports.handler = async (event, context) => {
           apiPath = '/location-options';
         } else if (rawPath.includes('/all')) {
           apiPath = '/all';
+        } else if (rawPath.includes('sponsored')) {
+          apiPath = '/sponsored';
         } else {
           apiPath = '/recommend';
         }
@@ -423,6 +425,32 @@ exports.handler = async (event, context) => {
           success: true,
           count: data.restaurants.length,
           restaurants: data.restaurants
+        })
+      };
+    } else if (apiPath === '/sponsored') {
+      // 付費贊助餐廳（給廣告位輪播用）
+      const data = loadRestaurantDatabase();
+      const sponsored = (data.restaurants || [])
+        .filter(r => r.enabled && r.is_paid_account)
+        .map(r => ({
+          or_id: r.or_id,
+          name: r.name,
+          address: r.address,
+          url: r.url,
+          rating: r.rating,
+          review_count: r.review_count,
+          budget: r.budget,
+          cuisine_style: r.cuisine_style,
+          image: (r.images && r.images[0]) || r.door_photo_url || null,
+          landmarks: r.landmarks,
+        }));
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          count: sponsored.length,
+          restaurants: sponsored
         })
       };
     } else {

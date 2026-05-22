@@ -26,7 +26,7 @@
         "咖啡廳(店)",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-美琪蒙古烤肉-r937/",
       "coordinates": {
         "lat": 25.0833072,
@@ -132,7 +132,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-源芳魚翅-r2203/",
       "coordinates": {
         "lat": 25.05889896059081,
@@ -227,7 +227,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-烤必勝日式燒肉(出一張嘴南京店)-r4240/",
       "coordinates": {
         "lat": 25.0522564,
@@ -331,7 +331,7 @@
         "喝飲聊天",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-亂烤居酒屋-r4243/",
       "coordinates": {
         "lat": 25.0524751,
@@ -435,7 +435,7 @@
         "早午餐",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-咖啡弄-站前店-r6235/",
       "coordinates": {
         "lat": 25.0453593,
@@ -540,7 +540,7 @@
         "日式烏龍麵",
         "日式涮涮鍋/小火鍋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-石膳日本石器料理-r8419/",
       "coordinates": {
         "lat": 25.033823162853,
@@ -630,7 +630,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-瓦崎燒烤火鍋-公館店-r10726/",
       "coordinates": {
         "lat": 25.0168131,
@@ -732,7 +732,7 @@
         "火鍋店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-花麻辣-麻辣鴛鴦-沙茶火鍋-r13303/",
       "coordinates": {
         "lat": 25.0225441,
@@ -883,7 +883,7 @@
         "台式小吃",
         "主題餐廳"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-便所歡樂主題餐廳-士林店-r32225/",
       "coordinates": {
         "lat": 25.08959002516638,
@@ -988,7 +988,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Huge-Burger-r32360/",
       "coordinates": {
         "lat": 25.0888644,
@@ -1100,7 +1100,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-咖啡弄-士林店-r33296/",
       "coordinates": {
         "lat": 25.0949519,
@@ -1208,7 +1208,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-檸檬草鍋物料理-r35525/",
       "coordinates": {
         "lat": 25.00710296780247,
@@ -1307,7 +1307,7 @@
         "日式涮涮鍋/小火鍋",
         "火鍋店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-沐樺頂級肉品火鍋超市-r48626/",
       "coordinates": {
         "lat": 25.05801939142234,
@@ -1383,7 +1383,7 @@
         "麵點",
         "中餐廳"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-御膳煲養身雞湯館-r48956/",
       "coordinates": {
         "lat": 25.0496448,
@@ -1574,7 +1574,7 @@
         "鐵板燒",
         "慶祝紀念日"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-犇鐵板燒-安和本館-r57371/",
       "coordinates": {
         "lat": 25.03412541617993,
@@ -1678,7 +1678,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-亞里士餐廳-r59892/",
       "coordinates": {
         "lat": 25.0493631,
@@ -1789,7 +1789,7 @@
         "外帶店",
         "居酒屋"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-吞兵衛元祖居酒屋-r62337/",
       "coordinates": {
         "lat": 25.050399,
@@ -1892,7 +1892,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-興蓬萊台菜海鮮餐廳-r67287/",
       "coordinates": {
         "lat": 25.12046767587469,
@@ -2053,7 +2053,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-幸福食堂-r71775/",
       "coordinates": {
         "lat": 25.0637187,
@@ -2145,7 +2145,7 @@
         "酒吧/Lounge Bar",
         "主題餐廳"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-布娜飛比利時啤酒餐廳-板橋環球店(搬遷中)-r74958/",
       "coordinates": {
         "lat": 25.0140513,
@@ -2226,7 +2226,7 @@
         "酒吧/Lounge Bar",
         "主題餐廳"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-布娜飛比利時啤酒餐廳-板橋縣民廣場店-r78004/",
       "coordinates": {
         "lat": 25.013665177394,
@@ -2313,7 +2313,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-馬旦馬須-r88025/",
       "coordinates": {
         "lat": 25.054868,
@@ -2409,7 +2409,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-%E8%A1%97%E5%BD%B9%E5%A0%B4%E5%8F%A4%E8%B9%9F%E9%A4%90%E5%9D%8A-%E6%96%B0%E5%8C%96%E5%8D%80-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r110604/",
       "coordinates": {
         "lat": 23.0382038,
@@ -2505,7 +2505,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-和田古早味日式料理-r123729/",
       "coordinates": {
         "lat": 22.632435,
@@ -2617,7 +2617,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-天鍋宴-天母店-士林區-日式料理-素食-r136722/",
       "coordinates": {
         "lat": 25.12222348191167,
@@ -2727,7 +2727,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-溢香園-士林區-台灣料理-茶類飲品-r136760/",
       "coordinates": {
         "lat": 25.11820306167941,
@@ -2843,7 +2843,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-皮耶小館-r147037/",
       "coordinates": {
         "lat": 24.18976881352985,
@@ -3029,7 +3029,7 @@
         "早午餐",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-鮮活樂早午餐-中和區-多國料理-茶類飲品-r155111/",
       "coordinates": {
         "lat": 24.988887,
@@ -3138,7 +3138,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-綠野仙蹤-北投明德店-北投區-茶類飲品-r158955/",
       "coordinates": {
         "lat": 25.111021427828,
@@ -3242,7 +3242,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-楓葉牛排(南崁店)-r161286/",
       "coordinates": {
         "lat": 25.0518339,
@@ -3349,7 +3349,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-%E5%8D%B0%E6%9C%88%E5%89%B5%E6%84%8F%E6%9D%B1%E6%96%B9%E5%AE%B4-%E5%8D%97%E5%B1%AF%E5%8D%80-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r184348/",
       "coordinates": {
         "lat": 24.1515392,
@@ -3461,7 +3461,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-瑪莉珍比薩-台大店-大安區-美國料理-披薩-r185717/",
       "coordinates": {
         "lat": 25.0190127,
@@ -3573,7 +3573,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-貓空迺乾茶莊-r210255/",
       "coordinates": {
         "lat": 24.9686888,
@@ -3669,7 +3669,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-瑪莉珍比薩-師大店-大安區-義大利料理-披薩-r213973/",
       "coordinates": {
         "lat": 25.0232171,
@@ -3780,7 +3780,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-黑武士麻辣火鍋-大安區-台灣料理-輕食-r214066/",
       "coordinates": {
         "lat": 25.0422628,
@@ -3929,7 +3929,7 @@
         "居酒屋",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-%E6%9E%97%E5%8C%97%E7%83%A4%E5%A5%BD%E4%B8%B2%E7%87%92%E5%B1%85%E9%85%92%E5%B1%8B-%E7%A4%81%E6%BA%AA%E9%84%89-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E4%B8%B2%E7%87%92-r222266/",
       "coordinates": {
         "lat": 24.8281573,
@@ -4031,7 +4031,7 @@
         "複合式餐飲",
         "外帶店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-邀月茶坊-r226642/",
       "coordinates": {
         "lat": 24.96758450780737,
@@ -4119,7 +4119,7 @@
         "中餐廳",
         "主題餐廳"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-淡水紅樓中餐廳-淡水區-台灣料理-台式小吃-r227626/",
       "coordinates": {
         "lat": 25.1713054053317,
@@ -4240,7 +4240,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-典藏33觀景餐廳-r227782/",
       "coordinates": {
         "lat": 25.0122763,
@@ -4348,7 +4348,7 @@
         "主題餐廳",
         "美食廣場"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-布娜飛比利時啤酒餐廳-台中新時代店-r228893/",
       "coordinates": {
         "lat": 24.1362895,
@@ -4431,7 +4431,7 @@
         "主題餐廳",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-阿杜皇家泰式料理-台中沙鹿店-沙鹿區-泰式料理-茶類飲品-r228917/",
       "coordinates": {
         "lat": 24.24122216827459,
@@ -4549,7 +4549,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-%E5%A5%BD%E7%B1%B3%E4%BA%9E-%E5%A4%A7%E5%AE%89%E5%8D%80-%E6%AD%90%E9%99%B8%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r229085/",
       "coordinates": {
         "lat": 25.038843,
@@ -4665,7 +4665,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-The-Scent-r230769/",
       "coordinates": {
         "lat": 25.027044,
@@ -4865,7 +4865,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-%E6%98%A8%E6%97%A5%E8%8A%B1%E5%8D%B7%E8%B7%A8%E7%95%8C%E5%A5%BD%E9%A3%9F-%E8%A5%BF%E5%8D%80-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r237477/",
       "coordinates": {
         "lat": 24.1524709,
@@ -4956,7 +4956,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-東方饌黔天下貴州菜主題餐廳-大同區-輕食-r244274/",
       "coordinates": {
         "lat": 25.0626927,
@@ -5060,7 +5060,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-天母火鍋世家-士林區-甜點-蛋糕-r245100/",
       "coordinates": {
         "lat": 25.11876284421349,
@@ -5153,7 +5153,7 @@
         "喝飲聊天",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-A-Train-Leads-The-Way-To-Jazz-r249476/",
       "coordinates": {
         "lat": 25.0469514,
@@ -5244,7 +5244,7 @@
         "歐陸料理",
         "主題餐廳"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-布娜飛比利時啤酒餐廳-台中公益店-r249786/",
       "coordinates": {
         "lat": 24.150658,
@@ -5320,7 +5320,7 @@
         "茶類飲品",
         "外帶店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-膳馨民間創作料理-r250008/",
       "coordinates": {
         "lat": 24.1600026,
@@ -5446,7 +5446,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-m-m%E9%9F%B3%E6%A8%82%E5%BB%9A%E6%88%BF-%E4%B8%AD%E8%A5%BF%E5%8D%80-%E6%B3%95%E5%9C%8B%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r250383/",
       "coordinates": {
         "lat": 22.98980916890178,
@@ -5568,7 +5568,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-典藏駁二餐廳-r250947/",
       "coordinates": {
         "lat": 22.621446,
@@ -5672,7 +5672,7 @@
         "日式料理",
         "壽司/生魚片"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/new-taipei/r-菊丹料理亭-羅東鎮-日式料理-壽司-生魚片-r251283/",
       "coordinates": {
         "lat": 24.6786499,
@@ -5754,7 +5754,7 @@
         "泰式料理",
         "主題餐廳"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-阿杜皇家泰式料理-員林旗艦店-r280522/",
       "coordinates": {
         "lat": 23.968851,
@@ -5858,7 +5858,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$1001-1500",
+      "budget": "1000-1500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-火之舞蓁品燒-和牛燒肉放題-r286018/",
       "coordinates": {
         "lat": 25.0404281,
@@ -5969,7 +5969,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-仙園海鮮會館-r293086/",
       "coordinates": {
         "lat": 24.175211704878,
@@ -6080,7 +6080,7 @@
         "火鍋店",
         "外帶店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-東東石頭火鍋-r296980/",
       "coordinates": {
         "lat": 25.0065001,
@@ -6175,7 +6175,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Ed's-Diner美式BBQ燒烤餐館-r305008/",
       "coordinates": {
         "lat": 25.0796878,
@@ -6411,7 +6411,7 @@
         "酒類飲品",
         "義大利麵"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-好食-松山區-歐陸菜-沙拉-r308849/",
       "coordinates": {
         "lat": 25.05092976054017,
@@ -6501,7 +6501,7 @@
         "酒吧/Lounge Bar",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Roof．屋頂-r311728/",
       "coordinates": {
         "lat": 22.6643325,
@@ -6604,7 +6604,7 @@
         "其他火鍋",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-叻石鍋-萬華區-日本菜-其他火鍋-r311770/",
       "coordinates": {
         "lat": 25.0382733,
@@ -6687,7 +6687,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-飯bar-內湖旗艦店-內湖區-台灣料理-茶類飲品-r314402/",
       "coordinates": {
         "lat": 25.081176,
@@ -6799,7 +6799,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-大樹先生的家-古亭店-大安區-多國料理-茶類飲品-r314472/",
       "coordinates": {
         "lat": 25.0292266,
@@ -6967,7 +6967,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-淳覺植饌咖啡坊-北投區-多國料理-茶類飲品-r317077/",
       "coordinates": {
         "lat": 25.131321,
@@ -7067,7 +7067,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-alchemy-bar-信義區-台灣料理-酒類飲品-r320800/",
       "coordinates": {
         "lat": 25.0326756,
@@ -7153,7 +7153,7 @@
         "咖啡廳(店)",
         "外帶店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-啡創工廠-大同區-台灣料理-輕食-r321301/",
       "coordinates": {
         "lat": 25.0691785,
@@ -7262,7 +7262,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-巴歌浪小聚所-松山區-台灣料理-串燒-r323411/",
       "coordinates": {
         "lat": 25.0488324,
@@ -7359,7 +7359,7 @@
         "甜點/蛋糕",
         "酒類飲品"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-一宗壽司-r325253/",
       "coordinates": {
         "lat": 25.05905446387544,
@@ -7446,7 +7446,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-%E7%93%A6%E6%B3%95%E5%A5%87%E6%9C%B5-%E4%B8%AD%E6%AD%A3%E5%8D%80-%E5%9B%9B%E5%B7%9D%E8%8F%9C-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r325657/",
       "coordinates": {
         "lat": 25.0447679,
@@ -7552,7 +7552,7 @@
         "精緻料理",
         "複合式餐飲"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-%E9%A3%9F%E4%B8%8B%E6%9C%89%E7%B4%84-%E6%83%B3%E6%B3%95%E5%BB%9A%E6%88%BF-%E5%AE%89%E5%B9%B3%E5%8D%80-%E5%8F%B0%E7%81%A3%E8%8F%9C-%E7%B2%BE%E7%B7%BB%E6%96%99%E7%90%86-r325805/",
       "coordinates": {
         "lat": 22.98946903992272,
@@ -7656,7 +7656,7 @@
         "包場派對",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-淇里思印度餐廳-存中店-西區-印度料理-茶類飲品-r379899/",
       "coordinates": {
         "lat": 24.1410879,
@@ -7779,7 +7779,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-%E8%9A%B5%E7%94%B7-%E7%94%9F%E8%A0%94-%E6%B5%B7%E7%89%A9-%E7%87%92%E7%83%A4-%E5%8C%97%E5%8D%80-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E5%8F%B0%E5%BC%8F%E5%B0%8F%E5%90%83-r380834/",
       "coordinates": {
         "lat": 23.0190273,
@@ -7892,7 +7892,7 @@
         "咖啡廳(店)",
         "下午茶"
       ],
-      "budget": "NT$101-200",
+      "budget": "100-200 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-戴莫好食屋-DeMoHouse-r381475/",
       "coordinates": {
         "lat": 25.0031753,
@@ -7997,7 +7997,7 @@
         "燒肉店",
         "火鍋店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-瓦崎燒烤火鍋-敦南店-r383485/",
       "coordinates": {
         "lat": 25.0435134,
@@ -8095,7 +8095,7 @@
         "甜點/蛋糕",
         "咖啡廳(店)"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-學堂洋菓子-r384141/",
       "coordinates": {
         "lat": 25.0332331,
@@ -8201,7 +8201,7 @@
         "燒肉店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-彩豚屋-八德店-松山區-日式料理-其他燒肉-r387596/",
       "coordinates": {
         "lat": 25.0471936,
@@ -8306,7 +8306,7 @@
         "咖啡廳(店)",
         "喝飲聊天"
       ],
-      "budget": "NT$101-200",
+      "budget": "100-200 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-樹男咖啡館-r387887/",
       "coordinates": {
         "lat": 25.1375666,
@@ -8413,7 +8413,7 @@
         "早午餐",
         "家庭聚餐"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-透早日頭-r388098/",
       "coordinates": {
         "lat": 25.0389117,
@@ -8515,7 +8515,7 @@
         "茶餐廳",
         "外帶店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-四哥的店-r388200/",
       "coordinates": {
         "lat": 24.96688300425547,
@@ -8612,7 +8612,7 @@
         "咖啡廳(店)",
         "下午茶"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-樂。野食-r390221/",
       "coordinates": {
         "lat": 25.0422429,
@@ -8705,7 +8705,7 @@
         "其他燒肉",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/new-taipei/r-林北烤好串燒食事處-羅東鎮-日式料理-其他燒肉-r392241/",
       "coordinates": {
         "lat": 24.6744841,
@@ -8816,7 +8816,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Uranium-Cafe-鈾咖啡餐酒館-r394182/",
       "coordinates": {
         "lat": 25.0366996,
@@ -8974,7 +8974,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-請請義大利餐廳-慶城店-松山區-義大利料理-茶類飲品-r395690/",
       "coordinates": {
         "lat": 25.0528247,
@@ -9142,7 +9142,7 @@
         "主題餐廳",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-番紅花城土耳其餐廳-r400853/",
       "coordinates": {
         "lat": 25.05183124951414,
@@ -9249,7 +9249,7 @@
         "下午茶",
         "早午餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-i-met-you-信義區-歐陸料理-麵包-西點-r401848/",
       "coordinates": {
         "lat": 25.0345006,
@@ -9460,7 +9460,7 @@
         "家庭聚餐",
         "慶祝紀念日"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-犇-極上-微風信義館-信義區-多國料理-精緻料理-r407465/",
       "coordinates": {
         "lat": 25.0405044,
@@ -9569,7 +9569,7 @@
         "其他火鍋",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-熊飽鍋物涮涮鍋-r411573/",
       "coordinates": {
         "lat": 24.7401507,
@@ -9676,7 +9676,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-初鍋物私廚-r412926/",
       "coordinates": {
         "lat": 24.1385468,
@@ -9791,7 +9791,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-囍聚精緻鍋物-大安區-台灣料理-茶類飲品-r415812/",
       "coordinates": {
         "lat": 25.044234,
@@ -9907,7 +9907,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-le-blanc-大安區-美國料理-精緻料理-r417967/",
       "coordinates": {
         "lat": 25.0362133,
@@ -10026,7 +10026,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-元潮蒙古烤肉-r419442/",
       "coordinates": {
         "lat": 25.0796461,
@@ -10247,7 +10247,7 @@
         "海鮮",
         "喝飲聊天"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-鹿兒島燒肉專賣店-板橋新板店-r424615/",
       "coordinates": {
         "lat": 25.0121127,
@@ -10336,7 +10336,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-%E5%B1%B1%E9%AF%A8%E7%87%92%E8%82%89-%E5%8C%97%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E4%B8%B2%E7%87%92-r425058/",
       "coordinates": {
         "lat": 24.166866,
@@ -10443,7 +10443,7 @@
         "素食",
         "藥膳料理"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-食蔬茶齋-蔬果料理-r428913/",
       "coordinates": {
         "lat": 22.98946282839416,
@@ -10529,7 +10529,7 @@
         "包場派對",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-have-a-nice-day-好處餐廳-大安區-多國料理-沙拉-r428979/",
       "coordinates": {
         "lat": 25.0183913,
@@ -10629,7 +10629,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-川原痴日式燒肉-r430346/",
       "coordinates": {
         "lat": 24.1656029,
@@ -10720,7 +10720,7 @@
         "精緻料理",
         "牛排館"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-O'STEAK-French-Bistro-r434412/",
       "coordinates": {
         "lat": 25.02925011356545,
@@ -10802,7 +10802,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-席樂法式料理-r434515/",
       "coordinates": {
         "lat": 24.161172,
@@ -10915,7 +10915,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-蓋子普拉斯小餐館-板橋店-r435774/",
       "coordinates": {
         "lat": 25.0177195,
@@ -11020,7 +11020,7 @@
         "海鮮",
         "喝飲聊天"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-BarSip餐酒-r436143/",
       "coordinates": {
         "lat": 25.053277,
@@ -11094,7 +11094,7 @@
         "義大利麵",
         "精緻料理"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-布娜飛比利時啤酒餐廳-台北市民店-r436306/",
       "coordinates": {
         "lat": 25.0447649,
@@ -11175,7 +11175,7 @@
       "type": [
         "多國料理"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-_0001-r436354/",
       "coordinates": {
         "lat": 25.0325361,
@@ -11241,7 +11241,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-時光秘境-r436890/",
       "coordinates": {
         "lat": 22.9801678,
@@ -11329,7 +11329,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-翡冷翠義式餐廳-中正區-義大利料理-茶類飲品-r437152/",
       "coordinates": {
         "lat": 25.0452671,
@@ -11442,7 +11442,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-阿杜皇家泰式料理-高雄明誠店-r437978/",
       "coordinates": {
         "lat": 22.660928,
@@ -11559,7 +11559,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-港點大師-置地生活店-r441542/",
       "coordinates": {
         "lat": 24.96491,
@@ -11665,7 +11665,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-giligili-korea-bbq-wine韓國釜山餐酒館-中山區-韓式料理-輕食-r441874/",
       "coordinates": {
         "lat": 25.04842876214951,
@@ -11775,7 +11775,7 @@
         "居酒屋",
         "餐酒館"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-燒肉殿-大安區-日式料理-串燒-r442349/",
       "coordinates": {
         "lat": 25.0436735,
@@ -11887,7 +11887,7 @@
         "包場派對",
         "慶祝紀念日"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-炎香樓-r442930/",
       "coordinates": {
         "lat": 24.15430885798523,
@@ -12004,7 +12004,7 @@
         "主題餐廳",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-sree-india-palace斯里印度餐廳-西區-印度料理-茶類飲品-r443779/",
       "coordinates": {
         "lat": 24.143464,
@@ -12115,7 +12115,7 @@
         "下午茶",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-前方有路-飛帆旗艦店-r444131/",
       "coordinates": {
         "lat": 24.7499277,
@@ -12202,7 +12202,7 @@
         "喝飲聊天",
         "慶祝紀念日"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-黑熊愛跳舞-r444152/",
       "coordinates": {
         "lat": 25.02269534414166,
@@ -12268,7 +12268,7 @@
         "台灣原住民料理",
         "飯店餐廳"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-星晟棧渡假飯店-哈魯部落食堂-r445048/",
       "coordinates": {
         "lat": 24.0548042,
@@ -12380,7 +12380,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-瓦崎燒烤火鍋-西門店-萬華區-台灣料理-串燒-r445787/",
       "coordinates": {
         "lat": 25.042592,
@@ -12490,7 +12490,7 @@
         "燒肉店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-彩豚屋-高雄左營店-r445892/",
       "coordinates": {
         "lat": 22.6630618,
@@ -12605,7 +12605,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-野人shabu-冷藏-熟成高級肉專門-松山區-日式料理-甜點-蛋糕-r446181/",
       "coordinates": {
         "lat": 25.0446321,
@@ -12709,7 +12709,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-吽Home燒肉Grill-Bar-市民店-r446552/",
       "coordinates": {
         "lat": 25.04475462583718,
@@ -13026,7 +13026,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-韓老二韓國烤肉-新大安店-大安區-韓式料理-其他燒肉-r448860/",
       "coordinates": {
         "lat": 25.0443722,
@@ -13124,7 +13124,7 @@
         "多國料理",
         "輕食"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-貝芮小廚房-r448990/",
       "coordinates": {
         "lat": 24.9821656,
@@ -13206,7 +13206,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-古記雞-私房菜-居酒屋-信義店-信義區-日式料理-輕食-r450675/",
       "coordinates": {
         "lat": 25.040532,
@@ -13313,7 +13313,7 @@
         "燒肉店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-彩豚屋-台中精誠店-西區-日式料理-輕食-r450762/",
       "coordinates": {
         "lat": 24.1554484,
@@ -13579,7 +13579,7 @@
         "酒類飲品",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-萩椛炸牛定食店-r454342/",
       "coordinates": {
         "lat": 22.61732866180509,
@@ -13681,7 +13681,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-天鍋宴-芝山店-士林區-日式料理-素食-r454634/",
       "coordinates": {
         "lat": 25.102995,
@@ -13779,7 +13779,7 @@
         "日式料理",
         "其他燒肉"
       ],
-      "budget": "NT$1001-1500",
+      "budget": "1000-1500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-犇-燒肉．鍋物-微風廣場-r455275/",
       "coordinates": {
         "lat": 25.0459386,
@@ -13952,7 +13952,7 @@
         "居酒屋",
         "喝飲聊天"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-串燒殿-大安區-日式料理-串燒-r455660/",
       "coordinates": {
         "lat": 25.0434574,
@@ -14060,7 +14060,7 @@
         "早午餐",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-邑朵早午餐-r456662/",
       "coordinates": {
         "lat": 25.01631765742158,
@@ -14162,7 +14162,7 @@
         "外帶店",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-橘光呼嚕x背包cat咖啡館-r458612/",
       "coordinates": {
         "lat": 24.1879184,
@@ -14249,7 +14249,7 @@
         "美國料理",
         "複合式餐飲"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Fun-cafe-親子餐廳-r458862/",
       "coordinates": {
         "lat": 25.00074027204925,
@@ -14327,7 +14327,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-je-kitchen-大安區-法國料理-精緻料理-r459272/",
       "coordinates": {
         "lat": 25.0385117,
@@ -14436,7 +14436,7 @@
         "家庭聚餐",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-東華川府重慶老火鍋-r460315/",
       "coordinates": {
         "lat": 25.015459,
@@ -14538,7 +14538,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯大叔-民生店-中山區-台灣料理-其他小吃-r460403/",
       "coordinates": {
         "lat": 25.0580932,
@@ -14635,7 +14635,7 @@
         "台灣料理",
         "牛肉麵"
       ],
-      "budget": "NT$101-200",
+      "budget": "100-200 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-靖媽廚房．食來運轉-r461654/",
       "coordinates": {
         "lat": 24.8323167,
@@ -14780,7 +14780,7 @@
         "外帶店",
         "浪漫情調"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-山茶花鐵板燒-r464571/",
       "coordinates": {
         "lat": 25.0834307,
@@ -14891,7 +14891,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-悄悄話餐酒館-r466619/",
       "coordinates": {
         "lat": 25.03858707810662,
@@ -14986,7 +14986,7 @@
         "喝飲聊天",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-金鍋盃x斌當酒場-r467509/",
       "coordinates": {
         "lat": 25.0108171,
@@ -15232,7 +15232,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-羽樂歐陸創意料理-松山區-歐陸料理-茶類飲品-r468109/",
       "coordinates": {
         "lat": 25.0511238,
@@ -15351,7 +15351,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-爛醉咖啡-大安區-多國料理-茶類飲品-r469566/",
       "coordinates": {
         "lat": 25.0433646460953,
@@ -15459,7 +15459,7 @@
         "包場派對",
         "慶祝紀念日"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-小滿苑燒肉-大安區-日式料理-其他燒肉-r470120/",
       "coordinates": {
         "lat": 25.04279115335875,
@@ -15563,7 +15563,7 @@
         "居酒屋",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-老爺有隻雞-正宗藥膳桶仔雞-大安區-台灣料理-輕食-r470421/",
       "coordinates": {
         "lat": 25.0411381,
@@ -15676,7 +15676,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-晴天廚房X初夏小滿-r470644/",
       "coordinates": {
         "lat": 25.0328595,
@@ -15766,7 +15766,7 @@
         "居酒屋",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-川楓酒食館-中山區-日式料理-串燒-r473496/",
       "coordinates": {
         "lat": 25.0655657,
@@ -15862,7 +15862,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Lion義式餐酒館-r474171/",
       "coordinates": {
         "lat": 22.641211,
@@ -15969,7 +15969,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-成家小館-天母店-士林區-四川菜-輕食-r474300/",
       "coordinates": {
         "lat": 25.10627459154217,
@@ -16076,7 +16076,7 @@
         "下午茶",
         "喝飲聊天"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-日光私廚-r475135/",
       "coordinates": {
         "lat": 24.6603734,
@@ -16197,7 +16197,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-良師塾人文食飲-板橋區-台灣料理-茶類飲品-r475433/",
       "coordinates": {
         "lat": 25.0083478,
@@ -16310,7 +16310,7 @@
         "外帶店",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-好想吃冰-中山赤峰店-かき氷-大同區-日式料理-茶類飲品-r479624/",
       "coordinates": {
         "lat": 25.05358,
@@ -16409,7 +16409,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-深紅汕頭鍋物-r479756/",
       "coordinates": {
         "lat": 24.13743616775589,
@@ -16503,7 +16503,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-wildwood-原木燒烤牛排海鮮餐廳-信義區-多國料理-精緻料理-r481908/",
       "coordinates": {
         "lat": 25.036389,
@@ -16619,7 +16619,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-uncle-shawn大安一號店-大安區-日式料理-其他燒肉-r482222/",
       "coordinates": {
         "lat": 25.04361676334581,
@@ -16715,7 +16715,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-樂壽司-r482503/",
       "coordinates": {
         "lat": 25.0478184,
@@ -16820,7 +16820,7 @@
         "包場派對",
         "慶祝紀念日"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-京東燒肉專門店-忠孝店-r482509/",
       "coordinates": {
         "lat": 25.04072437021031,
@@ -16929,7 +16929,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-小川鍋物-淡水區-日式料理-素食-r482730/",
       "coordinates": {
         "lat": 25.1717019,
@@ -17034,7 +17034,7 @@
         "外帶店",
         "喝飲聊天"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-念念咖啡館-松山區-台灣料理-茶類飲品-r482899/",
       "coordinates": {
         "lat": 25.04883213284144,
@@ -17113,7 +17113,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-鎰鼎火鍋-天干物燥-r483029/",
       "coordinates": {
         "lat": 25.0474849,
@@ -17216,7 +17216,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-辣鼎記-松山區-台灣料理-酒類飲品-r483924/",
       "coordinates": {
         "lat": 25.0490194,
@@ -17310,7 +17310,7 @@
         "台灣料理",
         "其他火鍋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-百味釜精緻鍋物-r484274/",
       "coordinates": {
         "lat": 24.7740673,
@@ -17411,7 +17411,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-四川龍府-內湖區-四川菜-甜點-蛋糕-r485774/",
       "coordinates": {
         "lat": 25.0723239,
@@ -17513,7 +17513,7 @@
         "漢堡/三明治",
         "義大利麵"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-琦琦里亞異國料理-r486179/",
       "coordinates": {
         "lat": 25.044844,
@@ -17597,7 +17597,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-筷子餐廳-大安區-台灣料理-輕食-r486777/",
       "coordinates": {
         "lat": 25.0392821,
@@ -17707,7 +17707,7 @@
         "餐酒館",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-soshow-bar-restaurant-中山區-台灣料理-酒類飲品-r486807/",
       "coordinates": {
         "lat": 25.049188,
@@ -17791,7 +17791,7 @@
         "法國料理",
         "甜點/蛋糕"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-罌粟甜點-r486955/",
       "coordinates": {
         "lat": 25.0347605,
@@ -17866,7 +17866,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-饃膳坊-中山區-湖南菜-湖北菜-輕食-r487478/",
       "coordinates": {
         "lat": 25.0575483,
@@ -17959,7 +17959,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-赤哥汕頭火鍋-台北松江總店-中山區-台灣料理-素食-r487693/",
       "coordinates": {
         "lat": 25.06170284889168,
@@ -18062,7 +18062,7 @@
       "type": [
         "多國料理"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-清真肆集-r487696/",
       "coordinates": {
         "lat": 25.0629502,
@@ -18145,7 +18145,7 @@
         "甜點/蛋糕",
         "咖啡廳(店)"
       ],
-      "budget": "NT$101-200",
+      "budget": "100-200 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-À-Demain-Cafe-r488098/",
       "coordinates": {
         "lat": 25.0555868,
@@ -18229,7 +18229,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-天鍋宴-西湖店-內湖區-日式料理-甜點-蛋糕-r488104/",
       "coordinates": {
         "lat": 25.08328323006015,
@@ -18326,7 +18326,7 @@
         "日式料理",
         "鐵板燒"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-%E7%9C%9F%E7%82%99%E9%90%B5%E6%9D%BF%E6%96%99%E7%90%86-%E4%B8%AD%E8%A5%BF%E5%8D%80-%E6%97%A5%E6%9C%AC%E8%8F%9C-%E9%90%B5%E6%9D%BF%E7%87%92-r488412/",
       "coordinates": {
         "lat": 22.9964267,
@@ -18409,7 +18409,7 @@
         "甜湯",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Dobby手工甜品-r488895/",
       "coordinates": {
         "lat": 25.0532021,
@@ -18613,7 +18613,7 @@
         "主題餐廳",
         "喝飲聊天"
       ],
-      "budget": "NT$1001-1500",
+      "budget": "1000-1500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-彼刻義式餐酒館-r489732/",
       "coordinates": {
         "lat": 24.81947756960302,
@@ -18726,7 +18726,7 @@
         "包場派對",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-淇里思印度餐廳-朝富店-西屯區-印度料理-茶類飲品-r490592/",
       "coordinates": {
         "lat": 24.1647527,
@@ -18837,7 +18837,7 @@
         "包場派對",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-淇里思印度餐廳-新竹店-r490680/",
       "coordinates": {
         "lat": 24.7883378,
@@ -18978,7 +18978,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-竹苑-r491994/",
       "coordinates": {
         "lat": 25.0441018,
@@ -19078,7 +19078,7 @@
         "壽司/生魚片",
         "中餐廳"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-福壽海鮮料理-r492033/",
       "coordinates": {
         "lat": 22.66102375217382,
@@ -19183,7 +19183,7 @@
         "酒類飲品",
         "酒吧/Lounge Bar"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-89-loop-sports-bar美式餐酒館-中正區-多國料理-酒類飲品-r492983/",
       "coordinates": {
         "lat": 25.0129485,
@@ -19290,7 +19290,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-binma-area-134-淡水區-多國料理-茶類飲品-r493758/",
       "coordinates": {
         "lat": 25.169769,
@@ -19408,7 +19408,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-佐賀野仁日本和牛燒肉無限放題-南屯區-日式料理-燒肉吃到飽-r493770/",
       "coordinates": {
         "lat": 24.1505177,
@@ -19518,7 +19518,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-beef-king日本頂級a5和牛鍋物放題-台中公益店-南屯區-日式料理-其他吃到飽-r493773/",
       "coordinates": {
         "lat": 24.1510503,
@@ -19621,7 +19621,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Beef-King日本頂級A5和牛鍋物放題-信義旗艦店-r493776/",
       "coordinates": {
         "lat": 25.03531,
@@ -19720,7 +19720,7 @@
         "喝飲聊天",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-the-misanthrope-society-厭世會社-中正區-台灣料理-輕食-r493889/",
       "coordinates": {
         "lat": 25.015118,
@@ -19820,7 +19820,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-鰻料理-江戶川-中山區-日式料理-甜點-蛋糕-r493925/",
       "coordinates": {
         "lat": 25.0507642,
@@ -19931,7 +19931,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-犇-極上-信義區-台灣菜-精緻料理-r494489/",
       "coordinates": {
         "lat": 25.0342487,
@@ -20041,7 +20041,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-紅蟹將軍の天鍋涮涮屋-大安區-日式料理-串燒-r494893/",
       "coordinates": {
         "lat": 25.0429031,
@@ -20147,7 +20147,7 @@
       "type": [
         "多國料理"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-VegFarm-無國界蔬食餐廳-r494975/",
       "coordinates": {
         "lat": 24.14745358280085,
@@ -20254,7 +20254,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-班杰諾義法餐廳-r495384/",
       "coordinates": {
         "lat": 25.02760355535944,
@@ -20369,7 +20369,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-布娜飛小酒館-中山店-中山區-歐陸料理-酒類飲品-r495556/",
       "coordinates": {
         "lat": 25.04853810975737,
@@ -20452,7 +20452,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-椰兄泰式料理餐廳-慶城店-松山區-泰式料理-輕食-r496048/",
       "coordinates": {
         "lat": 25.0538941,
@@ -20559,7 +20559,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-一樂炸雞-大安光復店-大安區-韓式料理-沙拉-r496265/",
       "coordinates": {
         "lat": 25.0343398,
@@ -20749,7 +20749,7 @@
         "茶類飲品",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-以馬忤斯emmaus美味關係廚房-全食物概念店-大安區-法國料理-茶類飲品-r496437/",
       "coordinates": {
         "lat": 25.0283063,
@@ -20830,7 +20830,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-上吉燒肉-大安區-日式料理-輕食-r496703/",
       "coordinates": {
         "lat": 25.0429642,
@@ -20936,7 +20936,7 @@
         "台灣料理",
         "牛肉麵"
       ],
-      "budget": "NT$101-200",
+      "budget": "100-200 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-台灣郎正宗牛肉麵-r496932/",
       "coordinates": {
         "lat": 25.0550244,
@@ -21017,7 +21017,7 @@
         "包場派對",
         "慶祝紀念日"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-京賀家の壽喜燒鍋物-府中店-板橋區-日本菜-火鍋-r497327/",
       "coordinates": {
         "lat": 25.007303,
@@ -21107,7 +21107,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-京賀家の壽喜燒鍋物-江子翠店-r497330/",
       "coordinates": {
         "lat": 25.0296577,
@@ -21207,7 +21207,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-請請義大利餐廳-逸仙店-信義區-義大利料理-茶類飲品-r497932/",
       "coordinates": {
         "lat": 25.0405266,
@@ -21320,7 +21320,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-婧饌鍋物-r498173/",
       "coordinates": {
         "lat": 25.05701832711843,
@@ -21557,7 +21557,7 @@
         "麻辣鍋",
         "火鍋店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-%E7%A6%8F%E6%B9%AF%E9%BA%BB%E8%BE%A3%E9%A4%8A%E7%94%9F%E9%B4%9B%E9%B4%A6%E7%81%AB%E9%8D%8B-%E5%AE%9C%E8%98%AD%E5%B8%82-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E9%BA%BB%E8%BE%A3%E9%8D%8B-r498934/",
       "coordinates": {
         "lat": 24.7519902,
@@ -21650,7 +21650,7 @@
         "日式燒肉",
         "燒肉店"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-八和和牛燒肉專門店-大安區-日式料理-日式燒肉-r499768/",
       "coordinates": {
         "lat": 25.0341565,
@@ -21795,7 +21795,7 @@
         "麵點",
         "台式小吃"
       ],
-      "budget": "NT$101-200",
+      "budget": "100-200 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-恩記牛肉麵-r500886/",
       "coordinates": {
         "lat": 25.0443553,
@@ -21889,7 +21889,7 @@
         "美食廣場",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-泰之霸-板橋區-泰式料理-r501031/",
       "coordinates": {
         "lat": 25.0141052,
@@ -21983,7 +21983,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯大叔-忠孝店-大安區-其他小吃-r501155/",
       "coordinates": {
         "lat": 25.0418805,
@@ -22088,7 +22088,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-61私廚料理-r501300/",
       "coordinates": {
         "lat": 25.01276,
@@ -22180,7 +22180,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-hatsu-yakiniku-wine-和牛燒肉專門店-中山區-日式料理-輕食-r501799/",
       "coordinates": {
         "lat": 25.0531303,
@@ -22278,7 +22278,7 @@
       "type": [
         "歐陸料理"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-EAT-PLUS-義式小館-私廚-包場-奢侈早午餐-r503024/",
       "coordinates": {
         "lat": 25.1151155,
@@ -22352,7 +22352,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-吃嗎小酒館-中壢健行店-r503866/",
       "coordinates": {
         "lat": 24.9490618,
@@ -22603,7 +22603,7 @@
         "其他火鍋",
         "日式涮涮鍋/小火鍋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-上上籤吉品涮涮鍋-嘉義總店-r505267/",
       "coordinates": {
         "lat": 23.484261671308,
@@ -22685,7 +22685,7 @@
         "甜點/蛋糕",
         "咖啡廳(店)"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-綠野仙蹤-雙連赤峰店-r505355/",
       "coordinates": {
         "lat": 25.0569414,
@@ -22765,7 +22765,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-小川鍋物-信義店-信義區-日式料理-素食-r505484/",
       "coordinates": {
         "lat": 25.03964,
@@ -22876,7 +22876,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-淇里思印度餐廳-崇德店-北屯區-印度料理-茶類飲品-r505616/",
       "coordinates": {
         "lat": 24.18558367633596,
@@ -22972,7 +22972,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-%E6%B7%87%E9%87%8C%E6%80%9D%E5%8D%B0%E5%BA%A6%E9%A4%90%E5%BB%B3-%E5%A4%A7%E5%9D%91%E5%BA%97-%E5%8C%97%E5%B1%AF%E5%8D%80-%E5%8D%B0%E5%BA%A6%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r505619/",
       "coordinates": {
         "lat": 24.1755012,
@@ -23064,7 +23064,7 @@
         "外帶店",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-sheep-pony-大安區-美國料理-輕食-r505698/",
       "coordinates": {
         "lat": 25.0380176,
@@ -23170,7 +23170,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-美生餐室-桃園中華店-r505743/",
       "coordinates": {
         "lat": 24.9911382,
@@ -23270,7 +23270,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-火鍋很忙-r506593/",
       "coordinates": {
         "lat": 25.06983230439233,
@@ -23369,7 +23369,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-主廚帽印度餐廳-台南店-中西區-印度料理-茶類飲品-r506695/",
       "coordinates": {
         "lat": 22.9955282,
@@ -23461,7 +23461,7 @@
         "炸物",
         "咖啡廳(店)"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-takeout-burger-cafe-民權店-中山區-美國料理-炸物-r506839/",
       "coordinates": {
         "lat": 25.0637638,
@@ -23544,7 +23544,7 @@
         "酒吧/Lounge Bar",
         "喝飲聊天"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Belly-Craft-Beer-北裡-品酒區-r507043/",
       "coordinates": {
         "lat": 25.0440708,
@@ -23626,7 +23626,7 @@
         "複合式餐飲",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-光景-r507180/",
       "coordinates": {
         "lat": 25.0532473,
@@ -23705,7 +23705,7 @@
         "咖啡廳(店)",
         "下午茶"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-岩嶼塘-x-Salt-Sugar-r507340/",
       "coordinates": {
         "lat": 24.8269545,
@@ -23810,7 +23810,7 @@
         "家庭聚餐",
         "慶祝紀念日"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-金洹苑-大安區-韓式料理-茶類飲品-r507473/",
       "coordinates": {
         "lat": 25.0428407,
@@ -23937,7 +23937,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-週末炸雞俱樂部weekend-chicken-bar-信義店-信義區-台灣料理-炸物-r508039/",
       "coordinates": {
         "lat": 25.0308911,
@@ -24120,7 +24120,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-米釉鍋物-r508307/",
       "coordinates": {
         "lat": 25.0433421,
@@ -24219,7 +24219,7 @@
         "串燒",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-酒聚-r508497/",
       "coordinates": {
         "lat": 24.9940311,
@@ -24324,7 +24324,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-貓空-四爺-r509203/",
       "coordinates": {
         "lat": 24.969037,
@@ -24413,7 +24413,7 @@
         "酒類飲品",
         "外帶店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-小食后-r509276/",
       "coordinates": {
         "lat": 22.6624802,
@@ -24495,7 +24495,7 @@
       "type": [
         "多國料理"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Mini-Fun-Cafe-手做廚房-r509322/",
       "coordinates": {
         "lat": 25.00131274584536,
@@ -24570,7 +24570,7 @@
         "日式料理",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-羽SAKE-r509605/",
       "coordinates": {
         "lat": 25.05283174871992,
@@ -24651,7 +24651,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-baganhood-蔬食餐酒館-信義區-義大利料理-茶類飲品-r509867/",
       "coordinates": {
         "lat": 25.0443206,
@@ -24760,7 +24760,7 @@
         "日式燒肉",
         "燒肉店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-史特龍我賣肉-r510360/",
       "coordinates": {
         "lat": 25.0434438,
@@ -24903,7 +24903,7 @@
       "type": [
         "多國料理"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-1492-Bistro-Caffe-r510452/",
       "coordinates": {
         "lat": 25.0270207,
@@ -25157,7 +25157,7 @@
         "日式料理",
         "其他火鍋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-小川鍋物．光苑-r511338/",
       "coordinates": {
         "lat": 25.11888973599325,
@@ -25232,7 +25232,7 @@
         "甜點/蛋糕",
         "外帶店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-Home.焙小日子-新時代店-r511442/",
       "coordinates": {
         "lat": 24.1357726,
@@ -25319,7 +25319,7 @@
         "咖啡廳(店)",
         "外帶店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Home.焙小日子-宏匯店-r511460/",
       "coordinates": {
         "lat": 25.0597793,
@@ -25406,7 +25406,7 @@
         "外帶店",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-渣男-中山五渣-中山區-台灣料理-輕食-r511536/",
       "coordinates": {
         "lat": 25.0554057,
@@ -25498,7 +25498,7 @@
         "外帶店",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-JokeR-Bistro-Bar-r511968/",
       "coordinates": {
         "lat": 25.0447997,
@@ -25591,7 +25591,7 @@
         "居酒屋",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-凌舞日式串燒居酒屋-r512060/",
       "coordinates": {
         "lat": 25.0503099,
@@ -25686,7 +25686,7 @@
         "酒類飲品",
         "酒吧/Lounge Bar"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-45-oid-bar-coffee-公館-中正區-多國料理-酒類飲品-r512261/",
       "coordinates": {
         "lat": 25.0133596,
@@ -25763,7 +25763,7 @@
       "type": [
         "台灣料理"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-貳家桌遊-北車創始店-中正區-台灣料理-r512613/",
       "coordinates": {
         "lat": 25.0451845,
@@ -25830,7 +25830,7 @@
       "type": [
         "台灣料理"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-貳家7plus桌遊-古亭店-中正區-台灣料理-r512616/",
       "coordinates": {
         "lat": 25.0272764,
@@ -25925,7 +25925,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Leone-Restaurant-Bar-r512619/",
       "coordinates": {
         "lat": 25.0570205,
@@ -26193,7 +26193,7 @@
         "餐酒館",
         "浪漫情調"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-麗芳老樓-老王說這就是人生-中山區-義大利料理-精緻料理-r513295/",
       "coordinates": {
         "lat": 25.0654963,
@@ -26289,7 +26289,7 @@
         "酒吧/Lounge Bar",
         "飛鏢吧"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-510Darts飛鏢運動BAR-r513510/",
       "coordinates": {
         "lat": 25.07942125836884,
@@ -26373,7 +26373,7 @@
         "酒吧/Lounge Bar",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-馡洛醚亞鎮-大安區-多國料理-酒類飲品-r513707/",
       "coordinates": {
         "lat": 25.0412196,
@@ -26550,7 +26550,7 @@
         "中餐廳",
         "外帶店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-伙房烤魚-r515356/",
       "coordinates": {
         "lat": 25.06443378413343,
@@ -26813,7 +26813,7 @@
         "酒類飲品",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-大曜居酒屋-r516052/",
       "coordinates": {
         "lat": 25.0453838,
@@ -27006,7 +27006,7 @@
         "主題餐廳",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-%E7%89%9B%E4%BA%94%E8%94%B5-%E8%82%89%E9%8D%8B-x-%E5%A1%A9%E3%83%9B%E3%83%AB%E3%83%A2%E3%83%B3-%E5%AE%89%E5%B9%B3%E5%8D%80-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E5%8F%B0%E5%BC%8F%E5%B0%8F%E5%90%83-r516294/",
       "coordinates": {
         "lat": 22.9948409,
@@ -27115,7 +27115,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-楓食堂日式創作料理-r516340/",
       "coordinates": {
         "lat": 25.05603608556651,
@@ -27213,7 +27213,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-饌澤原超市火鍋-r516960/",
       "coordinates": {
         "lat": 25.0429081,
@@ -27313,7 +27313,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-哈帕時尚鍋物-r517086/",
       "coordinates": {
         "lat": 25.0720311,
@@ -27408,7 +27408,7 @@
         "酒類飲品",
         "居酒屋"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-東京時光居酒屋-中山區-日式料理-輕食-r517235/",
       "coordinates": {
         "lat": 25.0620538,
@@ -27502,7 +27502,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-天菜-信義區-日式料理-咖哩-r517241/",
       "coordinates": {
         "lat": 25.042059,
@@ -27819,7 +27819,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-娘子韓食-市民總店-松山區-韓式料理-輕食-r518114/",
       "coordinates": {
         "lat": 25.0448426,
@@ -28120,7 +28120,7 @@
         "日式燒肉",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-城shiro日式和牛燒肉-中山區-日式料理-輕食-r518894/",
       "coordinates": {
         "lat": 25.0634963,
@@ -28213,7 +28213,7 @@
         "日式料理",
         "咖哩"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-阿星咖哩-r519175/",
       "coordinates": {
         "lat": 24.155153,
@@ -28343,7 +28343,7 @@
         "外帶店",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-樂陶湯品私廚-中正區-台灣料理-甜點-蛋糕-r519456/",
       "coordinates": {
         "lat": 25.0379348,
@@ -28433,7 +28433,7 @@
         "麻辣鍋",
         "火鍋店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-芳朵法式麻辣鍋-r519861/",
       "coordinates": {
         "lat": 25.0504792,
@@ -28507,7 +28507,7 @@
         "日式料理",
         "日式涮涮鍋/小火鍋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-王鍋屋新京都風味鍋物-r519925/",
       "coordinates": {
         "lat": 25.0396849,
@@ -28661,7 +28661,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-勝利洋食-r521291/",
       "coordinates": {
         "lat": 25.0434334,
@@ -28768,7 +28768,7 @@
         "外帶店",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-林桑手串本家-r523765/",
       "coordinates": {
         "lat": 22.6335767,
@@ -28950,7 +28950,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-椰兄泰式料理餐廳-中山店-大同區-泰式料理-茶類飲品-r524465/",
       "coordinates": {
         "lat": 25.0520679,
@@ -29061,7 +29061,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-蒲公英小築-r524749/",
       "coordinates": {
         "lat": 24.95495,
@@ -29145,7 +29145,7 @@
         "酒類飲品",
         "酒吧/Lounge Bar"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Settle-Taipei餐酒館-r524755/",
       "coordinates": {
         "lat": 25.04062473604507,
@@ -29229,7 +29229,7 @@
         "多國料理",
         "素食"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-讓我想享-r524828/",
       "coordinates": {
         "lat": 25.050745,
@@ -29305,7 +29305,7 @@
         "酒類飲品",
         "外帶店"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-禹立鮨-中正區-日式料理-壽司-生魚片-r524928/",
       "coordinates": {
         "lat": 25.0436283,
@@ -29402,7 +29402,7 @@
         "多國料理",
         "咖啡廳(店)"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-GURU-HOUSE-台大溫州店-r525119/",
       "coordinates": {
         "lat": 25.0194175,
@@ -29481,7 +29481,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-騎士碁-r525165/",
       "coordinates": {
         "lat": 25.0241828,
@@ -29612,7 +29612,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-%E9%90%B5%E5%85%8B%E8%AB%BE%E9%A4%90%E9%85%92%E9%A4%A8-%E8%A5%BF%E5%8D%80-%E5%A4%9A%E5%9C%8B%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r525504/",
       "coordinates": {
         "lat": 24.1447532,
@@ -29894,7 +29894,7 @@
         "台式小吃",
         "小吃店"
       ],
-      "budget": "NT$101-200",
+      "budget": "100-200 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-The-Square-方閣-r526494/",
       "coordinates": {
         "lat": 25.0477975,
@@ -29969,7 +29969,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-atomic-桌遊主題餐廳-萬華區-多國料理-酒類飲品-r526855/",
       "coordinates": {
         "lat": 25.0397824,
@@ -30052,7 +30052,7 @@
         "酒類飲品",
         "海鮮"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-濟安鮨日本料理店-大安區-日式料理-壽司-生魚片-r526998/",
       "coordinates": {
         "lat": 25.0434113,
@@ -30139,7 +30139,7 @@
         "居酒屋",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-柒息地串燒居酒屋-長春店-中山區-日式料理-串燒-r527501/",
       "coordinates": {
         "lat": 25.0547461,
@@ -30338,7 +30338,7 @@
         "酒吧/Lounge Bar",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-TACB人文餐酒-r527987/",
       "coordinates": {
         "lat": 22.6219867,
@@ -30436,7 +30436,7 @@
         "義大利麵",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-papa-roy義式手作料理-信義區-義大利料理-其他小吃-r528140/",
       "coordinates": {
         "lat": 25.0428014,
@@ -30547,7 +30547,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-bar-crouch-hide-臥藏-大安區-台灣料理-台式小吃-r528245/",
       "coordinates": {
         "lat": 25.03560282626028,
@@ -30685,7 +30685,7 @@
         "居酒屋",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-%E6%9F%92%E6%81%AF%E5%9C%B0%E4%B8%B2%E7%87%92%E5%B1%85%E9%85%92%E5%B1%8B-%E5%A3%AB%E6%9E%97%E5%BA%97-%E5%A3%AB%E6%9E%97%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E4%B8%B2%E7%87%92-r528362/",
       "coordinates": {
         "lat": 25.0902601,
@@ -30789,7 +30789,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-京東燒肉專門店-中山區-日式料理-輕食-r528434/",
       "coordinates": {
         "lat": 25.0505078,
@@ -30893,7 +30893,7 @@
         "炸物",
         "咖啡廳(店)"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Takeout-Burger-Cafe-延吉店-r528636/",
       "coordinates": {
         "lat": 25.0393193,
@@ -31076,7 +31076,7 @@
         "外帶店",
         "酒吧/Lounge Bar"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-lebeer精緻啤酒餐酒館-大安區-多國料理-酒類飲品-r529033/",
       "coordinates": {
         "lat": 25.0425328,
@@ -31165,7 +31165,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-老巷弄精緻熱炒-r529280/",
       "coordinates": {
         "lat": 25.0436037,
@@ -31265,7 +31265,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-伍一幸福咖啡廚房-淡水區-台灣料理-茶類飲品-r529313/",
       "coordinates": {
         "lat": 25.1698493,
@@ -31370,7 +31370,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-range鐵板精肉餐酒館-信義區-多國料理-輕食-r529859/",
       "coordinates": {
         "lat": 25.04270245614945,
@@ -31597,7 +31597,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-禾舍日式炭烤-r530131/",
       "coordinates": {
         "lat": 25.0395575,
@@ -31700,7 +31700,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-東北真不同私房菜館-r530137/",
       "coordinates": {
         "lat": 25.0466489,
@@ -31783,7 +31783,7 @@
         "外帶店",
         "酒吧/Lounge Bar"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Cactus-r530336/",
       "coordinates": {
         "lat": 25.043246,
@@ -31863,7 +31863,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-富士豬排-松山區-日式料理-咖哩-r530456/",
       "coordinates": {
         "lat": 25.0532009,
@@ -31966,7 +31966,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-李小娃火鍋店-中山區-多國料理-其他火鍋-r530714/",
       "coordinates": {
         "lat": 25.05267251899462,
@@ -32053,7 +32053,7 @@
         "韓式燒肉",
         "燒肉店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-熟・菜豚屋-復興本店-r531103/",
       "coordinates": {
         "lat": 25.0442071,
@@ -32131,7 +32131,7 @@
         "果汁",
         "下午茶"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-天蘊創意料理-r531154/",
       "coordinates": {
         "lat": 25.0146072,
@@ -32259,7 +32259,7 @@
         "多國料理",
         "飛鏢吧"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-CrossOver運動·飛鏢-r531665/",
       "coordinates": {
         "lat": 25.0259429,
@@ -32335,7 +32335,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-台北-廠海鮮熱炒-松山區-海鮮小炒-r532209/",
       "coordinates": {
         "lat": 25.0479342,
@@ -32547,7 +32547,7 @@
         "居酒屋",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-柒息地串燒居酒屋-延吉店-大安區-日式料理-串燒-r532329/",
       "coordinates": {
         "lat": 25.0433395,
@@ -32764,7 +32764,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-肥仔義起-r532768/",
       "coordinates": {
         "lat": 25.08427861392856,
@@ -32961,7 +32961,7 @@
         "外帶店",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-赤居酒屋-中山區-日式料理-串燒-r533071/",
       "coordinates": {
         "lat": 25.056735,
@@ -33258,7 +33258,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-柒息地串燒居酒屋-逢甲店-r533836/",
       "coordinates": {
         "lat": 24.1802147,
@@ -33367,7 +33367,7 @@
         "外帶店",
         "下午茶"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-好事食堂-民有店-松山區-台灣料理-r534118/",
       "coordinates": {
         "lat": 25.0598077,
@@ -33535,7 +33535,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-儛-心創鐵板燒-萬華區-台灣料理-茶類飲品-r534397/",
       "coordinates": {
         "lat": 25.03950141598404,
@@ -33618,7 +33618,7 @@
         "多國料理",
         "海鮮"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-帆船異國手抓海鮮-r534502/",
       "coordinates": {
         "lat": 25.0496714,
@@ -33696,7 +33696,7 @@
         "酒吧/Lounge Bar",
         "喝飲聊天"
       ],
-      "budget": "NT$1001-1500",
+      "budget": "1000-1500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-壹0遛酒-r534577/",
       "coordinates": {
         "lat": 22.619897,
@@ -33927,7 +33927,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-青樓中式餐酒館-r535255/",
       "coordinates": {
         "lat": 25.0496774,
@@ -34161,7 +34161,7 @@
         "多國料理",
         "酒吧/Lounge Bar"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Julie‘s-Golf-Bar-r535357/",
       "coordinates": {
         "lat": 25.0507184,
@@ -34245,7 +34245,7 @@
         "外帶店",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-撲囉咖啡廳-r535360/",
       "coordinates": {
         "lat": 25.062123,
@@ -34330,7 +34330,7 @@
         "台灣料理",
         "精緻料理"
       ],
-      "budget": "NT$1001-1500",
+      "budget": "1000-1500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-MR.Oak-r535375/",
       "coordinates": {
         "lat": 25.04297,
@@ -34410,7 +34410,7 @@
         "海鮮",
         "韓式燒肉"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-蜀香銅板烤肉-r535468/",
       "coordinates": {
         "lat": 24.6785679,
@@ -34540,7 +34540,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-洋石岩燒牛排-忠孝店-大安區-美國料理-其他吃到飽-r535972/",
       "coordinates": {
         "lat": 25.0421655,
@@ -34648,7 +34648,7 @@
         "酒吧/Lounge Bar",
         "飛鏢吧"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-新鏢漢飛鏢餐酒館-r535996/",
       "coordinates": {
         "lat": 22.9838413,
@@ -34745,7 +34745,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-九瀧唐景觀餐廳-r536383/",
       "coordinates": {
         "lat": 24.16638117765581,
@@ -34853,7 +34853,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-深紅汕頭鍋物-台北民權店-松山區-廣東菜-港式-甜點-蛋糕-r536392/",
       "coordinates": {
         "lat": 25.05963759943538,
@@ -34952,7 +34952,7 @@
         "海鮮",
         "酒吧/Lounge Bar"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-K-Town-r536545/",
       "coordinates": {
         "lat": 25.044659,
@@ -35034,7 +35034,7 @@
         "外帶店",
         "酒吧/Lounge Bar"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-喵仔間-niau-a-king-大同區-台灣料理-麵包-西點-r536566/",
       "coordinates": {
         "lat": 25.0554356,
@@ -35439,7 +35439,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-藍帶私廚-永和區-廣東菜-港式-素食-r536653/",
       "coordinates": {
         "lat": 25.0128127,
@@ -35534,7 +35534,7 @@
         "甜點/蛋糕",
         "義大利麵"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-PIZZA一番-r536656/",
       "coordinates": {
         "lat": 22.66130406189294,
@@ -35626,7 +35626,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-天町燒肉屋-淡水店-r536722/",
       "coordinates": {
         "lat": 25.1812105,
@@ -35714,7 +35714,7 @@
         "燒肉店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-天町燒肉屋-芝山店-士林區-日式料理-茶類飲品-r536725/",
       "coordinates": {
         "lat": 25.1028869,
@@ -35815,7 +35815,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-天鍋宴-蘆洲店-r536728/",
       "coordinates": {
         "lat": 25.0830235,
@@ -35973,7 +35973,7 @@
         "複合式餐飲",
         "下午茶"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-享喫複合式餐廳-r536818/",
       "coordinates": {
         "lat": 24.1809801,
@@ -36043,7 +36043,7 @@
         "水煙館",
         "酒吧/Lounge Bar"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-otherside-taipei-另一邊-信義區-多國料理-披薩-r536845/",
       "coordinates": {
         "lat": 25.03966484177035,
@@ -36221,7 +36221,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-咱們小時候-親子派對餐廳-r536965/",
       "coordinates": {
         "lat": 24.18121,
@@ -36405,7 +36405,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-不誤正夜-night-duty-松山區-多國料理-酒類飲品-r537043/",
       "coordinates": {
         "lat": 25.0447727,
@@ -36496,7 +36496,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-fuzzy-april-bar-bistro-四月餐酒館-信義區-多國料理-輕食-r537046/",
       "coordinates": {
         "lat": 25.03733068776614,
@@ -36691,7 +36691,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-EVB-馬來西亞風味蔬食餐酒館-r537307/",
       "coordinates": {
         "lat": 25.0461572,
@@ -36792,7 +36792,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Tonight餐酒館-Bistro-Lounge-r537331/",
       "coordinates": {
         "lat": 25.03965147610086,
@@ -36884,7 +36884,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-Luxy-Vogue-Restaurant-Tapas+Bar-餐酒館-r537334/",
       "coordinates": {
         "lat": 24.135306,
@@ -36987,7 +36987,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-手工殿麻辣鍋物-條通店-r537355/",
       "coordinates": {
         "lat": 25.0497681,
@@ -37074,7 +37074,7 @@
         "義大利麵",
         "喝飲聊天"
       ],
-      "budget": "NT$101-200",
+      "budget": "100-200 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-強強廚房-r537481/",
       "coordinates": {
         "lat": 22.7649765,
@@ -37179,7 +37179,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-醉好-Another-Round-r537547/",
       "coordinates": {
         "lat": 25.04452134362411,
@@ -37400,7 +37400,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-貳參日式串燒-r538141/",
       "coordinates": {
         "lat": 25.0132273,
@@ -37499,7 +37499,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-林柏食参涮涮鍋-信義區-日式料理-甜點-蛋糕-r538258/",
       "coordinates": {
         "lat": 25.04833277916892,
@@ -37606,7 +37606,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-魚韻日式料理-大安區-日式料理-壽司-生魚片-r538852/",
       "coordinates": {
         "lat": 25.0286282,
@@ -37721,7 +37721,7 @@
         "熱炒店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-同學燴-台式、異國熱炒、燒烤、鍋物-板橋區-台灣料理-串燒-r538891/",
       "coordinates": {
         "lat": 25.0097424,
@@ -37823,7 +37823,7 @@
         "外帶店",
         "喝飲聊天"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-山米咖啡所-r538897/",
       "coordinates": {
         "lat": 22.9933664,
@@ -38017,7 +38017,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Yes-hod厚切牛排-r538924/",
       "coordinates": {
         "lat": 24.99267309125025,
@@ -38106,7 +38106,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-鐵皮屋鐵板燒-r538975/",
       "coordinates": {
         "lat": 24.9801285,
@@ -38343,7 +38343,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-大安九號鍋物-大安區-台灣料理-鐵板燒-r539239/",
       "coordinates": {
         "lat": 25.0395577,
@@ -38506,7 +38506,7 @@
         "茶類飲品",
         "中餐廳"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-仙桃素·創新蔬食美學-r539248/",
       "coordinates": {
         "lat": 22.6625212,
@@ -38611,7 +38611,7 @@
         "外帶店",
         "熱炒店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-庫克燒烤Bar-r539356/",
       "coordinates": {
         "lat": 24.1666926,
@@ -38834,7 +38834,7 @@
         "居酒屋",
         "喝飲聊天"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-伴酒屋-r539419/",
       "coordinates": {
         "lat": 25.0657069039577,
@@ -38923,7 +38923,7 @@
         "居酒屋",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/new-taipei/r-酒豚串燒酒場-羅東鎮-日式料理-串燒-r539696/",
       "coordinates": {
         "lat": 24.6749848,
@@ -39010,7 +39010,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-vox-bar-%E8%8E%AB%E6%80%9D-music-bar-%E8%A5%BF%E5%8D%80-%E5%A4%9A%E5%9C%8B%E6%96%99%E7%90%86-%E9%85%92%E9%A1%9E%E9%A3%B2%E5%93%81-r539897/",
       "coordinates": {
         "lat": 24.1424748,
@@ -39153,7 +39153,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-%E8%8A%B3%E5%91%B3%E5%9D%8A-%E7%8E%A9%E5%91%B3%E5%BB%9A%E6%88%BF-%E6%A1%83%E5%9C%92%E5%8D%80-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E5%92%96%E5%93%A9-r540038/",
       "coordinates": {
         "lat": 25.0063858896298,
@@ -39248,7 +39248,7 @@
         "早午餐",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-alice%E3%81%AE%E9%84%89%E6%9D%91%E5%B0%8F%E5%AE%BF-%E6%9D%B1%E5%8D%80-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r540107/",
       "coordinates": {
         "lat": 22.97848012908396,
@@ -39396,7 +39396,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-%E5%A4%A9%E5%9A%90%E9%81%9E%E9%85%92%E7%B2%BE%E9%87%80%E9%A4%90%E9%85%92%E5%AE%B5%E5%A4%9C%E6%89%80bistro-%E9%A6%AC%E5%85%AC%E5%B8%82-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E9%85%92%E9%A1%9E%E9%A3%B2%E5%93%81-r540665/",
       "coordinates": {
         "lat": 23.5706269,
@@ -39481,7 +39481,7 @@
         "串燒",
         "熱炒店"
       ],
-      "budget": "NT$101-200",
+      "budget": "100-200 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-奶媽516888串燒現烤生啤酒-r540701/",
       "coordinates": {
         "lat": 24.1061478,
@@ -39564,7 +39564,7 @@
         "串燒",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-愛町大阪串炸-r540725/",
       "coordinates": {
         "lat": 24.8039579,
@@ -39719,7 +39719,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-鍋醬平價小火鍋-軍校店-r540830/",
       "coordinates": {
         "lat": 22.7089198,
@@ -39817,7 +39817,7 @@
         "早午餐",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-FOXLOVE-COFFEE-r540848/",
       "coordinates": {
         "lat": 24.797556,
@@ -40178,7 +40178,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-燒肉punch-金山南4號店-中正區-日式料理-輕食-r541211/",
       "coordinates": {
         "lat": 25.036289,
@@ -40353,7 +40353,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-成都滿庭芳-川式料理-r541250/",
       "coordinates": {
         "lat": 25.04755883770623,
@@ -40443,7 +40443,7 @@
         "小吃店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-idu-原住民小吃部-中山區-台灣原住民料理-台式小吃-r541538/",
       "coordinates": {
         "lat": 25.0619297,
@@ -40527,7 +40527,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-味擂家みらい家-士林區-日式料理-日式烏龍麵-r541649/",
       "coordinates": {
         "lat": 25.0955419,
@@ -40626,7 +40626,7 @@
         "酒吧/Lounge Bar",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-月映酒吧-r541859/",
       "coordinates": {
         "lat": 24.15673907608904,
@@ -40715,7 +40715,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-103-串燒、酒飲-r541874/",
       "coordinates": {
         "lat": 25.0550142,
@@ -40808,7 +40808,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-sea-cup-island-美式餐酒館-bistro-bar-士林區-美國料理-輕食-r541928/",
       "coordinates": {
         "lat": 25.0940521,
@@ -40977,7 +40977,7 @@
         "日式涮涮鍋/小火鍋",
         "火鍋店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-伊津鍋物-r542123/",
       "coordinates": {
         "lat": 25.001221,
@@ -41059,7 +41059,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-施工中酒吧-信義區-多國料理-精緻料理-r542255/",
       "coordinates": {
         "lat": 25.0307484015746,
@@ -41148,7 +41148,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-施工中-層層-餐酒館-信義區-多國料理-精緻料理-r542258/",
       "coordinates": {
         "lat": 25.04289382333603,
@@ -41230,7 +41230,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-啾久餐酒吧BAR-r542261/",
       "coordinates": {
         "lat": 25.0049314,
@@ -41313,7 +41313,7 @@
         "海鮮",
         "義大利麵"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-澎湖鮮雅圖手抓海鮮餐酒館-r542312/",
       "coordinates": {
         "lat": 23.583333,
@@ -41405,7 +41405,7 @@
         "居酒屋",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-犬大家居酒屋-r542396/",
       "coordinates": {
         "lat": 23.90915140882054,
@@ -41493,7 +41493,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-夜色talking-bar-大安區-多國料理-輕食-r542408/",
       "coordinates": {
         "lat": 25.03879607022239,
@@ -41587,7 +41587,7 @@
         "日式燒肉",
         "燒肉店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-%E8%B5%A4%E7%89%A9%E6%97%A5%E5%BC%8F%E7%87%92%E8%82%89-%E8%8A%B1%E8%93%AE%E5%B8%82-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E6%97%A5%E5%BC%8F%E7%87%92%E8%82%89-r542546/",
       "coordinates": {
         "lat": 23.97546958963146,
@@ -41678,7 +41678,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$101-200",
+      "budget": "100-200 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-mix%E9%A4%90%E9%85%92%E9%A4%A8-%E5%AE%9C%E8%98%AD%E5%B8%82-%E5%A4%9A%E5%9C%8B%E6%96%99%E7%90%86-%E9%85%92%E9%A1%9E%E9%A3%B2%E5%93%81-r542549/",
       "coordinates": {
         "lat": 24.7447886,
@@ -41757,7 +41757,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-翊式餐酒館-r542561/",
       "coordinates": {
         "lat": 22.7270655,
@@ -41840,7 +41840,7 @@
         "早午餐",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-CHOW-CHOW-早午餐-r542585/",
       "coordinates": {
         "lat": 25.0216759,
@@ -41938,7 +41938,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-cozy-taipei餐酒館-大安區-多國料理-茶類飲品-r542966/",
       "coordinates": {
         "lat": 25.0427472,
@@ -42026,7 +42026,7 @@
         "下午茶",
         "喝飲聊天"
       ],
-      "budget": "NT$101-200",
+      "budget": "100-200 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-同溫咖啡-r542972/",
       "coordinates": {
         "lat": 22.6237165,
@@ -42113,7 +42113,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Bad-Mama-keelung-r543254/",
       "coordinates": {
         "lat": 25.1292009,
@@ -42242,7 +42242,7 @@
         "居酒屋",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-%E4%B8%80%E9%85%94%E5%B1%85%E9%85%92%E5%B1%8B-%E7%A4%81%E6%BA%AA%E9%84%89-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E4%B8%B2%E7%87%92-r543431/",
       "coordinates": {
         "lat": 24.827038,
@@ -42380,7 +42380,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-smile-bar-中山區-多國料理-酒類飲品-r543446/",
       "coordinates": {
         "lat": 25.0663246,
@@ -42468,7 +42468,7 @@
         "喝飲聊天",
         "浪漫情調"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-uno-taipei-信義區-多國料理-酒類飲品-r543461/",
       "coordinates": {
         "lat": 25.033788,
@@ -42597,7 +42597,7 @@
         "喝飲聊天",
         "浪漫情調"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-u-square-by-a-train-大安區-多國料理-酒類飲品-r543677/",
       "coordinates": {
         "lat": 25.03375342854145,
@@ -42685,7 +42685,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-港點大師-碧潭店-r543686/",
       "coordinates": {
         "lat": 24.9574457,
@@ -42875,7 +42875,7 @@
         "喝飲聊天",
         "浪漫情調"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Posino-Taipei-r543746/",
       "coordinates": {
         "lat": 25.02887098182576,
@@ -43056,7 +43056,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-珍上堂海陸火鍋城-r543755/",
       "coordinates": {
         "lat": 24.989605,
@@ -43231,7 +43231,7 @@
         "居酒屋",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-繼光貳酒-串燒-r543890/",
       "coordinates": {
         "lat": 24.1376791,
@@ -43427,7 +43427,7 @@
         "喝飲聊天",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-糜鹿餐酒館-r543950/",
       "coordinates": {
         "lat": 25.0237069,
@@ -43515,7 +43515,7 @@
         "餐酒館",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-馬力小鎮-Marley-Saloon-r543956/",
       "coordinates": {
         "lat": 22.61772976202732,
@@ -43613,7 +43613,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-浮誇海鮮丼飯專門店-松山區-日式料理-定食-r543971/",
       "coordinates": {
         "lat": 25.0523617,
@@ -43864,7 +43864,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-西施特-柒捌-r543980/",
       "coordinates": {
         "lat": 25.0629136,
@@ -43945,7 +43945,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-純翠Pure-Veggies-r543983/",
       "coordinates": {
         "lat": 24.9959225,
@@ -44188,7 +44188,7 @@
         "早午餐",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-%E6%8C%91%E9%A3%9F-%E5%8D%97%E5%B1%AF%E5%8D%80-%E5%A4%9A%E5%9C%8B%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r544223/",
       "coordinates": {
         "lat": 24.15534471784203,
@@ -44279,7 +44279,7 @@
         "早午餐",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-粹想町-洋食Cafe-r544235/",
       "coordinates": {
         "lat": 24.98984817653509,
@@ -44380,7 +44380,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-%E6%91%B8%E6%91%B8%E9%9F%93%E9%A3%9F%E5%A0%82-%E5%8C%97%E5%8D%80-%E9%9F%93%E5%BC%8F%E6%96%99%E7%90%86-%E5%85%B6%E4%BB%96%E5%B0%8F%E5%90%83-r544283/",
       "coordinates": {
         "lat": 24.1488908,
@@ -44478,7 +44478,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-枋square-r544403/",
       "coordinates": {
         "lat": 25.0486031,
@@ -44573,7 +44573,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-梨花A5和牛放題-r544415/",
       "coordinates": {
         "lat": 22.66523885687586,
@@ -44681,7 +44681,7 @@
         "精緻料理",
         "外帶店"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-%E8%B5%A4%E9%B3%B6-akatobi-%E6%9D%BF%E5%89%8D%E5%89%B2%E7%83%B9%E6%96%99%E7%90%86-%E5%8D%97%E5%B1%AF%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E7%B2%BE%E7%B7%BB%E6%96%99%E7%90%86-r544463/",
       "coordinates": {
         "lat": 24.1547641,
@@ -44899,7 +44899,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-休憩ramen-bar-大安區-多國料理-日式拉麵-r544658/",
       "coordinates": {
         "lat": 25.03827601941443,
@@ -45002,7 +45002,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-SO_UP輕食館-r544664/",
       "coordinates": {
         "lat": 22.65795268347097,
@@ -45097,7 +45097,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-%E6%B5%B7%E7%A5%9E%E5%BC%84%E5%B1%80%E9%A4%90%E9%85%92bar-%E6%B0%B8%E5%92%8C%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E9%85%92%E9%A1%9E%E9%A3%B2%E5%93%81-r544721/",
       "coordinates": {
         "lat": 25.006654,
@@ -45187,7 +45187,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Shavu-刷刷-日式涮涮鍋-r544733/",
       "coordinates": {
         "lat": 25.0410560784942,
@@ -45321,7 +45321,7 @@
         "日式涮涮鍋/小火鍋",
         "火鍋店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-裏月晴酒-r544745/",
       "coordinates": {
         "lat": 24.8312405,
@@ -45419,7 +45419,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-%E8%89%BE%E6%9F%8F%E9%81%94%E5%92%96%E5%95%A1x-brunch-%E4%B8%AD%E8%A5%BF%E5%8D%80-%E7%BE%8E%E5%9C%8B%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r544841/",
       "coordinates": {
         "lat": 22.99207152951266,
@@ -45503,7 +45503,7 @@
         "燒肉店",
         "火鍋店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-%E5%B3%B6%E5%92%8C%E8%81%B7%E4%BA%BA%E7%87%92%E8%82%89%E9%8D%8B%E7%89%A9%E6%96%99%E7%90%86-%E5%AE%89%E5%B9%B3%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E6%97%A5%E5%BC%8F%E6%B6%AE%E6%B6%AE%E9%8D%8B-%E5%B0%8F%E7%81%AB%E9%8D%8B-r544886/",
       "coordinates": {
         "lat": 22.9889183,
@@ -45681,7 +45681,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-榆鐵板燒-r545003/",
       "coordinates": {
         "lat": 24.1494776,
@@ -45882,7 +45882,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-嵐海秘境鮮味餐廳-r545114/",
       "coordinates": {
         "lat": 25.1296947,
@@ -45974,7 +45974,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-%E8%8A%AE%E7%A5%9E%E4%B8%B2%E7%87%92-%E5%8C%97%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E4%B8%B2%E7%87%92-r545120/",
       "coordinates": {
         "lat": 24.1658037,
@@ -46073,7 +46073,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-九爺阿擼霸串串香火鍋-r545153/",
       "coordinates": {
         "lat": 24.99142595532238,
@@ -46149,7 +46149,7 @@
         "日式涮涮鍋/小火鍋",
         "火鍋店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-羊鮮森-溫體涮羊肉精緻火鍋-r545165/",
       "coordinates": {
         "lat": 24.1476094,
@@ -46342,7 +46342,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-鱻進來-日式料理-r545267/",
       "coordinates": {
         "lat": 24.912654,
@@ -46432,7 +46432,7 @@
         "中餐廳",
         "外帶店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-巴蜀傳奇-萬華區-四川菜-酒類飲品-r545447/",
       "coordinates": {
         "lat": 25.04406,
@@ -46508,7 +46508,7 @@
         "海鮮",
         "海鮮小炒"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-海總派對-員林旗艦店-r545588/",
       "coordinates": {
         "lat": 23.9672254,
@@ -46595,7 +46595,7 @@
         "台灣料理",
         "台灣原住民料理"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-silantemu-%E5%96%9C%E6%B5%AA%E9%90%B5%E6%B2%90-%E5%AE%9C%E8%98%AD%E5%B8%82-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-r545630/",
       "coordinates": {
         "lat": 24.7428992,
@@ -46692,7 +46692,7 @@
         "早午餐",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-dear-40-cafe-新店區-美國料理-茶類飲品-r545642/",
       "coordinates": {
         "lat": 24.9740132,
@@ -46867,7 +46867,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-xc微醺-餐酒館-中和區-多國料理-酒類飲品-r545756/",
       "coordinates": {
         "lat": 25.0007245,
@@ -46955,7 +46955,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-梨谷-韓式鐵板炭火烤肉-信義區-韓式料理-輕食-r545789/",
       "coordinates": {
         "lat": 25.04235374184157,
@@ -47056,7 +47056,7 @@
         "早午餐",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-湮云咖啡-LostCloud-Cafe-r545873/",
       "coordinates": {
         "lat": 24.1834496,
@@ -47347,7 +47347,7 @@
         "酒吧/Lounge Bar",
         "喝飲聊天"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Guzzle-Bar-r546077/",
       "coordinates": {
         "lat": 25.0446762,
@@ -47522,7 +47522,7 @@
         "甜點/蛋糕",
         "酒類飲品"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-双吉-teppanyaki-中山區-多國料理-鐵板燒-r546182/",
       "coordinates": {
         "lat": 25.0537035,
@@ -47615,7 +47615,7 @@
         "下午茶",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-大山昆陽咖啡-r546278/",
       "coordinates": {
         "lat": 25.0498475,
@@ -47771,7 +47771,7 @@
         "輕食",
         "咖啡廳(店)"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-慢咖啡-r546401/",
       "coordinates": {
         "lat": 22.7623909,
@@ -47977,7 +47977,7 @@
         "輕食",
         "咖啡廳(店)"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-My-Coffee-r546560/",
       "coordinates": {
         "lat": 22.9958675,
@@ -48054,7 +48054,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-%E5%A8%81%E4%BD%AC-%E5%A8%81%E5%A3%AB%E5%BF%8C%E6%9C%83%E6%89%80-%E5%AE%9C%E8%98%AD%E5%B8%82-%E5%A4%9A%E5%9C%8B%E6%96%99%E7%90%86-%E9%85%92%E9%A1%9E%E9%A3%B2%E5%93%81-r546581/",
       "coordinates": {
         "lat": 24.74479974796082,
@@ -48138,7 +48138,7 @@
         "外帶店",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-柒息地串燒居酒屋-三重店-r546587/",
       "coordinates": {
         "lat": 25.0667438,
@@ -48241,7 +48241,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-butcher-restaurant-by-ez-meat-一極肉舖-大安區-台灣料理-精緻料理-r546752/",
       "coordinates": {
         "lat": 25.0361035,
@@ -48339,7 +48339,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-極鶴和牛鍋物-大安區-台灣料理-茶類飲品-r546890/",
       "coordinates": {
         "lat": 25.03866666526246,
@@ -48536,7 +48536,7 @@
         "火鍋店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-何家香香麻辣鴛鴦鍋-r547091/",
       "coordinates": {
         "lat": 25.0003359,
@@ -48724,7 +48724,7 @@
         "酒吧/Lounge Bar",
         "家庭聚餐"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-一口一口一燒-串燒滷味-r547325/",
       "coordinates": {
         "lat": 24.1779942,
@@ -48896,7 +48896,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-裏通路-r547499/",
       "coordinates": {
         "lat": 25.0018039,
@@ -49070,7 +49070,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-小琉球雀爾思燒肉Cheers-Beer-Barbecue-r547535/",
       "coordinates": {
         "lat": 22.3429385,
@@ -49165,7 +49165,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-%E8%89%AF%E4%BA%BA%E7%85%AE%E9%8D%8B-%E5%AE%89%E5%B9%B3%E5%8D%80-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r547724/",
       "coordinates": {
         "lat": 22.9828051,
@@ -49264,7 +49264,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-%E7%AE%B1%E8%88%9F%E7%87%92%E8%82%89-%E5%AE%89%E5%B9%B3%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E8%BC%95%E9%A3%9F-r547841/",
       "coordinates": {
         "lat": 22.9929429,
@@ -49362,7 +49362,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-轉鮮鍋-r547844/",
       "coordinates": {
         "lat": 25.107419,
@@ -49533,7 +49533,7 @@
         "酒類飲品",
         "酒吧/Lounge Bar"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-TAKE-OUT-!-r547910/",
       "coordinates": {
         "lat": 25.0410226,
@@ -49615,7 +49615,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-禾荳家咖哩-r548117/",
       "coordinates": {
         "lat": 24.1037017,
@@ -49720,7 +49720,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-十韻極品涮涮鍋-大安區-台灣料理-甜點-蛋糕-r548159/",
       "coordinates": {
         "lat": 25.0310052,
@@ -49812,7 +49812,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-烤必勝日式燒肉-出一張嘴公館店-中正區-日式料理-串燒-r548183/",
       "coordinates": {
         "lat": 25.0151636,
@@ -49914,7 +49914,7 @@
         "燒肉店",
         "外帶店"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-牛花-ushihana-松山區-日式料理-甜點-蛋糕-r548264/",
       "coordinates": {
         "lat": 25.0590283,
@@ -50033,7 +50033,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-感官餐廳-r548372/",
       "coordinates": {
         "lat": 24.1396791,
@@ -50134,7 +50134,7 @@
         "酒類飲品",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯桑-港墘店-內湖區-台灣料理-日式拉麵-r548432/",
       "coordinates": {
         "lat": 25.07704,
@@ -50285,7 +50285,7 @@
         "燒肉店",
         "外帶店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-%E6%9F%92%E6%81%AF%E5%9C%B0%E4%B8%B2%E7%87%92%E5%B1%85%E9%85%92%E5%B1%8B-%E6%B0%B8%E5%92%8C%E5%BA%97-%E6%B0%B8%E5%92%8C%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E4%B8%B2%E7%87%92-r548654/",
       "coordinates": {
         "lat": 25.0064061,
@@ -50382,7 +50382,7 @@
         "日式燒肉",
         "燒肉店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-%E6%B5%B7-%E7%87%92%E8%82%89-%E6%96%B0%E5%9F%8E%E9%84%89-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E5%85%B6%E4%BB%96%E7%87%92%E8%82%89-r548843/",
       "coordinates": {
         "lat": 24.05148,
@@ -50566,7 +50566,7 @@
         "精緻料理",
         "燒肉店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-濂-直火割烹-r549281/",
       "coordinates": {
         "lat": 23.97810048230581,
@@ -50896,7 +50896,7 @@
         "日式涮涮鍋/小火鍋",
         "火鍋店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-碳吉鍋物-r549956/",
       "coordinates": {
         "lat": 24.83117,
@@ -51139,7 +51139,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Geography-Bar-Restaurant-r550698/",
       "coordinates": {
         "lat": 25.0449087,
@@ -51225,7 +51225,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Bar-Root-by-1-r550968/",
       "coordinates": {
         "lat": 25.0372682,
@@ -51322,7 +51322,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-小孩吃素-r551007/",
       "coordinates": {
         "lat": 22.9964895,
@@ -51508,7 +51508,7 @@
         "主題餐廳",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-鍋泰暖南洋鍋物-台中大里店-r551217/",
       "coordinates": {
         "lat": 24.1153238,
@@ -51703,7 +51703,7 @@
         "外帶店",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-花之偈居酒屋-r551638/",
       "coordinates": {
         "lat": 25.0230584,
@@ -51793,7 +51793,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Bar宮-r551908/",
       "coordinates": {
         "lat": 25.043918,
@@ -51980,7 +51980,7 @@
         "火鍋店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-%E9%8D%8B%E6%B3%B0%E6%9A%96%E5%8D%97%E6%B4%8B%E9%8D%8B%E7%89%A9-%E5%8F%B0%E4%B8%AD%E5%B4%87%E5%BE%B7%E5%BA%97-%E5%8C%97%E5%8D%80-%E6%B3%B0%E5%BC%8F%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r552083/",
       "coordinates": {
         "lat": 24.1657957,
@@ -52073,7 +52073,7 @@
         "火鍋吃到飽",
         "火鍋店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-鍋泰暖南洋鍋物-豐原家樂福店-r552086/",
       "coordinates": {
         "lat": 24.2522311,
@@ -52154,7 +52154,7 @@
         "火鍋吃到飽",
         "火鍋店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-鍋泰暖南洋鍋物-彰化員林店-r552089/",
       "coordinates": {
         "lat": 25.0612964,
@@ -52253,7 +52253,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-CHIJI-SPACE-Bistro赤雞人間餐酒館-r552194/",
       "coordinates": {
         "lat": 25.0581256,
@@ -52347,7 +52347,7 @@
         "日式西餐廳(洋食)",
         "外帶店"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-丼品香-三重人氣丼飯、咖哩飯專賣店-r552469/",
       "coordinates": {
         "lat": 25.0674148,
@@ -52438,7 +52438,7 @@
         "外帶店",
         "餐酒館"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-maree-taipei-瑪喜bistro-中山區-法國料理-精緻料理-r552574/",
       "coordinates": {
         "lat": 25.0651734,
@@ -52518,7 +52518,7 @@
         "燒肉店",
         "餐酒館"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-Nick's燒肉餐酒館-r552927/",
       "coordinates": {
         "lat": 24.15036975069828,
@@ -52599,7 +52599,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-Paradiso爬樓梯-r553273/",
       "coordinates": {
         "lat": 24.1540066,
@@ -52875,7 +52875,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-麻妃頂極麻辣鴛鴦鍋-r553718/",
       "coordinates": {
         "lat": 25.0557697,
@@ -52961,7 +52961,7 @@
         "主題餐廳",
         "餐酒館"
       ],
-      "budget": "NT$1001-1500",
+      "budget": "1000-1500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Minerva-米奈瓦音樂沙發酒吧-r553850/",
       "coordinates": {
         "lat": 25.0508891,
@@ -53049,7 +53049,7 @@
         "外帶店",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-柒息地串燒居酒屋-長安店-r553995/",
       "coordinates": {
         "lat": 25.048384,
@@ -53151,7 +53151,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-小日子sweet-life-r554061/",
       "coordinates": {
         "lat": 24.9817422,
@@ -53393,7 +53393,7 @@
         "外帶店",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-柒息地串燒居酒屋-新莊店-r554350/",
       "coordinates": {
         "lat": 25.0498053,
@@ -53653,7 +53653,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-宸軒園海鮮-中興店-r554563/",
       "coordinates": {
         "lat": 24.963708,
@@ -53762,7 +53762,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-座上嗑好嗑鍋煮-r554948/",
       "coordinates": {
         "lat": 24.3097494,
@@ -54045,7 +54045,7 @@
         "咖啡廳(店)",
         "外帶店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-咖央-潮境店-Cafejiasong-r555198/",
       "coordinates": {
         "lat": 25.1449281,
@@ -54121,7 +54121,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-樂野鍋物LeYe-Hot-Pot-r555283/",
       "coordinates": {
         "lat": 25.0123609,
@@ -54207,7 +54207,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-the-park-j咖啡餐酒館-萬華區-多國料理-酒類飲品-r555286/",
       "coordinates": {
         "lat": 25.044704,
@@ -54304,7 +54304,7 @@
         "餐酒館",
         "早午餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-nowhere-taipei墨西哥餐酒館-大同區-美國料理-輕食-r555289/",
       "coordinates": {
         "lat": 25.0503058,
@@ -54395,7 +54395,7 @@
         "活蝦餐廳",
         "熱炒店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-威尼町平價活體海鮮餐廳-r555301/",
       "coordinates": {
         "lat": 24.8130927,
@@ -54481,7 +54481,7 @@
         "麻辣鍋",
         "火鍋店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-%E4%BA%91%E5%93%81%E9%8D%8B%E7%89%A9-shabu-shabu-%E7%BE%85%E6%9D%B1%E9%8E%AE-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E5%85%B6%E4%BB%96%E7%81%AB%E9%8D%8B-r555430/",
       "coordinates": {
         "lat": 24.6769496,
@@ -54572,7 +54572,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$1001-1500",
+      "budget": "1000-1500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-凌舞餐酒館-r555482/",
       "coordinates": {
         "lat": 25.0507635,
@@ -54662,7 +54662,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-bar-fest-中正區-歐陸料理-輕食-r555668/",
       "coordinates": {
         "lat": 25.015961,
@@ -54751,7 +54751,7 @@
         "火鍋店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-粥起-粥底火鍋-熱炒-大安區-台灣料理-台式小吃-r555686/",
       "coordinates": {
         "lat": 25.024169,
@@ -54854,7 +54854,7 @@
         "火鍋店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-來一串-r555698/",
       "coordinates": {
         "lat": 24.9583306,
@@ -54944,7 +54944,7 @@
         "外帶店",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-瘋佬墨StellaLoca墨西哥料理-r555771/",
       "coordinates": {
         "lat": 24.1777837,
@@ -55034,7 +55034,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Baksa手工窯烤披薩-r555870/",
       "coordinates": {
         "lat": 24.98689920749565,
@@ -55123,7 +55123,7 @@
         "披薩",
         "咖啡廳(店)"
       ],
-      "budget": "NT$101-200",
+      "budget": "100-200 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-北角森林-河狸咖啡館-r555897/",
       "coordinates": {
         "lat": 24.560159,
@@ -55196,7 +55196,7 @@
         "壽司/生魚片",
         "海鮮小炒"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-馥蘭朵墾丁後壁湖海平線餐廳-r555939/",
       "coordinates": {
         "lat": 22.6272772,
@@ -55292,7 +55292,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-晴月精緻燒肉-r556060/",
       "coordinates": {
         "lat": 22.623801,
@@ -55398,7 +55398,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-鳳居酒屋-r556063/",
       "coordinates": {
         "lat": 24.9548301,
@@ -55545,7 +55545,7 @@
         "燒肉店",
         "外帶店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-慶花苑日式燒肉-r556349/",
       "coordinates": {
         "lat": 22.6201505,
@@ -55652,7 +55652,7 @@
         "外帶店",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-三日月日式料理-r556382/",
       "coordinates": {
         "lat": 25.0812202,
@@ -55747,7 +55747,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-waaaa-台北-松山-特色餐廳-松山區-台灣料理-台式小吃-r556409/",
       "coordinates": {
         "lat": 25.0498502,
@@ -55929,7 +55929,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-貓之伊甸-cat-in-eden-萬華區-義大利料理-茶類飲品-r556671/",
       "coordinates": {
         "lat": 25.03944309297413,
@@ -56028,7 +56028,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-%E6%BB%B4%E5%92%96%E6%BF%83%E8%83%BD%E9%87%8F%E5%92%96%E5%95%A1-%E8%A5%BF%E5%B1%AF%E5%8D%80-%E7%BE%A9%E5%A4%A7%E5%88%A9%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r556770/",
       "coordinates": {
         "lat": 24.1852734,
@@ -56111,7 +56111,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-姥沙四川麻辣鍋-r556963/",
       "coordinates": {
         "lat": 25.1302086,
@@ -56204,7 +56204,7 @@
         "日式燒肉",
         "燒肉店"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-燒肉心KoKoro-Grill-r556966/",
       "coordinates": {
         "lat": 24.8191282,
@@ -56303,7 +56303,7 @@
         "外帶店",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-調味品串酒坊-r557102/",
       "coordinates": {
         "lat": 25.0438074,
@@ -56396,7 +56396,7 @@
         "義大利麵",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-mrt-bistro復興南京餐酒館-松山區-義大利料理-酒類飲品-r557256/",
       "coordinates": {
         "lat": 25.0571859,
@@ -56502,7 +56502,7 @@
         "餐酒館",
         "浪漫情調"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-le-puss-中山區-法國料理-茶類飲品-r557331/",
       "coordinates": {
         "lat": 25.048079,
@@ -56595,7 +56595,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-搖滾階梯咖啡廳-r557371/",
       "coordinates": {
         "lat": 25.0083337,
@@ -56688,7 +56688,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-Di-Art-Café滴藝術咖啡館-r557395/",
       "coordinates": {
         "lat": 24.1686189,
@@ -56973,7 +56973,7 @@
         "其他燒肉",
         "燒肉店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-酒鬼的家BBQ燒烤吃到飽-r557527/",
       "coordinates": {
         "lat": 23.5267315,
@@ -57138,7 +57138,7 @@
         "咖啡廳(店)",
         "外帶店"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-CABOOM-coffee-stand-r557575/",
       "coordinates": {
         "lat": 22.6292582,
@@ -57227,7 +57227,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-kome-kome-steak%E9%85%B7%E7%BE%8E%E7%89%9B%E6%8E%92-%E4%B8%AD%E8%A5%BF%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E5%85%B6%E4%BB%96%E7%87%92%E8%82%89-r557584/",
       "coordinates": {
         "lat": 22.9888733,
@@ -57314,7 +57314,7 @@
         "餐酒館",
         "浪漫情調"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Caveyard-by-1-r557590/",
       "coordinates": {
         "lat": 25.0407009,
@@ -57412,7 +57412,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-NISEI・二世・にせい-r557593/",
       "coordinates": {
         "lat": 25.0437839,
@@ -57495,7 +57495,7 @@
         "日式燒肉",
         "燒肉店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-花燒肉-高雄前金店-r557995/",
       "coordinates": {
         "lat": 22.6299312,
@@ -57594,7 +57594,7 @@
         "日式燒肉",
         "燒肉店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-花燒肉-永華中華店-永康區-日式料理-其他燒肉-r557998/",
       "coordinates": {
         "lat": 23.011022,
@@ -57687,7 +57687,7 @@
         "咖啡廳(店)",
         "早午餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-no-7-pane-meals-coffee-dolce-%E8%8A%B1%E8%93%AE%E5%B8%82-%E5%A4%9A%E5%9C%8B%E6%96%99%E7%90%86-%E7%94%9C%E9%BB%9E-%E8%9B%8B%E7%B3%95-r558001/",
       "coordinates": {
         "lat": 23.9823793,
@@ -57930,7 +57930,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-串龍門-r558079/",
       "coordinates": {
         "lat": 22.628872,
@@ -58026,7 +58026,7 @@
         "早午餐",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-REING-CAFÉ-r558082/",
       "coordinates": {
         "lat": 24.1407878,
@@ -58123,7 +58123,7 @@
         "餐酒館",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-黑帽爵士咖啡酒吧-中正區-多國料理-咖哩-r558085/",
       "coordinates": {
         "lat": 25.0418121,
@@ -58315,7 +58315,7 @@
         "日式燒肉",
         "燒肉店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Uncle-Shawn新竹店-r558158/",
       "coordinates": {
         "lat": 24.7998481,
@@ -58407,7 +58407,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-uncle-shawn台中店-西區-日式料理-其他燒肉-r558161/",
       "coordinates": {
         "lat": 24.1537688,
@@ -58987,7 +58987,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-%E5%B7%B4%E5%B7%B4%E9%81%94%E7%88%B8%E5%8D%B0%E5%BA%A6%E6%96%99%E7%90%86%E9%A4%A8-%E4%B8%AD%E5%8D%80-%E5%8D%B0%E5%BA%A6%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r558423/",
       "coordinates": {
         "lat": 24.1415882,
@@ -59097,7 +59097,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-%E7%91%AA%E8%8E%89%E6%B4%8B%E6%88%BF%E7%BE%A9%E6%B3%95%E6%96%99%E7%90%86-%E5%AE%89%E5%B9%B3%E5%8D%80-%E7%BE%A9%E5%A4%A7%E5%88%A9%E6%96%99%E7%90%86-%E8%8C%B6%E9%A1%9E%E9%A3%B2%E5%93%81-r558426/",
       "coordinates": {
         "lat": 22.992584,
@@ -59185,7 +59185,7 @@
         "其他燒肉",
         "牛排館"
       ],
-      "budget": "NT$1001-1500",
+      "budget": "1000-1500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Roast•初-熟成牛排館-r558429/",
       "coordinates": {
         "lat": 24.8311616,
@@ -59281,7 +59281,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-敘旨別院-西區-日式料理-燒肉吃到飽-r558432/",
       "coordinates": {
         "lat": 24.1342456,
@@ -59471,7 +59471,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-滿大人頂級麻辣鍋-中山區-台灣料理-茶類飲品-r558438/",
       "coordinates": {
         "lat": 25.0628005,
@@ -59668,7 +59668,7 @@
         "早午餐",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-小宅子咖啡-r558896/",
       "coordinates": {
         "lat": 25.0139105,
@@ -59850,7 +59850,7 @@
         "串燒",
         "外帶店"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-鳥力-中山區-日式料理-串燒-r558972/",
       "coordinates": {
         "lat": 25.0598332,
@@ -60147,7 +60147,7 @@
         "居酒屋",
         "餐酒館"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-%E8%96%B0%E8%8A%B1%E6%97%A5%E5%BC%8F%E9%A4%90%E9%85%92%E9%A4%A8-%E6%B0%B8%E5%92%8C%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E4%B8%B2%E7%87%92-r559192/",
       "coordinates": {
         "lat": 25.005202,
@@ -60242,7 +60242,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-可汗大叔海鮮火鍋醬蝦醬蟹專賣店-中山區-韓式料理-輕食-r559244/",
       "coordinates": {
         "lat": 25.0615561,
@@ -60475,7 +60475,7 @@
         "咖啡廳(店)",
         "下午茶"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-胖多米咖啡館-r559406/",
       "coordinates": {
         "lat": 24.8073013,
@@ -60560,7 +60560,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-鹿兒野餐-r559409/",
       "coordinates": {
         "lat": 21.9995757,
@@ -60649,7 +60649,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-石本石本女臣-新世代中式料理-信義區-台灣料理-輕食-r559476/",
       "coordinates": {
         "lat": 25.035259,
@@ -60755,7 +60755,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$101-200",
+      "budget": "100-200 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-Ageless-Restaurant舞齡餐廳-r559974/",
       "coordinates": {
         "lat": 24.1676214,
@@ -60842,7 +60842,7 @@
         "外帶店",
         "美食廣場"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-麵屋一燈-信義a11店-信義區-日式料理-其他小吃-r560176/",
       "coordinates": {
         "lat": 25.0367465,
@@ -61217,7 +61217,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-蓉記莫名堂(師大店)-r560612/",
       "coordinates": {
         "lat": 25.0225806,
@@ -61321,7 +61321,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-junto-同-中正區-台灣料理-茶類飲品-r560868/",
       "coordinates": {
         "lat": 25.0450783,
@@ -61698,7 +61698,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-聚面-r560916/",
       "coordinates": {
         "lat": 25.0428859,
@@ -61785,7 +61785,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-貢拋seafood泰式海鮮餐廳-南屯區-泰式料理-輕食-r561413/",
       "coordinates": {
         "lat": 24.1381968,
@@ -61879,7 +61879,7 @@
         "法國料理",
         "義大利麵"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-如見-r561416/",
       "coordinates": {
         "lat": 24.171653,
@@ -61973,7 +61973,7 @@
         "早午餐",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-暫時飲所TEMPbar-r561558/",
       "coordinates": {
         "lat": 25.0084477,
@@ -62059,7 +62059,7 @@
         "多國料理",
         "素食"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-布布滴蔬食-r561640/",
       "coordinates": {
         "lat": 23.7571838,
@@ -62239,7 +62239,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-梨壽司-r561821/",
       "coordinates": {
         "lat": 22.7947534,
@@ -62506,7 +62506,7 @@
         "小吃店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-門前隱味牛肉麵-r561972/",
       "coordinates": {
         "lat": 24.14459,
@@ -62597,7 +62597,7 @@
         "餐酒館",
         "浪漫情調"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-浮侍-ukitsu-bar-大安區-台灣料理-輕食-r562089/",
       "coordinates": {
         "lat": 25.0430285,
@@ -62682,7 +62682,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$<100",
+      "budget": "100 元以內",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-海韻複合式咖啡-中和區-多國料理-茶類飲品-r562165/",
       "coordinates": {
         "lat": 24.9918244,
@@ -62768,7 +62768,7 @@
       "type": [
         "多國料理"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-%E7%B1%B3%E8%98%AD%E9%A8%8E%E5%85%B5%E5%9C%98%E7%89%9B%E6%8E%92%E9%A4%90%E5%BB%B3-%E4%BA%94%E7%B5%90%E9%84%89-%E5%A4%9A%E5%9C%8B%E6%96%99%E7%90%86-r562168/",
       "coordinates": {
         "lat": 24.7078121,
@@ -63038,7 +63038,7 @@
         "外帶店",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-%E6%9F%92%E6%81%AF%E5%9C%B0%E4%B8%B2%E7%87%92%E5%B1%85%E9%85%92%E5%B1%8B-%E8%98%86%E6%B4%B2%E5%BA%97-%E8%98%86%E6%B4%B2%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E4%B8%B2%E7%87%92-r562415/",
       "coordinates": {
         "lat": 25.0871883,
@@ -63129,7 +63129,7 @@
         "外帶店",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-%E6%9F%92%E6%81%AF%E5%9C%B0%E4%B8%B2%E7%87%92%E5%B1%85%E9%85%92%E5%B1%8B-%E4%BF%A1%E7%BE%A9%E5%BA%97-%E4%BF%A1%E7%BE%A9%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E4%B8%B2%E7%87%92-r562418/",
       "coordinates": {
         "lat": 25.0390901,
@@ -63313,7 +63313,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-麥田鮮釀-中和區-多國料理-日式烏龍麵-r562448/",
       "coordinates": {
         "lat": 24.9988298,
@@ -63401,7 +63401,7 @@
         "中餐廳",
         "早餐店"
       ],
-      "budget": "NT$1001-1500",
+      "budget": "1000-1500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-潼精緻鐵板料理-故宮博物院店-士林區-日式料理-海鮮小炒-r562451/",
       "coordinates": {
         "lat": 25.1113976,
@@ -63493,7 +63493,7 @@
         "浪漫情調",
         "慶祝紀念日"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-here_taipei-r562783/",
       "coordinates": {
         "lat": 25.0397882,
@@ -63585,7 +63585,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-蝦之城活蝦餐廳-萬華活蝦-萬華區-台灣料理-台式小吃-r562786/",
       "coordinates": {
         "lat": 25.0453513,
@@ -63677,7 +63677,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯大叔-敦南店-r562967/",
       "coordinates": {
         "lat": 25.0248001,
@@ -63856,7 +63856,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-HAO'S深夜餐酒-r563091/",
       "coordinates": {
         "lat": 25.013807,
@@ -64030,7 +64030,7 @@
         "咖啡廳(店)",
         "主題餐廳"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-meerkat75-cafe-75度獴-大安區-多國料理-茶類飲品-r563368/",
       "coordinates": {
         "lat": 25.0353276,
@@ -64111,7 +64111,7 @@
         "居酒屋",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/new-taipei/r-呷飽飽燒烤屋-馬公市-日式料理-串燒-r563446/",
       "coordinates": {
         "lat": 23.5756163,
@@ -64196,7 +64196,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-義狗倆狗複合式餐廳-r563455/",
       "coordinates": {
         "lat": 22.6203609,
@@ -64454,7 +64454,7 @@
         "餐酒館",
         "浪漫情調"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-你家樓下-大安區-義大利料理-精緻料理-r563528/",
       "coordinates": {
         "lat": 25.0372344,
@@ -64644,7 +64644,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-teast-by-慕耕活-大同區-台灣料理-茶類飲品-r563537/",
       "coordinates": {
         "lat": 25.054901,
@@ -64730,7 +64730,7 @@
         "小吃店",
         "外帶店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-門前隱味牛肉麵-r563690/",
       "coordinates": {
         "lat": 25.0580573,
@@ -64897,7 +64897,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-%E9%85%92%E9%BE%9C88%E9%A4%90%E9%85%92%E9%A4%A8-%E9%A0%AD%E5%9F%8E%E9%8E%AE-%E5%A4%9A%E5%9C%8B%E6%96%99%E7%90%86-%E9%85%92%E9%A1%9E%E9%A3%B2%E5%93%81-r563983/",
       "coordinates": {
         "lat": 24.8612925,
@@ -64990,7 +64990,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-%E8%B2%93%E7%83%A4%E8%B2%9D%E6%B5%B7%E9%AE%AE%E7%87%92%E7%83%A4%E5%BA%97-%E6%B0%B8%E5%92%8C%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E4%B8%B2%E7%87%92-r563992/",
       "coordinates": {
         "lat": 24.9978491,
@@ -65262,7 +65262,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-串燒殿-中山區-日式料理-串燒-r564004/",
       "coordinates": {
         "lat": 25.0628234,
@@ -65544,7 +65544,7 @@
         "熱炒店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-大吃一斤-r564016/",
       "coordinates": {
         "lat": 25.0485188,
@@ -65829,7 +65829,7 @@
         "外帶店",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-京町山本屋-大安區-日式料理-茶類飲品-r564155/",
       "coordinates": {
         "lat": 25.0306066,
@@ -65934,7 +65934,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-pillo-bakery-cafe-大同區-多國料理-茶類飲品-r564158/",
       "coordinates": {
         "lat": 25.0544139,
@@ -66042,7 +66042,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-daydayjamu-cafe-中正區-印尼料理-茶類飲品-r564291/",
       "coordinates": {
         "lat": 25.0464632,
@@ -66229,7 +66229,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-炭伙-居酒屋-三重區-日式料理-串燒-r564767/",
       "coordinates": {
         "lat": 25.06226774929764,
@@ -66422,7 +66422,7 @@
         "餐酒館",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-jumi-tavern-大安區-多國料理-酒類飲品-r564945/",
       "coordinates": {
         "lat": 25.0391186,
@@ -66505,7 +66505,7 @@
         "酒類飲品",
         "酒吧/Lounge Bar"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-去斯萬家-chez-swann-by-jumi-tavern-大安區-多國料理-酒類飲品-r564948/",
       "coordinates": {
         "lat": 25.0298709,
@@ -66588,7 +66588,7 @@
         "酒類飲品",
         "酒吧/Lounge Bar"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-bibber-dessert-bar-酒徒的點心店-by-vivid-hermit-saloon-co-ltd-信義區-多國料理-酒類飲品-r564951/",
       "coordinates": {
         "lat": 25.033362,
@@ -66682,7 +66682,7 @@
         "家庭聚餐",
         "慶祝紀念日"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-%E7%99%BC%E8%82%89%E7%87%92%E8%82%89%E9%A4%90%E9%85%92-%E6%95%A6%E5%8C%97%E4%B8%80%E5%BA%97-%E6%9D%BE%E5%B1%B1%E5%8D%80-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E4%B8%B2%E7%87%92-r564960/",
       "coordinates": {
         "lat": 25.0502917,
@@ -66781,7 +66781,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-c-park-re-creation-by-a-train-中山區-多國料理-酒類飲品-r564963/",
       "coordinates": {
         "lat": 25.0536309,
@@ -66864,7 +66864,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-字母系列餐酒-east-village-中山區-多國料理-酒類飲品-r564966/",
       "coordinates": {
         "lat": 25.0493433,
@@ -66950,7 +66950,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-美喝麥喝台式餐酒館-大安區-台灣料理-台式小吃-r565009/",
       "coordinates": {
         "lat": 25.0427278,
@@ -67039,7 +67039,7 @@
         "火鍋店",
         "慶祝紀念日"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-東華川府重慶老火鍋-新店區-四川菜-其他火鍋-r565012/",
       "coordinates": {
         "lat": 24.978061,
@@ -67210,7 +67210,7 @@
         "泰式料理",
         "熱炒店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-我不怕你泰胖-中正區-泰式料理-r565169/",
       "coordinates": {
         "lat": 25.03439014943134,
@@ -67296,7 +67296,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-麵屋一燈-高雄夢時代店-r565428/",
       "coordinates": {
         "lat": 22.5953346,
@@ -67451,7 +67451,7 @@
         "餐酒館",
         "喝飲聊天"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-EZO-Taipei-r565470/",
       "coordinates": {
         "lat": 25.0327473,
@@ -67533,7 +67533,7 @@
         "多國料理",
         "複合式餐飲"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-JC1號花園-r565473/",
       "coordinates": {
         "lat": 25.0117729,
@@ -67617,7 +67617,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-巢食蔬-板橋區-多國料理-輕食-r565476/",
       "coordinates": {
         "lat": 25.0088082,
@@ -67706,7 +67706,7 @@
         "台灣料理",
         "鐵板燒"
       ],
-      "budget": "NT$1001-1500",
+      "budget": "1000-1500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-范師傅-鐵板創意手作料理-板橋區-台灣料理-鐵板燒-r565479/",
       "coordinates": {
         "lat": 25.0253315,
@@ -67795,7 +67795,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-%E5%B0%8F%E9%A6%99%E7%BD%90-%E7%82%AD%E7%81%AB%E7%81%AB%E9%8D%8B-%E6%96%B0%E5%BA%97%E5%8D%80-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E5%85%B6%E4%BB%96%E7%81%AB%E9%8D%8B-r565485/",
       "coordinates": {
         "lat": 24.9776821,
@@ -67884,7 +67884,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-串肚肚-r565488/",
       "coordinates": {
         "lat": 22.6628134,
@@ -67983,7 +67983,7 @@
         "日式涮涮鍋/小火鍋",
         "火鍋店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-想肉了平價火鍋燒肉兩吃-信義區-台灣料理-其他火鍋-r565718/",
       "coordinates": {
         "lat": 25.0400673,
@@ -68082,7 +68082,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-小孩吃素-r565751/",
       "coordinates": {
         "lat": 22.6594763,
@@ -68191,7 +68191,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-小孩吃素-r565754/",
       "coordinates": {
         "lat": 22.6262268695775,
@@ -68299,7 +68299,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-小孩吃素-r565763/",
       "coordinates": {
         "lat": 22.67368167109527,
@@ -68403,7 +68403,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-小孩吃素-r565775/",
       "coordinates": {
         "lat": 22.98365152890989,
@@ -68503,7 +68503,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-深紅汕頭鍋物-r565787/",
       "coordinates": {
         "lat": 24.1893447,
@@ -68592,7 +68592,7 @@
         "其他火鍋",
         "火鍋店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-深紅汕頭鍋物-r565790/",
       "coordinates": {
         "lat": 24.83110464371503,
@@ -68685,7 +68685,7 @@
         "台灣料理",
         "輕食"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-%E6%97%A5%E5%85%89%E5%B1%B1%E8%8C%B6%E5%B1%8B-%E7%A4%81%E6%BA%AA%E9%84%89-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E8%BC%95%E9%A3%9F-r565857/",
       "coordinates": {
         "lat": 24.81562618400065,
@@ -68775,7 +68775,7 @@
         "喝飲聊天",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-饗夢居酒屋-r565860/",
       "coordinates": {
         "lat": 24.1749635,
@@ -68871,7 +68871,7 @@
         "火鍋店",
         "喝飲聊天"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-糧倉一號麻辣鴛鴦鍋-松江店-r565979/",
       "coordinates": {
         "lat": 25.05658096636071,
@@ -68963,7 +68963,7 @@
         "家庭聚餐",
         "包場派對"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-柒鮮餐飲舖-r566055/",
       "coordinates": {
         "lat": 22.6709249,
@@ -69045,7 +69045,7 @@
         "海鮮",
         "中餐廳"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-興蓬萊台菜海鮮餐廳-士林區-台灣料理-海鮮-r566058/",
       "coordinates": {
         "lat": 25.1118713,
@@ -69142,7 +69142,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-滋立火鍋-板橋區-日式料理-甜點-蛋糕-r566067/",
       "coordinates": {
         "lat": 25.00701789095001,
@@ -69230,7 +69230,7 @@
         "日式涮涮鍋/小火鍋",
         "火鍋店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/eastern/r-%E7%81%AB%E9%8D%8B%E4%B8%96%E5%AE%B6-%E8%8A%B1%E8%93%AE%E5%9C%8B%E8%81%AF%E5%BA%97-%E8%8A%B1%E8%93%AE%E5%B8%82-%E5%8F%B0%E7%81%A3%E6%96%99%E7%90%86-%E6%97%A5%E5%BC%8F%E6%B6%AE%E6%B6%AE%E9%8D%8B-%E5%B0%8F%E7%81%AB%E9%8D%8B-r566323/",
       "coordinates": {
         "lat": 23.9910498,
@@ -69311,7 +69311,7 @@
         "日式燒肉",
         "燒肉店"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-八和和牛燒肉專門店-松山區-日式料理-日式燒肉-r566326/",
       "coordinates": {
         "lat": 25.0522447,
@@ -69396,7 +69396,7 @@
         "韓式燒肉",
         "燒肉店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-ssam-韓式燒肉專門店-中山區-韓式料理-韓式燒肉-r566329/",
       "coordinates": {
         "lat": 25.0506447,
@@ -69478,7 +69478,7 @@
         "日式涮涮鍋/小火鍋",
         "火鍋店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-牛琅溫體牛火鍋-竹北店-r566432/",
       "coordinates": {
         "lat": 24.8248476,
@@ -69559,7 +69559,7 @@
       "type": [
         "韓式料理"
       ],
-      "budget": "NT$1001-1500",
+      "budget": "1000-1500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-金豬食堂-中山區-韓式料理-r566450/",
       "coordinates": {
         "lat": 25.0523704,
@@ -69636,7 +69636,7 @@
         "串燒",
         "居酒屋"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-歡聚堂-r566598/",
       "coordinates": {
         "lat": 24.8301187,
@@ -69729,7 +69729,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-86-Bistro-串燒酒館-r566677/",
       "coordinates": {
         "lat": 24.149913,
@@ -69907,7 +69907,7 @@
         "外帶店",
         "早午餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-rubato-cafe-%E4%BB%BB%E6%80%A7%E5%92%96%E5%95%A1-%E4%B8%AD%E5%A3%A2%E5%8D%80-%E6%97%A5%E5%BC%8F%E6%96%99%E7%90%86-%E7%82%B8%E7%89%A9-r566683/",
       "coordinates": {
         "lat": 24.9564327,
@@ -69993,7 +69993,7 @@
         "韓式燒肉",
         "燒肉店"
       ],
-      "budget": "NT$1001-1500",
+      "budget": "1000-1500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-風川鰻魚韓式烤鰻魚-中山區-韓式料理-海鮮-r566686/",
       "coordinates": {
         "lat": 25.0515058,
@@ -70076,7 +70076,7 @@
       "type": [
         "台灣料理"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-門前隱味-r566729/",
       "coordinates": {
         "lat": 25.0450444,
@@ -70163,7 +70163,7 @@
         "炸物",
         "餐酒館"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-pali-pali-大安區-義大利料理-炸物-r566732/",
       "coordinates": {
         "lat": 25.0361838,
@@ -70334,7 +70334,7 @@
         "其他火鍋",
         "麻辣鍋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-蔡集鎮川菜館-板橋區-四川菜-其他火鍋-r566738/",
       "coordinates": {
         "lat": 25.0076562,
@@ -70419,7 +70419,7 @@
         "其他火鍋",
         "麻辣鍋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-姐夫重慶串串鍋-板橋區-四川菜-其他火鍋-r566741/",
       "coordinates": {
         "lat": 25.0079131,
@@ -70503,7 +70503,7 @@
         "其他火鍋",
         "麻辣鍋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-姐夫重慶串串鍋-r566744/",
       "coordinates": {
         "lat": 24.9660325,
@@ -70681,7 +70681,7 @@
         "串燒",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-放-Fun-Dining串燒酒肴-r566985/",
       "coordinates": {
         "lat": 25.0309146,
@@ -70774,7 +70774,7 @@
         "居酒屋",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-魚小二-台中昌平旗艦店-r567502/",
       "coordinates": {
         "lat": 24.1739423,
@@ -70877,7 +70877,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-腳落燒烤料理-r567541/",
       "coordinates": {
         "lat": 22.63121,
@@ -71057,7 +71057,7 @@
         "咖啡廳(店)",
         "冰店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-箱庭-山本屋hakoniwayamamotoya-大安區-日式料理-茶類飲品-r567747/",
       "coordinates": {
         "lat": 25.02795170401017,
@@ -71150,7 +71150,7 @@
         "日式料理",
         "日式燒肉"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-葵燒-燒肉-HIMAWARI-YAKINIKU-r567750/",
       "coordinates": {
         "lat": 25.0241733,
@@ -71242,7 +71242,7 @@
         "串燒",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-貳拾酒居酒屋-r567753/",
       "coordinates": {
         "lat": 24.9601964,
@@ -71327,7 +71327,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-以賽亞-isaiah-咖啡廳-酒吧-餐酒館-大同區-多國料理-輕食-r567756/",
       "coordinates": {
         "lat": 25.054156,
@@ -71415,7 +71415,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯桑-行天宮店-中山區-日式料理-日式拉麵-r570429/",
       "coordinates": {
         "lat": 25.0598938,
@@ -71502,7 +71502,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯桑-中山店-中山區-日式拉麵-r571296/",
       "coordinates": {
         "lat": 25.0577276,
@@ -71593,7 +71593,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯桑-市政府店-r575895/",
       "coordinates": {
         "lat": 25.04123,
@@ -71768,7 +71768,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯桑-南京一店-松山區-日式料理-日式拉麵-r576138/",
       "coordinates": {
         "lat": 25.0520809,
@@ -72040,7 +72040,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-梨谷-韓式鐵板炭火烤肉-信義att店-信義區-韓式料理-輕食-r578178/",
       "coordinates": {
         "lat": 25.0352542,
@@ -72148,7 +72148,7 @@
         "酒吧/Lounge Bar",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-艾迪墨西哥餐廳eddys-cantina-mexican-restaurant-士林區-美國料理-其他吃到飽-r579753/",
       "coordinates": {
         "lat": 25.118259,
@@ -72237,7 +72237,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯大叔-天母店-r580251/",
       "coordinates": {
         "lat": 25.1121726,
@@ -72414,7 +72414,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯大叔-新莊店-r592117/",
       "coordinates": {
         "lat": 25.0538788,
@@ -72504,7 +72504,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-彩豚屋-林口店-林口區-日式料理-輕食-r595123/",
       "coordinates": {
         "lat": 25.0721405,
@@ -72577,7 +72577,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯大叔-松江南京店-r599770/",
       "coordinates": {
         "lat": 25.0518649,
@@ -72745,7 +72745,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯大叔-永和店-r610432/",
       "coordinates": {
         "lat": 25.0077467,
@@ -72994,7 +72994,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯大叔-敦北店-松山區-甜點-蛋糕-r619744/",
       "coordinates": {
         "lat": 25.0523773,
@@ -73076,7 +73076,7 @@
         "外帶店",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-搏感情-內湖區-輕食-r622756/",
       "coordinates": {
         "lat": 25.0795571,
@@ -73162,7 +73162,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯大叔-大坪林店-r631345/",
       "coordinates": {
         "lat": 24.9827497,
@@ -73245,7 +73245,7 @@
         "火鍋店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-雞湯大叔-桃園春日店-r638446/",
       "coordinates": {
         "lat": 25.008678,
@@ -73322,7 +73322,7 @@
         "火鍋店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-雞湯大叔-桃園藝文店-r639922/",
       "coordinates": {
         "lat": 25.0186369,
@@ -73406,7 +73406,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-千兵衛日式燒肉-桃園店-r640003/",
       "coordinates": {
         "lat": 24.9930762,
@@ -73588,7 +73588,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-酉酒.yojo.bistro餐酒館-r651158/",
       "coordinates": {
         "lat": 22.6224818,
@@ -73757,7 +73757,7 @@
         "日式燒肉",
         "燒肉店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-燒肉-三六苑-大安區-日式料理-日式燒肉-r651264/",
       "coordinates": {
         "lat": 25.0302433,
@@ -73837,7 +73837,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-Bar-Door-to-Dream-r651267/",
       "coordinates": {
         "lat": 23.4774962,
@@ -73921,7 +73921,7 @@
         "主題餐廳",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-bar-tarotis-塔羅酒吧-大同區-酒類飲品-r651270/",
       "coordinates": {
         "lat": 25.051025,
@@ -74010,7 +74010,7 @@
         "外帶店",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-%E8%80%81%E6%A4%8D%E9%85%8C-%E4%B8%AD%E8%A5%BF%E5%8D%80-%E5%A4%9A%E5%9C%8B%E6%96%99%E7%90%86-%E7%94%9C%E9%BB%9E-%E8%9B%8B%E7%B3%95-r651313/",
       "coordinates": {
         "lat": 22.9848402,
@@ -74166,7 +74166,7 @@
       "type": [
         "義大利料理"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-knock-knock-heaven-洲子店-內湖區-義大利料理-r651319/",
       "coordinates": {
         "lat": 25.0795712,
@@ -74263,7 +74263,7 @@
         "早午餐",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-knock-knock-heaven-內湖店-內湖區-義大利料理-茶類飲品-r651322/",
       "coordinates": {
         "lat": 25.0617968,
@@ -74446,7 +74446,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-loading-taipei-黑膠酒吧-松山區-多國料理-酒類飲品-r651328/",
       "coordinates": {
         "lat": 25.0507664,
@@ -74585,7 +74585,7 @@
         "燒肉店",
         "外帶店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-柒息地串燒居酒屋-天母店-士林區-日式料理-串燒-r651334/",
       "coordinates": {
         "lat": 25.1082318,
@@ -74671,7 +74671,7 @@
         "外帶店",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-柒息地串燒居酒屋-晴光店-中山區-日式料理-串燒-r651337/",
       "coordinates": {
         "lat": 25.0641993,
@@ -74764,7 +74764,7 @@
         "外帶店",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-淪陷串酒社-大安區-台灣料理-串燒-r651340/",
       "coordinates": {
         "lat": 25.0434808,
@@ -74856,7 +74856,7 @@
         "家庭聚餐",
         "浪漫情調"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-公爵的廚房-r651343/",
       "coordinates": {
         "lat": 24.153786,
@@ -74936,7 +74936,7 @@
         "茶餐廳",
         "港式飲茶"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-美生餐室-桃園中壢店-r651346/",
       "coordinates": {
         "lat": 24.961557,
@@ -75006,7 +75006,7 @@
         "茶餐廳",
         "港式飲茶"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-美生餐室-新竹竹北店-r651349/",
       "coordinates": {
         "lat": 24.8313609,
@@ -75088,7 +75088,7 @@
         "茶餐廳",
         "港式飲茶"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-美生餐室-新竹勝利店-r651352/",
       "coordinates": {
         "lat": 24.8276255,
@@ -75173,7 +75173,7 @@
         "外帶店",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-很CHill海鮮餐酒館-r651355/",
       "coordinates": {
         "lat": 25.0259409,
@@ -75254,7 +75254,7 @@
         "串燒",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/new-taipei/r-鳥大人-大眾酒場-礁溪鄉-日式料理-串燒-r651358/",
       "coordinates": {
         "lat": 24.8262953,
@@ -75342,7 +75342,7 @@
         "火鍋店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-三囍鍋物-r651498/",
       "coordinates": {
         "lat": 24.9390081,
@@ -75436,7 +75436,7 @@
         "外帶店",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-瓢記piao-ji板橋-台式餐酒館-板橋區-台灣料理-台式小吃-r651501/",
       "coordinates": {
         "lat": 25.0240499,
@@ -75696,7 +75696,7 @@
         "其他火鍋",
         "火鍋店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯大叔-內湖店-內湖區-其他火鍋-r651568/",
       "coordinates": {
         "lat": 25.0803936,
@@ -75784,7 +75784,7 @@
         "餐酒館",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-雞湯大叔-台中文心秀泰店-r651571/",
       "coordinates": {
         "lat": 24.1298942,
@@ -75866,7 +75866,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-雞湯大叔-桃園八德置地店-r651574/",
       "coordinates": {
         "lat": 24.9650432,
@@ -75946,7 +75946,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-雞湯大叔-誠品南西店-中山區-酒類飲品-r651577/",
       "coordinates": {
         "lat": 25.0521639,
@@ -76042,7 +76042,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-麵屋一燈-信義統一時代店-信義區-日式拉麵-r651580/",
       "coordinates": {
         "lat": 25.0407427,
@@ -76128,7 +76128,7 @@
         "甜點/蛋糕",
         "酒類飲品"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-麵屋一燈-台中勤美誠品店-r651583/",
       "coordinates": {
         "lat": 24.15104,
@@ -76212,7 +76212,7 @@
         "日式料理",
         "日式拉麵"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-麵屋一燈-桃園華泰店-r651586/",
       "coordinates": {
         "lat": 25.0145257,
@@ -76453,7 +76453,7 @@
       "type": [
         "火鍋店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-彩虹灣餐飲-r651957/",
       "coordinates": {
         "lat": 25.1534063,
@@ -76539,7 +76539,7 @@
         "咖啡廳(店)",
         "外帶店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-papa-rice-好食燉飯-永康店-大安區-義大利料理-素食-r651960/",
       "coordinates": {
         "lat": 25.033099,
@@ -76634,7 +76634,7 @@
         "早午餐",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-糀日和-wa-fu-pasta-中山區-日式料理-茶類飲品-r652142/",
       "coordinates": {
         "lat": 25.0510342,
@@ -76805,7 +76805,7 @@
         "冰店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-椰糖-Coconut-Sugar-南洋餐事-r652246/",
       "coordinates": {
         "lat": 25.0527697,
@@ -76897,7 +76897,7 @@
         "甜點/蛋糕",
         "咖啡廳(店)"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-啡常美好-r652335/",
       "coordinates": {
         "lat": 24.44498802857904,
@@ -76988,7 +76988,7 @@
         "壽司/生魚片",
         "海鮮"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-竹亭夕食-日式料理-大甲區-日式料理-壽司-生魚片-r652338/",
       "coordinates": {
         "lat": 24.3465186,
@@ -77079,7 +77079,7 @@
         "日式料理",
         "咖哩"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-天菜咖哩-r652565/",
       "coordinates": {
         "lat": 25.0433759,
@@ -77353,7 +77353,7 @@
         "美食廣場",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-周公公酸菜魚-缽缽雞-中正區-四川菜-其他吃到飽-r653062/",
       "coordinates": {
         "lat": 25.016021,
@@ -77446,7 +77446,7 @@
         "其他火鍋",
         "火鍋店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-蔣老爹涮涮鍋-市民總店-r653174/",
       "coordinates": {
         "lat": 25.0443455,
@@ -77524,7 +77524,7 @@
         "日式料理",
         "精緻料理"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-太田和牛料理-r653180/",
       "coordinates": {
         "lat": 24.1494686,
@@ -77616,7 +77616,7 @@
         "咖啡廳(店)",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-莫登铁板燒-台中北屯-r662130/",
       "coordinates": {
         "lat": 24.1783967,
@@ -77705,7 +77705,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-義伴餐館-北屯區-日式料理-定食-r662856/",
       "coordinates": {
         "lat": 24.1769779,
@@ -77899,7 +77899,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-一穗禾心製麵-r679581/",
       "coordinates": {
         "lat": 24.1570959,
@@ -77974,7 +77974,7 @@
       "type": [
         "日式拉麵"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/tainan/r-雞湯桑-台南三井Outlet店-r706284/",
       "coordinates": {
         "lat": 22.9253188,
@@ -78213,7 +78213,7 @@
         "其他燒肉",
         "日式燒肉"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-八和和牛燒肉專門店-台中惠文店-r725885/",
       "coordinates": {
         "lat": 24.1550805,
@@ -78288,7 +78288,7 @@
         "四川菜",
         "麻辣鍋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-冒香香-冒菜麻辣火鍋-r725888/",
       "coordinates": {
         "lat": 24.1455021,
@@ -78374,7 +78374,7 @@
         "酒吧/Lounge Bar",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-Nobody-Knows-Bar-無人知曉-r725894/",
       "coordinates": {
         "lat": 24.1688155,
@@ -78464,7 +78464,7 @@
         "清真食品",
         "茶類飲品"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-巴巴達爸印度料理館-烏日店-烏日區-印度料理-茶類飲品-r726445/",
       "coordinates": {
         "lat": 24.1091817,
@@ -78651,7 +78651,7 @@
         "法國料理",
         "精緻料理"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-法森餐廳-r726927/",
       "coordinates": {
         "lat": 24.1416407,
@@ -78915,7 +78915,7 @@
         "小吃店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-川鳳港式麻辣雞煲火鍋-r727079/",
       "coordinates": {
         "lat": 25.0211939,
@@ -79011,7 +79011,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-上吉弐-上吉燒肉二店-r727152/",
       "coordinates": {
         "lat": 25.0399218,
@@ -79100,7 +79100,7 @@
         "小吃店",
         "外帶店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-波波炸串-大同區美食-大安區-多國料理-炸物-r727192/",
       "coordinates": {
         "lat": 25.0596755,
@@ -79264,7 +79264,7 @@
         "精緻料理",
         "牛排館"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-theorie-theory-法式牛排-大安區-法國料理-精緻料理-r727370/",
       "coordinates": {
         "lat": 25.0410133,
@@ -79807,7 +79807,7 @@
         "酒類飲品",
         "外帶店"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-麵屋一燈-台中新光店-西屯區-日式料理-日式拉麵-r727643/",
       "coordinates": {
         "lat": 24.1652972,
@@ -79959,7 +79959,7 @@
         "日式拉麵",
         "家庭聚餐"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-麵屋一燈-台中文心秀泰店-r727649/",
       "coordinates": {
         "lat": 24.130028,
@@ -80203,7 +80203,7 @@
         "串燒",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-一酌-餐酒館-中山區-台灣料理-串燒-r727710/",
       "coordinates": {
         "lat": 25.0649964,
@@ -80456,7 +80456,7 @@
         "外帶店",
         "家庭聚餐"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-漁三-割烹-酒肴-小料理-r727856/",
       "coordinates": {
         "lat": 24.1942001,
@@ -80549,7 +80549,7 @@
         "義大利麵",
         "餐酒館"
       ],
-      "budget": "NT$1501-2147483647",
+      "budget": "1500 元以上",
       "url": "https://tw.openrice.com/zh-tw/taoyuan/r-鄧記川菜-尖沙咀-川菜-四川-r727859/",
       "coordinates": {
         "lat": 25.0527909,
@@ -80649,7 +80649,7 @@
         "外帶店",
         "居酒屋"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-金久川日式居酒屋-kin-hisakawa-中和區-日式料理-串燒-r727923/",
       "coordinates": {
         "lat": 24.9932593,
@@ -81195,7 +81195,7 @@
         "韓式料理",
         "餐酒館"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-HANA-Bistro-森實餐酒館-r728625/",
       "coordinates": {
         "lat": 25.0419619,
@@ -81623,7 +81623,7 @@
         "火鍋店",
         "家庭聚餐"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-李蝦記爆蝦火鍋-信義區-甜點-蛋糕-r733535/",
       "coordinates": {
         "lat": 25.035259,
@@ -81774,7 +81774,7 @@
       "type": [
         "印度料理"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taichung/r-蘿娜印度廚坊-raunak-indian-kitchen-豐原區-印度料理-r740876/",
       "coordinates": {
         "lat": 24.2508333,
@@ -82006,7 +82006,7 @@
         "麻辣鍋",
         "火鍋店"
       ],
-      "budget": "NT$501-1000",
+      "budget": "500-1000 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-員外佬火鍋-信義區-其他火鍋-r751199/",
       "coordinates": {
         "lat": 25.0424994,
@@ -82801,7 +82801,7 @@
         "喝飲聊天",
         "浪漫情調"
       ],
-      "budget": "NT$201-500",
+      "budget": "200-500 元",
       "url": "https://tw.openrice.com/zh-tw/taipei/r-小隱茶庵-潮境店-r752241/",
       "coordinates": {
         "lat": 25.1447774,
@@ -83170,7 +83170,7 @@
     }
   ],
   "_metadata": {
-    "updated_at": "2026-05-22T17:27:53.972094",
+    "updated_at": "2026-05-22T17:39:44.590219",
     "source": "openrice-crawler/exports/restaurants_for_app.xlsx",
     "total": 928,
     "enabled": 922,

@@ -894,6 +894,62 @@
     box-shadow: var(--shadow-focus);
   }
 
+  /* Sponsored ad card（付費合作餐廳廣告） */
+  .ad-card--sponsored {
+    text-align: left;
+    padding: var(--space-6) var(--space-5) var(--space-5);
+  }
+  .ad-card__badge--sponsored {
+    background: var(--gray-900);
+    color: var(--color-accent);
+    position: static;
+    display: inline-flex;
+    margin-bottom: var(--space-3);
+  }
+  .ad-card--sponsored .ad-card__title {
+    text-align: left;
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-2);
+  }
+  .ad-sponsored__image {
+    width: 100%;
+    aspect-ratio: 16/10;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: var(--space-4);
+    background: var(--color-bg-subtle);
+  }
+  .ad-sponsored__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .ad-sponsored__address {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-3);
+  }
+  .ad-sponsored__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-body);
+    margin-bottom: var(--space-3);
+  }
+  .ad-sponsored__rating {
+    color: var(--color-accent-text);
+    font-weight: var(--font-weight-semibold);
+  }
+  .ad-sponsored__tags {
+    margin-bottom: var(--space-4);
+  }
+  .ad-card--sponsored .ad-card__cta {
+    margin-top: 0;
+    width: 100%;
+  }
+
   /* 抽選 / 廣告期間淡化上方表單區，讓視覺動線完全停在結果卡 */
   .location-section,
   .recommendation-form {
