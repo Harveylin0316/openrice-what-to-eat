@@ -1278,12 +1278,71 @@
     font-weight: var(--font-weight-bold);
     padding: 3px var(--space-3);
   }
-  /* 線上套餐 chip：OpenRice 會員獨家套餐（黃底深棕字、跟訂位優惠視覺區隔） */
-  .meta-chip.is-menu {
-    color: var(--color-accent-text);
-    background: var(--color-accent);
+  /* （舊 .is-menu chip 已改為下方 .restaurant-menus 區塊） */
+
+  /* OpenRice 套餐獨家優惠區塊（顯示具體套餐標題 + 原/特價） */
+  .restaurant-menus {
+    background: linear-gradient(180deg, var(--color-accent-subtle), transparent);
+    border: 1.5px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+  .restaurant-menus__header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--font-size-xs);
     font-weight: var(--font-weight-bold);
-    padding: 3px var(--space-3);
+    color: var(--color-accent-text);
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-2);
+    text-transform: uppercase;
+  }
+  .restaurant-menus__star {
+    color: var(--color-accent-text);
+    font-size: var(--font-size-sm);
+  }
+  .restaurant-menus__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .restaurant-menus__item:first-of-type {
+    border-top: none;
+    padding-top: 0;
+  }
+  .restaurant-menus__title {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    line-height: var(--line-height-snug);
+  }
+  .restaurant-menus__price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .restaurant-menus__current {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent-text);
+  }
+  .restaurant-menus__strike {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    text-decoration: line-through;
+  }
+  .restaurant-menus__off {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    color: var(--gray-0);
+    background: var(--gray-900);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
   }
   .restaurant-dish {
     font-size: var(--font-size-sm);

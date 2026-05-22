@@ -1765,7 +1765,30 @@
       "booking_menu_discounted_count": 3,
       "booking_menu_min_price": 1676,
       "booking_menu_max_price": 1976,
-      "booking_menu_avg_discount_pct": 5.0
+      "booking_menu_avg_discount_pct": 5.0,
+      "booking_menus": [
+        {
+          "title": "焗龍蝦+小菲力套餐",
+          "current_price": 1976,
+          "original_price": 2080,
+          "has_discount": true,
+          "discount_pct": "5.0%"
+        },
+        {
+          "title": "美國頂級沙朗牛排(8oz)",
+          "current_price": 1676,
+          "original_price": 1765,
+          "has_discount": true,
+          "discount_pct": "5.0%"
+        },
+        {
+          "title": "鮮魚配松露牛排",
+          "current_price": 1676,
+          "original_price": 1765,
+          "has_discount": true,
+          "discount_pct": "5.0%"
+        }
+      ]
     },
     {
       "or_id": 62337,
@@ -3010,7 +3033,23 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 2700,
       "booking_menu_max_price": 5200,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "[週一至四晚餐限定]雙人精選套餐",
+          "current_price": 2700,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "[週一至四晚餐限定]四人豪華套餐",
+          "current_price": 5200,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 155111,
@@ -5964,7 +6003,16 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 300,
       "booking_menu_max_price": 300,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "[預付訂金]NT$300/人(未含服務費，餐點剩餘金額，須於現場付款)(服務費另計)",
+          "current_price": 300,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 293086,
@@ -12498,7 +12546,30 @@
       "booking_menu_discounted_count": 3,
       "booking_menu_min_price": 1512,
       "booking_menu_max_price": 2004,
-      "booking_menu_avg_discount_pct": 3.9
+      "booking_menu_avg_discount_pct": 3.9,
+      "booking_menus": [
+        {
+          "title": "【95折優惠!】[平日限定]高級雙人套餐",
+          "current_price": 1670,
+          "original_price": 1758,
+          "has_discount": true,
+          "discount_pct": "5.0%"
+        },
+        {
+          "title": "【95折優惠!】[平日限定]奢華雙人套餐",
+          "current_price": 2004,
+          "original_price": 2110,
+          "has_discount": true,
+          "discount_pct": "5.0%"
+        },
+        {
+          "title": "【98折優惠!】[平日限定]平價雙人套餐",
+          "current_price": 1512,
+          "original_price": 1538,
+          "has_discount": true,
+          "discount_pct": "1.7%"
+        }
+      ]
     },
     {
       "or_id": 445892,
@@ -12959,7 +13030,37 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 350,
       "booking_menu_max_price": 780,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "廣藏 辣牛肉湯",
+          "current_price": 380,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "首爾排骨湯飯",
+          "current_price": 350,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "聖水洞 馬鈴薯排骨湯",
+          "current_price": 350,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "黑蒜蔘雞湯",
+          "current_price": 780,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 448676,
@@ -14097,7 +14198,23 @@
       "booking_menu_discounted_count": 2,
       "booking_menu_min_price": 1500,
       "booking_menu_max_price": 2150,
-      "booking_menu_avg_discount_pct": 21.5
+      "booking_menu_avg_discount_pct": 21.5,
+      "booking_menus": [
+        {
+          "title": "＼限時78折!／B雙人套餐+清酒梅酒暢飲",
+          "current_price": 2150,
+          "original_price": 2768,
+          "has_discount": true,
+          "discount_pct": "22.3%"
+        },
+        {
+          "title": "＼限時79折!／A雙人套餐",
+          "current_price": 1500,
+          "original_price": 1890,
+          "has_discount": true,
+          "discount_pct": "20.6%"
+        }
+      ]
     },
     {
       "or_id": 456662,
@@ -15904,7 +16021,23 @@
       "booking_menu_discounted_count": 2,
       "booking_menu_min_price": 1980,
       "booking_menu_max_price": 3980,
-      "booking_menu_avg_discount_pct": 14.2
+      "booking_menu_avg_discount_pct": 14.2,
+      "booking_menus": [
+        {
+          "title": "【獨家83折★】[週一至四限定]雙人套餐 | 贈炸半雞1份(服務費另計)",
+          "current_price": 1980,
+          "original_price": 2390,
+          "has_discount": true,
+          "discount_pct": "17.2%"
+        },
+        {
+          "title": "【獨家89折★】[週一至四限定]四人套餐 | 贈炸全雞1份(服務費另計)",
+          "current_price": 3980,
+          "original_price": 4480,
+          "has_discount": true,
+          "discount_pct": "11.2%"
+        }
+      ]
     },
     {
       "or_id": 474171,
@@ -17085,7 +17218,16 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 550,
       "booking_menu_max_price": 550,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "【預付訂金 NT$500，可折抵現場消費 NT$550】",
+          "current_price": 550,
+          "original_price": 550,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 482899,
@@ -18672,7 +18814,16 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 1018,
       "booking_menu_max_price": 1018,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "排北鍋王-川味青花椒酸白菜黑毛帶皮豚鍋",
+          "current_price": 1018,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 489732,
@@ -20622,7 +20773,37 @@
       "booking_menu_discounted_count": 4,
       "booking_menu_min_price": 1180,
       "booking_menu_max_price": 2480,
-      "booking_menu_avg_discount_pct": 7.9
+      "booking_menu_avg_discount_pct": 7.9,
+      "booking_menus": [
+        {
+          "title": "[平日]Coco Brother 四人套餐 原價NT$ 2,700元 平台售價NT $2,480元(服務費另計)",
+          "current_price": 2480,
+          "original_price": 2700,
+          "has_discount": true,
+          "discount_pct": "8.1%"
+        },
+        {
+          "title": "[假日]Coco Brother 四人套餐 原價NT$ 2,700元 平台售價NT $2,480元(服務費另計)",
+          "current_price": 2480,
+          "original_price": 2700,
+          "has_discount": true,
+          "discount_pct": "8.1%"
+        },
+        {
+          "title": "[平日]Coco Brother 雙人套餐 原價 NT$1,280元 平台售價NT$ 1,180元(服務費另計)",
+          "current_price": 1180,
+          "original_price": 1280,
+          "has_discount": true,
+          "discount_pct": "7.8%"
+        },
+        {
+          "title": "[假日]Coco Brother 雙人套餐 原價 NT$1,280元 平台售價NT$ 1,180元(服務費另計)",
+          "current_price": 1180,
+          "original_price": 1280,
+          "has_discount": true,
+          "discount_pct": "7.8%"
+        }
+      ]
     },
     {
       "or_id": 496265,
@@ -21015,7 +21196,30 @@
       "booking_menu_discounted_count": 3,
       "booking_menu_min_price": 5480,
       "booking_menu_max_price": 7880,
-      "booking_menu_avg_discount_pct": 9.2
+      "booking_menu_avg_discount_pct": 9.2,
+      "booking_menus": [
+        {
+          "title": "【 職人代烤 】[平日晚間限定]上吉夜饗嚴選雙人套餐",
+          "current_price": 5880,
+          "original_price": 6486,
+          "has_discount": true,
+          "discount_pct": "9.3%"
+        },
+        {
+          "title": "【 職人代烤 】[平日限定]和魂上吉炙宴",
+          "current_price": 7880,
+          "original_price": 8668,
+          "has_discount": true,
+          "discount_pct": "9.1%"
+        },
+        {
+          "title": "【 職人代烤 】[平日限定]上吉早上套餐",
+          "current_price": 5480,
+          "original_price": 6028,
+          "has_discount": true,
+          "discount_pct": "9.1%"
+        }
+      ]
     },
     {
       "or_id": 496932,
@@ -22951,7 +23155,16 @@
       "booking_menu_discounted_count": 1,
       "booking_menu_min_price": 500,
       "booking_menu_max_price": 500,
-      "booking_menu_avg_discount_pct": 9.1
+      "booking_menu_avg_discount_pct": 9.1,
+      "booking_menus": [
+        {
+          "title": "【預付訂金 NT$500，可折抵現場消費 NT$550】",
+          "current_price": 500,
+          "original_price": 550,
+          "has_discount": true,
+          "discount_pct": "9.1%"
+        }
+      ]
     },
     {
       "or_id": 505616,
@@ -29032,7 +29245,23 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 2700,
       "booking_menu_max_price": 5200,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "[週一至四晚餐限定]雙人精選套餐",
+          "current_price": 2700,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "[週一至四晚餐限定]四人豪華套餐",
+          "current_price": 5200,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 524465,
@@ -29154,7 +29383,37 @@
       "booking_menu_discounted_count": 4,
       "booking_menu_min_price": 1180,
       "booking_menu_max_price": 2480,
-      "booking_menu_avg_discount_pct": 7.9
+      "booking_menu_avg_discount_pct": 7.9,
+      "booking_menus": [
+        {
+          "title": "[平日]Coco Brother 四人套餐 原價NT$ 2,700元 平台售價NT$ 2,480元(服務費另計)",
+          "current_price": 2480,
+          "original_price": 2700,
+          "has_discount": true,
+          "discount_pct": "8.1%"
+        },
+        {
+          "title": "[假日]Coco Brother 四人套餐 原價NT$ 2,700元 平台售價NT$ 2,480元(服務費另計)",
+          "current_price": 2480,
+          "original_price": 2700,
+          "has_discount": true,
+          "discount_pct": "8.1%"
+        },
+        {
+          "title": "[假日]Coco Brother 雙人套餐 原價 NT$1,280元 平台售價NT$1,180元(服務費另計)",
+          "current_price": 1180,
+          "original_price": 1280,
+          "has_discount": true,
+          "discount_pct": "7.8%"
+        },
+        {
+          "title": "[平日]Coco Brother 雙人套餐 原價 NT$1,280元 平台售價NT$1,180元(服務費另計)",
+          "current_price": 1180,
+          "original_price": 1280,
+          "has_discount": true,
+          "discount_pct": "7.8%"
+        }
+      ]
     },
     {
       "or_id": 524749,
@@ -29948,7 +30207,16 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 500,
       "booking_menu_max_price": 500,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "[預付訂金]$1,700元套餐(訂金NT$500/人)不含服務費， 餐點剩餘金額，須於現場付款(服務費另計)",
+          "current_price": 500,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 526491,
@@ -30248,7 +30516,44 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 2000,
       "booking_menu_max_price": 2000,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "【先付訂金】鑄 NT$6,000 (訂金NT$2,000/1人；不含服務費)",
+          "current_price": 2000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【先付訂金】墨 NT$4,200 (訂金NT$2,000/1人；不含服務費)",
+          "current_price": 2000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【先付訂金】影 NT$12,000 (訂金NT$2,000/1人；不含服務費)",
+          "current_price": 2000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【先付訂金】影 NT$10,000 (訂金NT$2,000/1人；不含服務費)",
+          "current_price": 2000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【先付訂金】影 NT$8,000 (訂金NT$2,000/1人；不含服務費)",
+          "current_price": 2000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 527501,
@@ -32869,7 +33174,23 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 3580,
       "booking_menu_max_price": 6580,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "【帝寶雙人套餐（極上二人前コース）-不含服務費】",
+          "current_price": 3580,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【帝寶四人套餐（極上四人前コース）-不含服務費】",
+          "current_price": 6580,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 532768,
@@ -35249,7 +35570,16 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 600,
       "booking_menu_max_price": 600,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "600元抵用卷",
+          "current_price": 600,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 536617,
@@ -39845,7 +40175,16 @@
       "booking_menu_discounted_count": 1,
       "booking_menu_min_price": 1200,
       "booking_menu_max_price": 1200,
-      "booking_menu_avg_discount_pct": 26.4
+      "booking_menu_avg_discount_pct": 26.4,
+      "booking_menus": [
+        {
+          "title": "雙人套餐",
+          "current_price": 1200,
+          "original_price": 1630,
+          "has_discount": true,
+          "discount_pct": "26.4%"
+        }
+      ]
     },
     {
       "or_id": 540830,
@@ -40118,7 +40457,16 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 1000,
       "booking_menu_max_price": 1000,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "【 米其林推薦 】[預付訂金]銘柄牛套餐 NT$4,000(服務費另計)",
+          "current_price": 1000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 541205,
@@ -40669,7 +41017,16 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 1000,
       "booking_menu_max_price": 1000,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "【送招牌烤魚】[5人起訂](週三,四,日限定) 5人份(含)以上訂位預付訂金",
+          "current_price": 1000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 541649,
@@ -47762,7 +48119,30 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 1000,
       "booking_menu_max_price": 1000,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "【 超值首選 】 [預付訂金]主廚套餐 NT$2,080(服務費另計, 餘額現場付款)",
+          "current_price": 1000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【超值首選 】 [預付訂金]主廚套餐 - 海膽舒芙蕾 NT$2,540(服務費另計, 餘額現場付款)",
+          "current_price": 1000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【 超值首選】 [預付訂金]主廚套餐 - 松葉蟹 NT$2,540(服務費另計, 餘額現場付款)",
+          "current_price": 1000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 546278,
@@ -48493,7 +48873,16 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 2000,
       "booking_menu_max_price": 2000,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "［先付訂金－訂金 NT$2,000，4人］極肉匯・四人套餐，原價 NT$12,000，優惠價 NT$10,000（不含服務費）",
+          "current_price": 2000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 546890,
@@ -50732,7 +51121,30 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 680,
       "booking_menu_max_price": 6580,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "【午間限定-不含服務費】一人燒肉六宮格盛合 ｜ 6 款精選海陸旬味",
+          "current_price": 680,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【帝寶雙人套餐（極上二人前コース）-不含服務費】",
+          "current_price": 3580,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【帝寶四人套餐（極上四人前コース））-不含服務費】",
+          "current_price": 6580,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 549281,
@@ -52687,7 +53099,16 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 500,
       "booking_menu_max_price": 500,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "[預付訂金]$800季節合菜(訂金NT$500/人)， 餐點剩餘金額，須於現場付款(服務費另計)",
+          "current_price": 500,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 552927,
@@ -53566,7 +53987,30 @@
       "booking_menu_discounted_count": 3,
       "booking_menu_min_price": 850,
       "booking_menu_max_price": 900,
-      "booking_menu_avg_discount_pct": 5.8
+      "booking_menu_avg_discount_pct": 5.8,
+      "booking_menus": [
+        {
+          "title": "假日限定雙人餐",
+          "current_price": 900,
+          "original_price": 960,
+          "has_discount": true,
+          "discount_pct": "6.2%"
+        },
+        {
+          "title": "平日限定雙人餐",
+          "current_price": 850,
+          "original_price": 900,
+          "has_discount": true,
+          "discount_pct": "5.6%"
+        },
+        {
+          "title": "平日限定雙人餐",
+          "current_price": 850,
+          "original_price": 900,
+          "has_discount": true,
+          "discount_pct": "5.6%"
+        }
+      ]
     },
     {
       "or_id": 554350,
@@ -54300,7 +54744,23 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 550,
       "booking_menu_max_price": 880,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "個人｜咖央・甜享一人時光套餐NT$550(已含服務費) 原價最高 NT$579",
+          "current_price": 550,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "雙人｜咖央・雙人甜甜午後茶NT$880(已含服務費)原價最高 NT$1040",
+          "current_price": 880,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 555283,
@@ -60527,7 +60987,23 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 880,
       "booking_menu_max_price": 1880,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "【獨家★】[平日限定]雙人火鍋加醬蟹套餐 | 贈生醃甜蝦1份(服務費另計)",
+          "current_price": 1880,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【獨家★】[平日限定]和牛和牛火鍋套餐 | 贈生醃甜蝦1份(服務費另計)",
+          "current_price": 880,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 559400,
@@ -61804,7 +62280,23 @@
       "booking_menu_discounted_count": 2,
       "booking_menu_min_price": 1800,
       "booking_menu_max_price": 2499,
-      "booking_menu_avg_discount_pct": 8.1
+      "booking_menu_avg_discount_pct": 8.1,
+      "booking_menus": [
+        {
+          "title": "[四人套餐] ，優惠$2,499",
+          "current_price": 2499,
+          "original_price": 2731,
+          "has_discount": true,
+          "discount_pct": "8.5%"
+        },
+        {
+          "title": "【一天限量3份】[雙人套餐] ，優惠$1,800",
+          "current_price": 1800,
+          "original_price": 1947,
+          "has_discount": true,
+          "discount_pct": "7.6%"
+        }
+      ]
     },
     {
       "or_id": 560904,
@@ -65561,7 +66053,23 @@
       "booking_menu_discounted_count": 2,
       "booking_menu_min_price": 1500,
       "booking_menu_max_price": 2150,
-      "booking_menu_avg_discount_pct": 21.5
+      "booking_menu_avg_discount_pct": 21.5,
+      "booking_menus": [
+        {
+          "title": "＼限時78折!／B雙人套餐+清酒梅酒暢飲",
+          "current_price": 2150,
+          "original_price": 2768,
+          "has_discount": true,
+          "discount_pct": "22.3%"
+        },
+        {
+          "title": "＼限時79折!／A雙人套餐",
+          "current_price": 1500,
+          "original_price": 1890,
+          "has_discount": true,
+          "discount_pct": "20.6%"
+        }
+      ]
     },
     {
       "or_id": 564010,
@@ -66338,7 +66846,16 @@
       "booking_menu_discounted_count": 1,
       "booking_menu_min_price": 938,
       "booking_menu_max_price": 938,
-      "booking_menu_avg_discount_pct": 10.3
+      "booking_menu_avg_discount_pct": 10.3,
+      "booking_menus": [
+        {
+          "title": "【平日限定雙人套餐】 元 平台售價 $938元",
+          "current_price": 938,
+          "original_price": 1046,
+          "has_discount": true,
+          "discount_pct": "10.3%"
+        }
+      ]
     },
     {
       "or_id": 564483,
@@ -66999,7 +67516,30 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 680,
       "booking_menu_max_price": 3580,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "【午間限定-不含服務費】一人燒肉六宮格盛合 ｜ 6 款精選海陸旬味",
+          "current_price": 680,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【帝寶雙人套餐（極上二人前コース）-不含服務費】",
+          "current_price": 3580,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【帝寶四人套餐（極上四人前コース）-不含服務費】",
+          "current_price": 3580,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 564963,
@@ -67264,7 +67804,37 @@
       "booking_menu_discounted_count": 4,
       "booking_menu_min_price": 199,
       "booking_menu_max_price": 2488,
-      "booking_menu_avg_discount_pct": 15.3
+      "booking_menu_avg_discount_pct": 15.3,
+      "booking_menus": [
+        {
+          "title": "1人友善套餐",
+          "current_price": 199,
+          "original_price": 300,
+          "has_discount": true,
+          "discount_pct": "33.7%"
+        },
+        {
+          "title": "4人爽吃套餐",
+          "current_price": 1688,
+          "original_price": 1970,
+          "has_discount": true,
+          "discount_pct": "14.3%"
+        },
+        {
+          "title": "6人狂歡套餐",
+          "current_price": 2488,
+          "original_price": 2700,
+          "has_discount": true,
+          "discount_pct": "7.9%"
+        },
+        {
+          "title": "2人小聚套餐",
+          "current_price": 888,
+          "original_price": 938,
+          "has_discount": true,
+          "discount_pct": "5.3%"
+        }
+      ]
     },
     {
       "or_id": 565012,
@@ -68302,7 +68872,30 @@
       "booking_menu_discounted_count": 3,
       "booking_menu_min_price": 1000,
       "booking_menu_max_price": 1200,
-      "booking_menu_avg_discount_pct": 8.4
+      "booking_menu_avg_discount_pct": 8.4,
+      "booking_menus": [
+        {
+          "title": "＼限時9折!／[平日午間限定]雙人套餐(服務費另計)",
+          "current_price": 1000,
+          "original_price": 1100,
+          "has_discount": true,
+          "discount_pct": "9.1%"
+        },
+        {
+          "title": "＼限時9折!／[平日晚間限定]雙人套餐(服務費另計)",
+          "current_price": 1100,
+          "original_price": 1200,
+          "has_discount": true,
+          "discount_pct": "8.3%"
+        },
+        {
+          "title": "＼限時9折!／[假日限定]雙人套餐(服務費另計)",
+          "current_price": 1200,
+          "original_price": 1300,
+          "has_discount": true,
+          "discount_pct": "7.7%"
+        }
+      ]
     },
     {
       "or_id": 565751,
@@ -69873,7 +70466,16 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 8620,
       "booking_menu_max_price": 8620,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "[用餐日7/31] 金豬食堂人氣套餐 (4人份)*",
+          "current_price": 8620,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 566598,
@@ -71019,7 +71621,65 @@
       "booking_menu_discounted_count": 8,
       "booking_menu_min_price": 149,
       "booking_menu_max_price": 4880,
-      "booking_menu_avg_discount_pct": 9.3
+      "booking_menu_avg_discount_pct": 9.3,
+      "booking_menus": [
+        {
+          "title": "【獨家9折★】[平日限定]火烤雞腿串燒定食 | 享海尼根生啤(M)或 High Ball",
+          "current_price": 149,
+          "original_price": 165,
+          "has_discount": true,
+          "discount_pct": "9.7%"
+        },
+        {
+          "title": "【獨家9折★】[平日限定]美國頂級純淨豬肩胛定食 | 享海尼根生啤(M)或 High Ball",
+          "current_price": 199,
+          "original_price": 220,
+          "has_discount": true,
+          "discount_pct": "9.5%"
+        },
+        {
+          "title": "【獨家9折★】[平日限定]日式炸豬排定食 | 享海尼根生啤(M)或 High Ball",
+          "current_price": 299,
+          "original_price": 330,
+          "has_discount": true,
+          "discount_pct": "9.4%"
+        },
+        {
+          "title": "【獨家9折★】[平日限定]火烤牛雞串燒定食 | 享海尼根生啤(M)或 High Ball",
+          "current_price": 299,
+          "original_price": 330,
+          "has_discount": true,
+          "discount_pct": "9.4%"
+        },
+        {
+          "title": "【獨家9折★】四人套餐(輕奢） | 贈海尼根500cc生啤酒4杯",
+          "current_price": 3750,
+          "original_price": 4125,
+          "has_discount": true,
+          "discount_pct": "9.1%"
+        },
+        {
+          "title": "【獨家9折★】四人套餐(Afterwork) | 贈海尼根3000cc生啤酒塔",
+          "current_price": 4880,
+          "original_price": 5368,
+          "has_discount": true,
+          "discount_pct": "9.1%"
+        },
+        {
+          "title": "【獨家9折★】雙人套餐 | 享海尼根生啤(M)或 High Ball",
+          "current_price": 1980,
+          "original_price": 2178,
+          "has_discount": true,
+          "discount_pct": "9.1%"
+        },
+        {
+          "title": "【獨家9折★】三人套餐 | 享海尼根生啤(M)或 High Ball",
+          "current_price": 2980,
+          "original_price": 3278,
+          "has_discount": true,
+          "discount_pct": "9.1%"
+        }
+      ]
     },
     {
       "or_id": 567502,
@@ -71497,7 +72157,16 @@
       "booking_menu_discounted_count": 1,
       "booking_menu_min_price": 2280,
       "booking_menu_max_price": 2280,
-      "booking_menu_avg_discount_pct": 20.0
+      "booking_menu_avg_discount_pct": 20.0,
+      "booking_menus": [
+        {
+          "title": "【獨家8折★】葵燒雙人套餐 | 免費升級特大黑虎蝦",
+          "current_price": 2280,
+          "original_price": 2850,
+          "has_discount": true,
+          "discount_pct": "20.0%"
+        }
+      ]
     },
     {
       "or_id": 567753,
@@ -72303,7 +72972,65 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 688,
       "booking_menu_max_price": 1888,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "[週一至四限定]單人串燒套餐 NT$688(服務費另計)",
+          "current_price": 688,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "[週五限定]單人串燒套餐NT$ 688(服務費另計)",
+          "current_price": 688,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "[週六晚間限定]單人串燒套餐NT$ 688(服務費另計)",
+          "current_price": 688,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "[週日晚間限定]單人串燒套餐NT$ 688(服務費另計)",
+          "current_price": 688,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "[週一至四限定]雙人串燒套餐NT$1,888(服務費另計)",
+          "current_price": 1888,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "[週五限定]雙人串燒套餐NT$1,888(服務費另計)",
+          "current_price": 1888,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "[週六晚間限定]雙人串燒套餐NT$1,888(服務費另計)",
+          "current_price": 1888,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "[週日晚間限定]雙人串燒套餐NT$1,888(服務費另計)",
+          "current_price": 1888,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 578178,
@@ -79282,7 +80009,51 @@
       "booking_menu_discounted_count": 6,
       "booking_menu_min_price": 3694,
       "booking_menu_max_price": 8000,
-      "booking_menu_avg_discount_pct": 6.7
+      "booking_menu_avg_discount_pct": 6.7,
+      "booking_menus": [
+        {
+          "title": "【獨家9折★】[假日限定]八人豪華套餐 | 贈紅龍蝦1隻(服務費另計)",
+          "current_price": 8000,
+          "original_price": 8888,
+          "has_discount": true,
+          "discount_pct": "10.0%"
+        },
+        {
+          "title": "【獨家9折★】[平日限定]八人豪華套餐 | 贈紅龍蝦1隻(服務費另計)",
+          "current_price": 8000,
+          "original_price": 8888,
+          "has_discount": true,
+          "discount_pct": "10.0%"
+        },
+        {
+          "title": "【獨家95折★】[假日限定]四人豪華套餐 | 贈紅龍蝦1隻(服務費另計)",
+          "current_price": 3694,
+          "original_price": 3888,
+          "has_discount": true,
+          "discount_pct": "5.0%"
+        },
+        {
+          "title": "【獨家95折★】[平日限定]四人豪華套餐 | 贈紅龍蝦1隻(服務費另計)",
+          "current_price": 3694,
+          "original_price": 3888,
+          "has_discount": true,
+          "discount_pct": "5.0%"
+        },
+        {
+          "title": "【獨家95折★】[平日限定]六人豪華套餐 | 贈紅龍蝦1隻(服務費另計)",
+          "current_price": 5689,
+          "original_price": 5988,
+          "has_discount": true,
+          "discount_pct": "5.0%"
+        },
+        {
+          "title": "【獨家95折★】[假日限定]六人豪華套餐 | 贈紅龍蝦1隻(服務費另計)",
+          "current_price": 5689,
+          "original_price": 5988,
+          "has_discount": true,
+          "discount_pct": "5.0%"
+        }
+      ]
     },
     {
       "or_id": 727152,
@@ -79383,7 +80154,23 @@
       "booking_menu_discounted_count": 2,
       "booking_menu_min_price": 5880,
       "booking_menu_max_price": 7880,
-      "booking_menu_avg_discount_pct": 9.2
+      "booking_menu_avg_discount_pct": 9.2,
+      "booking_menus": [
+        {
+          "title": "【 職人代烤 】[平日晚間限定]上吉夜饗嚴選雙人套餐",
+          "current_price": 5880,
+          "original_price": 6486,
+          "has_discount": true,
+          "discount_pct": "9.3%"
+        },
+        {
+          "title": "【 職人代烤 】[平日限定]和魂上吉炙宴",
+          "current_price": 7880,
+          "original_price": 8668,
+          "has_discount": true,
+          "discount_pct": "9.1%"
+        }
+      ]
     },
     {
       "or_id": 727192,
@@ -82073,7 +82860,23 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 1000,
       "booking_menu_max_price": 1000,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "[先付訂金] 雙人套餐 A $2,080",
+          "current_price": 1000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "[先付訂金] 雙人套餐 B $2,580",
+          "current_price": 1000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 740876,
@@ -82311,7 +83114,37 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 880,
       "booking_menu_max_price": 2499,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "🍽️ 坦都里烤肉豪華三人套餐🍽️$1449",
+          "current_price": 1449,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "雙人特惠套餐$1299",
+          "current_price": 1299,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "四人套餐$2499",
+          "current_price": 2499,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "🍽️ 坦都里烤肉特惠雙人套餐 🍽️ $880",
+          "current_price": 880,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 751199,
@@ -82395,7 +83228,23 @@
       "booking_menu_discounted_count": 2,
       "booking_menu_min_price": 950,
       "booking_menu_max_price": 1050,
-      "booking_menu_avg_discount_pct": 20.6
+      "booking_menu_avg_discount_pct": 20.6,
+      "booking_menus": [
+        {
+          "title": "平日限定﹝商業雙人套餐-嚴選鮮嫩牛五花〕",
+          "current_price": 1050,
+          "original_price": 1340,
+          "has_discount": true,
+          "discount_pct": "21.6%"
+        },
+        {
+          "title": "平日限定﹝商業雙人套餐-嚴選梅花豬〕",
+          "current_price": 950,
+          "original_price": 1180,
+          "has_discount": true,
+          "discount_pct": "19.5%"
+        }
+      ]
     },
     {
       "or_id": 751318,
@@ -82488,7 +83337,23 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 500,
       "booking_menu_max_price": 500,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "【 極鮮饗宴 】[預付訂金]季節套餐 - 紐約客 NT$2,380 | 享加點鴨肝優惠價(服務費另計)",
+          "current_price": 500,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【 極鮮饗宴 】[預付訂金]季節套餐 - 菲力 NT$2,680 | 享加點鴨肝優惠價(服務費另計)",
+          "current_price": 500,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 751370,
@@ -82582,7 +83447,30 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 1000,
       "booking_menu_max_price": 1000,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "【 最浮誇鐵板燒 】 [預付訂金][平日限定]春季套餐NT$2,498(服務費另計)",
+          "current_price": 1000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【 最浮誇鐵板燒 】 [預付訂金][假日限定]春季套餐NT$2,498(服務費另計)",
+          "current_price": 1000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "【獨家★】[預付訂金][1人份, 2人起訂]雙人套餐NT$6,000 | 免費升級和牛1份(服務費另計)",
+          "current_price": 1000,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 751516,
@@ -82889,7 +83777,23 @@
       "booking_menu_discounted_count": 2,
       "booking_menu_min_price": 647,
       "booking_menu_max_price": 977,
-      "booking_menu_avg_discount_pct": 16.0
+      "booking_menu_avg_discount_pct": 16.0,
+      "booking_menus": [
+        {
+          "title": "個人｜微光獨享・Pizza輕饗套餐NT$588（含服務費647元）",
+          "current_price": 647,
+          "original_price": 788,
+          "has_discount": true,
+          "discount_pct": "17.9%"
+        },
+        {
+          "title": "雙人｜微醺時光・雙人饗宴套餐NT$888（含服務費977元)",
+          "current_price": 977,
+          "original_price": 1138,
+          "has_discount": true,
+          "discount_pct": "14.1%"
+        }
+      ]
     },
     {
       "or_id": 752073,
@@ -83054,7 +83958,23 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 350,
       "booking_menu_max_price": 430,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "鮭魚親子丼 NT$350(未含服務費，需到店另付 10% 服務費)(服務費另計)",
+          "current_price": 350,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "招牌海鮮丼定食 NT$430(未含服務費，需到店另付 10% 服務費)(服務費另計)",
+          "current_price": 430,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 752116,
@@ -83148,7 +84068,16 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 500,
       "booking_menu_max_price": 500,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "[預付訂金]$1,700元套餐(訂金NT$500/人)不含服務費， 餐點剩餘金額，須於現場付款(服務費另計)",
+          "current_price": 500,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 752241,
@@ -83234,7 +84163,23 @@
       "booking_menu_discounted_count": 0,
       "booking_menu_min_price": 550,
       "booking_menu_max_price": 880,
-      "booking_menu_avg_discount_pct": null
+      "booking_menu_avg_discount_pct": null,
+      "booking_menus": [
+        {
+          "title": "個人｜隱茶・一人靜享套餐NT$550(已含服務費) 原價最高 NT$600",
+          "current_price": 550,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        },
+        {
+          "title": "雙人｜隱茶・雙人雅敘茶宴NT$880(已含服務費) 原價最高 NT$1010",
+          "current_price": 880,
+          "original_price": null,
+          "has_discount": false,
+          "discount_pct": null
+        }
+      ]
     },
     {
       "or_id": 752281,

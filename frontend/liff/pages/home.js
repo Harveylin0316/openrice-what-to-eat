@@ -650,15 +650,7 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
         const title = firstTitle ? ` title="${firstTitle.replace(/"/g, '&quot;')}"` : '';
         metaParts.push(`<span class="meta-chip is-offer"${title}>★ 訂位優惠${count > 1 ? ` ${count} 項` : ''}</span>`);
     }
-    if (restaurant.has_booking_menu) {
-        const count = restaurant.booking_menu_count || 1;
-        const minP = restaurant.booking_menu_min_price;
-        const titleParts = [];
-        if (minP) titleParts.push(`最低 NT$${minP} 起`);
-        if (restaurant.booking_menu_avg_discount_pct) titleParts.push(`平均省 ${restaurant.booking_menu_avg_discount_pct}%`);
-        const titleAttr = titleParts.length ? ` title="${titleParts.join('，')}"` : '';
-        metaParts.push(`<span class="meta-chip is-menu"${titleAttr}>線上套餐 ${count} 套</span>`);
-    }
+    // 線上套餐明細用獨立區塊呈現（在 招牌行之後），這裡不再放 chip
     if (restaurant.bookable) {
         metaParts.push(`<span class="meta-chip is-accent">線上可訂位</span>`);
     }
@@ -668,6 +660,32 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
     const dishHtml = dishList.length
         ? `<p class="restaurant-dish"><span class="restaurant-dish__label">招牌</span>${dishList.join('、')}</p>`
         : '';
+
+    // 線上套餐獨家優惠（OpenRice 會員專屬）—— 顯示 1-2 個最有折扣的套餐
+    const bookingMenus = (restaurant.booking_menus || [])
+        .filter(m => m.current_price)
+        .slice(0, 2);
+    const menusHtml = bookingMenus.length ? `
+        <div class="restaurant-menus">
+            <div class="restaurant-menus__header">
+                <span class="restaurant-menus__star">★</span>
+                <span>OpenRice 套餐獨家</span>
+            </div>
+            ${bookingMenus.map(m => {
+                const hasDiscount = m.original_price && m.original_price > m.current_price;
+                return `
+                <div class="restaurant-menus__item">
+                    <span class="restaurant-menus__title">${m.title || '套餐'}</span>
+                    <span class="restaurant-menus__price">
+                        <span class="restaurant-menus__current">NT$${m.current_price.toLocaleString()}</span>
+                        ${hasDiscount ? `<span class="restaurant-menus__strike">NT$${m.original_price.toLocaleString()}</span>` : ''}
+                        ${m.discount_pct ? `<span class="restaurant-menus__off">省 ${m.discount_pct}</span>` : ''}
+                    </span>
+                </div>
+            `;
+            }).join('')}
+        </div>
+    ` : '';
 
     const cuisineTags = filterGeneralTags(restaurant.cuisine_style || [])
         .map(c => `<span class="tag cuisine">${c}</span>`).join('');
@@ -720,6 +738,7 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
             <h3 class="restaurant-name">${restaurant.name}</h3>
             <p class="restaurant-address">${restaurant.address}</p>
             ${metaHtml}
+            ${menusHtml}
             ${dishHtml}
             <div class="restaurant-tags">${cuisineTags}${typeTags}${budgetTag}</div>
             <div class="restaurant-actions">${bookingBtn}${navBtn}</div>
