@@ -22,7 +22,9 @@ function getLiffId() {
     }
     
     // 默認值（已設置 LIFF ID）
-    const defaultLiffId = '2008944358-649rLhGj';
+    // LINE Mini App 升級後使用 Mini App LIFF ID（Developing 階段）
+    // 舊 LIFF Channel ID 保留以防回滾：'2008944358-649rLhGj'
+    const defaultLiffId = '2010198695-KNvBANCO';
     
     return defaultLiffId;
 }
