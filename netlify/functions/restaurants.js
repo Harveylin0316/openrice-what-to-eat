@@ -143,8 +143,8 @@ function getLocationOptions() {
     
     const cities = new Set();
     const districtsByCity = {};
-    
-    data.restaurants.forEach(restaurant => {
+
+    (data.restaurants || []).filter(r => r.enabled).forEach(restaurant => {
       const city = restaurant.city;
       const district = restaurant.district;
       
@@ -429,15 +429,16 @@ exports.handler = async (event, context) => {
         };
       }
     } else if (apiPath === '/all') {
-      // 獲取所有餐廳
+      // 獲取所有「可推薦」的餐廳（enabled=true，跟主推薦池一致）
       const data = loadRestaurantDatabase();
+      const enabled = (data.restaurants || []).filter(r => r.enabled);
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
           success: true,
-          count: data.restaurants.length,
-          restaurants: data.restaurants
+          count: enabled.length,
+          restaurants: enabled
         })
       };
     } else if (apiPath === '/with-booking-offers') {

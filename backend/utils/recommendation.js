@@ -289,8 +289,10 @@ function matchesType(restaurant, userTypes) {
  */
 function recommendRestaurants(filters = {}, limit = 5) {
   const data = loadRestaurantDatabase();
-  let restaurants = [...data.restaurants];
-  
+  // 第一道濾網：enabled=false 的店絕對不出現在推薦池
+  // （空殼餐廳 / 測試店 / status≠Normal / 手動 blocklist 都已標 enabled=false）
+  let restaurants = (data.restaurants || []).filter(r => r.enabled);
+
   // 調試：記錄初始數量
   console.log('推薦餐廳 - 初始數量:', restaurants.length);
   console.log('篩選條件:', filters);
@@ -558,8 +560,8 @@ function getLocationOptions() {
   const data = loadRestaurantDatabase();
   const cities = new Set();
   const districtsByCity = {};
-  
-  data.restaurants.forEach(restaurant => {
+
+  (data.restaurants || []).filter(r => r.enabled).forEach(restaurant => {
     const city = restaurant.city;
     const district = restaurant.district;
     
