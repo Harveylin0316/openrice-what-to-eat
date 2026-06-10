@@ -1058,13 +1058,14 @@
     background: var(--color-accent);
     color: var(--gray-900);
   }
-  /* 影片區（取代圖片輪播時用）— 直式 reel 完整顯示，不裁切
-     容器固定 9:16，max-width 把寬度拉窄到合理範圍，置中，黑底襯托 */
+  /* 影片區（取代圖片輪播時用）— 直式 reel，影片是主角
+     容器填滿卡片寬度，9:16 比例自然顯示；max-height 用 viewport 單位
+     避免在小手機上過長 */
   .card-video-container {
     position: relative;
     width: 100%;
-    max-width: 280px;
     aspect-ratio: 9/16;
+    max-height: 75vh;
     margin: 0 auto var(--space-2);
     background: #000;
     overflow: hidden;
@@ -1076,6 +1077,37 @@
     object-fit: contain;
     display: block;
     background: #000;
+  }
+  /* 靜音切換按鈕（左下） */
+  .card-video__mute {
+    position: absolute;
+    bottom: var(--space-3);
+    left: var(--space-3);
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 5;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .card-video__mute:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+  .card-video__mute:active {
+    transform: scale(0.9);
+  }
+  .card-video__mute svg {
+    width: 18px;
+    height: 18px;
+    display: block;
   }
   .card-video__reel {
     position: absolute;

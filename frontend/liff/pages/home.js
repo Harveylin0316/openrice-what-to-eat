@@ -764,9 +764,17 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
                  IG Reel
                </a>`
             : '';
+        // 靜音切換按鈕（autoplay 一定要 muted 才能跑，使用者點按解除）
+        const muteBtn = `
+            <button type="button" class="card-video__mute" aria-label="開啟聲音" data-muted="1">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.17v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                </svg>
+            </button>`;
         mediaHtml = `
             <div class="restaurant-image-container card-video-container">
                 <video class="card-video" src="${v.url}" ${posterAttr} autoplay muted loop playsinline preload="metadata"></video>
+                ${muteBtn}
                 ${reelOverlay}
             </div>`;
     } else if (hasImages) {
@@ -981,7 +989,7 @@ function attachRichAdListeners(container, r, kind) {
         el.addEventListener('click', () => track('navigation_click', { or_id: r.or_id, name: r.name, from: 'ad', kind }));
     });
 
-    // 影片：追蹤 + 失敗 fallback
+    // 影片：追蹤 + 失敗 fallback + 靜音切換
     const v = container.querySelector('.card-video');
     if (v) {
         let played = false;
@@ -1000,6 +1008,42 @@ function attachRichAdListeners(container, r, kind) {
             v.replaceWith(img);
             track('ad_video_error', { kind, or_id: r.or_id, name: r.name });
         });
+
+        // 靜音切換按鈕：autoplay 需要 muted，使用者偏好存 localStorage
+        const muteBtn = container.querySelector('.card-video__mute');
+        if (muteBtn) {
+            const userPrefersSound = readUnmutePreference();
+            const applyMuteState = (muted) => {
+                v.muted = muted;
+                muteBtn.dataset.muted = muted ? '1' : '0';
+                muteBtn.setAttribute('aria-label', muted ? '開啟聲音' : '關閉聲音');
+                muteBtn.innerHTML = muted ? VIDEO_ICON_MUTED : VIDEO_ICON_UNMUTED;
+            };
+            // 預設狀態：使用者上次選了有聲，這一次也試著有聲（autoplay 可能被瀏覽器擋）
+            applyMuteState(true);
+            if (userPrefersSound) {
+                // 嘗試先靜音 autoplay 起跑後再 unmute
+                v.addEventListener('playing', () => {
+                    v.muted = false;
+                    v.play().then(() => applyMuteState(false))
+                        .catch(() => applyMuteState(true)); // 被擋 → 保持靜音
+                }, { once: true });
+            }
+            muteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const newMuted = !v.muted;
+                v.muted = newMuted;
+                if (!newMuted) {
+                    // 解除靜音 → 確保有在播
+                    v.play().catch(() => {});
+                }
+                applyMuteState(newMuted);
+                writeUnmutePreference(!newMuted);
+                track(newMuted ? 'ad_video_mute' : 'ad_video_unmute',
+                    { kind, or_id: r.or_id, name: r.name });
+            });
+        }
+
         const reelLink = container.querySelector('.card-video__reel');
         if (reelLink) {
             reelLink.addEventListener('click', (e) => {
@@ -1012,6 +1056,27 @@ function attachRichAdListeners(container, r, kind) {
         initImageCarousels();
     }
 }
+
+// 廣告影片聲音偏好（記在 localStorage）
+const UNMUTE_PREF_KEY = 'rr_ad_video_unmuted';
+function readUnmutePreference() {
+    try { return localStorage.getItem(UNMUTE_PREF_KEY) === '1'; }
+    catch { return false; }
+}
+function writeUnmutePreference(unmuted) {
+    try { localStorage.setItem(UNMUTE_PREF_KEY, unmuted ? '1' : '0'); }
+    catch { /* 不影響功能 */ }
+}
+
+// 靜音 / 有聲 icon（material design 風）
+const VIDEO_ICON_MUTED = `
+<svg viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="currentColor" d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.17v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+</svg>`;
+const VIDEO_ICON_UNMUTED = `
+<svg viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="currentColor" d="M3 10v4h4l5 5V5L7 10H3zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+</svg>`;
 
 // 顯示結果（一次只 1 間）
 function displayResults(restaurants) {
