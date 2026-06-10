@@ -44,3 +44,6 @@ ENV/
 _rebuild/backups/
 _rebuild/*.progress.json
 _rebuild/*.log
+
+# 廣告影片原檔備份（11MB+，不上 git）
+_rebuild/backups/videos/

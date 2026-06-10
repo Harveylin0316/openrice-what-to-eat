@@ -5,4 +5,4 @@ or_id,video_url,video_poster,video_reel_url,note
 # - video_reel_url:   可選。IG Reel 連結，點影片時可跳轉。
 # - note:             內部備註，不會用到。
 # 加完後跑：python3 _rebuild/13_apply_videos.py
-526998,/liff/videos/526998.mp4,/liff/videos/526998.jpg,,濟安鮨 POC（影片檔請放入 frontend/liff/videos/）
+526998,/liff/videos/526998.mp4,/liff/videos/526998.jpg,https://www.instagram.com/reel/DYowg5VEaPN/,濟安鮨 POC
