@@ -1031,6 +1031,69 @@
   .ad-media__reel:active {
     background: rgba(0, 0, 0, 0.8);
   }
+
+  /* === 廣告版「完整餐廳卡」樣式 ===
+     廣告卡 = 一般 restaurant-card + 頂部 badge + 影片覆蓋第一張圖
+     不另外做精簡版，讓內容跟正規卡一致（評分/距離/招牌/優惠/套餐/標籤/按鈕） */
+  .restaurant-card--ad {
+    position: relative;
+  }
+  .card-ad-badge {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    z-index: 10;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    padding: 4px var(--space-3);
+    border-radius: var(--radius-full);
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+  .card-ad-badge--sponsored {
+    background: var(--gray-900);
+    color: var(--color-accent);
+  }
+  .card-ad-badge--offer {
+    background: var(--color-accent);
+    color: var(--gray-900);
+  }
+  /* 影片區（取代圖片輪播時用）— 直式 reel 風格但限制高度，留空間給卡片內容 */
+  .card-video-container {
+    position: relative;
+    aspect-ratio: 9/16;
+    max-height: 420px;
+    background: #000;
+    overflow: hidden;
+  }
+  .card-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .card-video__reel {
+    position: absolute;
+    bottom: var(--space-3);
+    right: var(--space-3);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    text-decoration: none;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 5;
+  }
+  .card-video__reel:hover,
+  .card-video__reel:active {
+    background: rgba(0, 0, 0, 0.8);
+  }
   .ad-sponsored__address {
     font-size: var(--font-size-sm);
     color: var(--color-text-muted);

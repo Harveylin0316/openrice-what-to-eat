@@ -441,26 +441,10 @@ exports.handler = async (event, context) => {
         })
       };
     } else if (apiPath === '/with-booking-offers') {
-      // 有訂位獨家優惠的餐廳（給廣告輪播用）
+      // 有訂位獨家優惠的餐廳（給廣告輪播用，回傳完整 record 讓廣告卡能用所有資料）
       const data = loadRestaurantDatabase();
       const list = (data.restaurants || [])
-        .filter(r => r.enabled && r.has_booking_offer && (r.booking_offers || []).length > 0)
-        .map(r => ({
-          or_id: r.or_id,
-          name: r.name,
-          address: r.address,
-          url: r.url,
-          rating: r.rating,
-          budget: r.budget,
-          cuisine_style: r.cuisine_style,
-          image: (r.images && r.images[0]) || r.door_photo_url || null,
-          booking_offers: r.booking_offers,
-          booking_offer_count: r.booking_offer_count,
-          // 廣告影片（有的話前端會用 <video> 替代 <img>）
-          video_url: r.video_url || null,
-          video_poster: r.video_poster || null,
-          video_reel_url: r.video_reel_url || null,
-        }));
+        .filter(r => r.enabled && r.has_booking_offer && (r.booking_offers || []).length > 0);
       return {
         statusCode: 200,
         headers,
@@ -469,24 +453,9 @@ exports.handler = async (event, context) => {
     } else if (apiPath === '/sponsored') {
       // 付費贊助餐廳（給廣告位輪播用）
       const data = loadRestaurantDatabase();
+      // 回傳完整 record，讓廣告卡能用所有欄位（含影片）
       const sponsored = (data.restaurants || [])
-        .filter(r => r.enabled && r.is_paid_account)
-        .map(r => ({
-          or_id: r.or_id,
-          name: r.name,
-          address: r.address,
-          url: r.url,
-          rating: r.rating,
-          review_count: r.review_count,
-          budget: r.budget,
-          cuisine_style: r.cuisine_style,
-          image: (r.images && r.images[0]) || r.door_photo_url || null,
-          landmarks: r.landmarks,
-          // 廣告影片
-          video_url: r.video_url || null,
-          video_poster: r.video_poster || null,
-          video_reel_url: r.video_reel_url || null,
-        }));
+        .filter(r => r.enabled && r.is_paid_account);
       return {
         statusCode: 200,
         headers,

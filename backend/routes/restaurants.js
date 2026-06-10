@@ -169,22 +169,7 @@ router.get('/with-booking-offers', (req, res) => {
     const { loadRestaurantDatabase } = require('../utils/recommendation');
     const data = loadRestaurantDatabase();
     const list = (data.restaurants || [])
-      .filter(r => r.enabled && r.has_booking_offer && (r.booking_offers || []).length > 0)
-      .map(r => ({
-        or_id: r.or_id,
-        name: r.name,
-        address: r.address,
-        url: r.url,
-        rating: r.rating,
-        budget: r.budget,
-        cuisine_style: r.cuisine_style,
-        image: (r.images && r.images[0]) || r.door_photo_url || null,
-        booking_offers: r.booking_offers,
-        booking_offer_count: r.booking_offer_count,
-        video_url: r.video_url || null,
-        video_poster: r.video_poster || null,
-        video_reel_url: r.video_reel_url || null,
-      }));
+      .filter(r => r.enabled && r.has_booking_offer && (r.booking_offers || []).length > 0);
     res.json({ success: true, count: list.length, restaurants: list });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -200,22 +185,7 @@ router.get('/sponsored', (req, res) => {
     const { loadRestaurantDatabase } = require('../utils/recommendation');
     const data = loadRestaurantDatabase();
     const sponsored = (data.restaurants || [])
-      .filter(r => r.enabled && r.is_paid_account)
-      .map(r => ({
-        or_id: r.or_id,
-        name: r.name,
-        address: r.address,
-        url: r.url,
-        rating: r.rating,
-        review_count: r.review_count,
-        budget: r.budget,
-        cuisine_style: r.cuisine_style,
-        image: (r.images && r.images[0]) || r.door_photo_url || null,
-        landmarks: r.landmarks,
-        video_url: r.video_url || null,
-        video_poster: r.video_poster || null,
-        video_reel_url: r.video_reel_url || null,
-      }));
+      .filter(r => r.enabled && r.is_paid_account);
     res.json({ success: true, count: sponsored.length, restaurants: sponsored });
   } catch (error) {
     console.error('獲取贊助餐廳時發生錯誤:', error);

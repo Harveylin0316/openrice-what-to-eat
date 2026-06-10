@@ -92,13 +92,6 @@ const ADS = [
         title: '冷門時段折扣',
         body: '想省一點？很多餐廳在午茶、下午、宵夜這種冷門時段有大幅度折扣。',
     },
-    {
-        icon: 'icon-instagram',
-        title: '追蹤 OpenRice IG',
-        body: '探店短影片每週更新，找下一頓飯的靈感就在這。',
-        url: 'https://www.instagram.com/openricetw/',
-        ctaText: '立即追蹤',
-    },
 ];
 
 // 更新「使用我的位置」按鈕內的文字（保留旁邊的 SVG icon）
@@ -627,10 +620,15 @@ function collectFormData() {
 }
 
 // 建立單張餐廳卡 HTML
+// opts:
+//   adKind?: 'sponsored' | 'offer'   → 在卡片頂端加 badge
+//   video?: { url, poster, reelUrl } → 用 <video> 取代圖片輪播
+//   ctaLabel?: string                → 覆蓋 booking 按鈕文字
 function buildCardHTML(restaurant, cardIndex, opts = {}) {
     const images = (restaurant.images || []).slice(0, 8);
+    const useVideo = !!(opts.video && opts.video.url);
     const hasImages = images.length > 0;
-    const canSlide = images.length > 1;
+    const canSlide = images.length > 1 && !useVideo;
 
     // 距離（nearby mode 才有 userLocation）
     let distance = null;
@@ -716,8 +714,12 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
         ? `<span class="tag budget">${restaurant.budget}</span>`
         : '<span class="tag">預算未標示</span>';
 
+    const ctaLabel = opts.ctaLabel
+        || (opts.adKind === 'offer' ? '立即訂位享優惠'
+            : opts.adKind === 'sponsored' ? '查看 / 訂位'
+            : '查看 / 訂位');
     const bookingBtn = restaurant.url
-        ? `<a href="${restaurant.url}" target="_blank" rel="noopener" class="restaurant-btn booking-btn">查看 / 訂位</a>`
+        ? `<a href="${restaurant.url}" target="_blank" rel="noopener" class="restaurant-btn booking-btn">${ctaLabel}</a>`
         : '';
     const navBtn = restaurant.coordinates?.lat && restaurant.coordinates?.lng
         ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${restaurant.coordinates.lat},${restaurant.coordinates.lng}" target="_blank" rel="noopener" class="restaurant-btn navigation-btn">導航</a>`
@@ -728,11 +730,33 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
     // 暫存當前餐廳資料給分享按鈕用（單卡模式只有一張，安全）
     window.__currentRestaurant = restaurant;
 
-    return `
-        <button type="button" class="card-share" aria-label="分享給朋友">
-            <svg aria-hidden="true"><use href="#icon-share"></use></svg>
-        </button>
-        ${hasImages ? `
+    // 頂部 badge（廣告版才有）
+    const adBadgeHtml = opts.adKind === 'sponsored'
+        ? `<div class="card-ad-badge card-ad-badge--sponsored">合作店家</div>`
+        : opts.adKind === 'offer'
+        ? `<div class="card-ad-badge card-ad-badge--offer">★ 訂位獨家優惠</div>`
+        : '';
+
+    // 媒體區：影片優先（廣告用），其次圖片輪播
+    let mediaHtml = '';
+    if (useVideo) {
+        const v = opts.video;
+        const posterAttr = v.poster ? `poster="${v.poster}"` : (images[0] ? `poster="${images[0]}"` : '');
+        const reelOverlay = v.reelUrl
+            ? `<a class="card-video__reel" href="${v.reelUrl}" target="_blank" rel="noopener" aria-label="到 IG Reel 看完整版">
+                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                   <path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm5 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm5.5-3.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"/>
+                 </svg>
+                 IG Reel
+               </a>`
+            : '';
+        mediaHtml = `
+            <div class="restaurant-image-container card-video-container">
+                <video class="card-video" src="${v.url}" ${posterAttr} autoplay muted loop playsinline preload="metadata"></video>
+                ${reelOverlay}
+            </div>`;
+    } else if (hasImages) {
+        mediaHtml = `
             <div class="restaurant-image-container" data-card-index="${cardIndex}">
                 <div class="image-carousel" data-carousel="${cardIndex}">
                     ${images.map((img, i) => `
@@ -750,10 +774,17 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
                         ${images.map((_, i) => `<span class="indicator ${i === 0 ? 'active' : ''}" data-slide="${i}"></span>`).join('')}
                     </div>
                 ` : ''}
-            </div>
-        ` : `
-            <div class="restaurant-image-placeholder"><span>無照片</span></div>
-        `}
+            </div>`;
+    } else {
+        mediaHtml = `<div class="restaurant-image-placeholder"><span>無照片</span></div>`;
+    }
+
+    return `
+        ${adBadgeHtml}
+        <button type="button" class="card-share" aria-label="分享給朋友">
+            <svg aria-hidden="true"><use href="#icon-share"></use></svg>
+        </button>
+        ${mediaHtml}
         <div class="restaurant-info">
             ${evidenceHtml}
             <h3 class="restaurant-name">${restaurant.name}</h3>
@@ -902,107 +933,69 @@ function renderTipAd(container, ad) {
     }
 }
 
-function renderOfferAd(container, r) {
-    const offers = (r.booking_offers || []).slice(0, 4);
-    const offersHtml = offers.length
-        ? `<ul class="ad-offer__list">${offers.map(t => `<li>${t}</li>`).join('')}</ul>`
-        : '';
-    const ratingHtml = (typeof r.rating === 'number' && r.rating > 0)
-        ? `<span class="ad-offer__rating">OpenRice ${r.rating.toFixed(1)} 星</span>`
-        : '';
-    container.innerHTML = `
-        <div class="ad-card ad-card--offer">
-            <div class="ad-card__badge ad-card__badge--offer">★ 訂位獨家優惠</div>
-            ${buildAdMediaHtml(r, 'ad-offer__image')}
-            <h3 class="ad-card__title">${r.name}</h3>
-            ${r.address ? `<p class="ad-offer__address">${r.address}</p>` : ''}
-            ${offersHtml}
-            ${ratingHtml ? `<div class="ad-offer__meta">${ratingHtml}</div>` : ''}
-            ${r.url ? `<a href="${r.url}" target="_blank" rel="noopener" class="ad-card__cta">立即訂位享優惠</a>` : ''}
-        </div>
-    `;
-    track('ad_shown', { kind: 'offer', or_id: r.or_id, name: r.name, has_video: !!r.video_url });
-    attachAdMediaListeners(container, r, 'offer');
-    const cta = container.querySelector('.ad-card__cta');
-    if (cta) {
-        cta.addEventListener('click', () => track('ad_cta_click', { kind: 'offer', or_id: r.or_id, name: r.name }));
-    }
+// 廣告卡 = 完整餐廳卡 + badge + 影片覆蓋 + 廣告追蹤
+function renderRichAd(container, r, kind) {
+    const video = r.video_url
+        ? { url: r.video_url, poster: r.video_poster, reelUrl: r.video_reel_url }
+        : null;
+    container.innerHTML = `<div class="restaurant-card restaurant-card--ad restaurant-card--ad-${kind}">${buildCardHTML(r, 0, { adKind: kind, video })}</div>`;
+    track('ad_shown', { kind, or_id: r.or_id, name: r.name, has_video: !!r.video_url });
+    attachRichAdListeners(container, r, kind);
 }
 
-function renderSponsoredAd(container, r) {
-    const tags = filterGeneralTags(r.cuisine_style || []).slice(0, 2).map(c => `<span class="tag cuisine">${c}</span>`).join('');
-    const ratingHtml = (typeof r.rating === 'number' && r.rating > 0)
-        ? `<span class="ad-sponsored__rating">OpenRice ${r.rating.toFixed(1)} 星</span>`
-        : '';
-    const reviewHtml = r.review_count ? `<span class="ad-sponsored__reviews">${r.review_count} 篇食記</span>` : '';
-    const budgetHtml = r.budget ? `<span class="ad-sponsored__budget">人均 ${r.budget}</span>` : '';
-    container.innerHTML = `
-        <div class="ad-card ad-card--sponsored">
-            <div class="ad-card__badge ad-card__badge--sponsored">合作店家</div>
-            ${buildAdMediaHtml(r, 'ad-sponsored__image')}
-            <h3 class="ad-card__title">${r.name}</h3>
-            ${r.address ? `<p class="ad-sponsored__address">${r.address}</p>` : ''}
-            <div class="ad-sponsored__meta">${ratingHtml}${reviewHtml}${budgetHtml}</div>
-            ${tags ? `<div class="restaurant-tags ad-sponsored__tags">${tags}</div>` : ''}
-            ${r.url ? `<a href="${r.url}" target="_blank" rel="noopener" class="ad-card__cta">查看 / 訂位</a>` : ''}
-        </div>
-    `;
-    track('ad_shown', { kind: 'sponsored', or_id: r.or_id, name: r.name, has_video: !!r.video_url });
-    attachAdMediaListeners(container, r, 'sponsored');
-    const cta = container.querySelector('.ad-card__cta');
-    if (cta) {
-        cta.addEventListener('click', () => track('ad_cta_click', { kind: 'sponsored', or_id: r.or_id, name: r.name }));
-    }
-}
+function renderSponsoredAd(container, r) { renderRichAd(container, r, 'sponsored'); }
+function renderOfferAd(container, r)     { renderRichAd(container, r, 'offer'); }
 
-// 廣告媒體區（影片優先，否則 fallback 圖片）— 共用 helper
-function buildAdMediaHtml(r, wrapperClass) {
-    // 影片優先
-    if (r.video_url) {
-        const poster = r.video_poster || r.image || '';
-        const reelOverlay = r.video_reel_url
-            ? `<a class="ad-media__reel" href="${r.video_reel_url}" target="_blank" rel="noopener" aria-label="到 IG Reel 看完整版">
-                 <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-                   <path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm5 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm5.5-3.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"/>
-                 </svg>
-                 IG Reel
-               </a>`
-            : '';
-        return `<div class="${wrapperClass} ad-media ad-media--video">
-                  <video class="ad-media__video" src="${r.video_url}" ${poster ? `poster="${poster}"` : ''} autoplay muted loop playsinline preload="metadata"></video>
-                  ${reelOverlay}
-                </div>`;
+// 廣告卡 listeners：share / booking / nav / 輪播 / 影片追蹤
+function attachRichAdListeners(container, r, kind) {
+    // 分享按鈕（廣告卡也讓使用者分享）
+    const shareBtn = container.querySelector('.card-share');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.__currentRestaurant) {
+                track('share_click', { or_id: r.or_id, name: r.name, from: 'ad', kind });
+                shareRestaurant(window.__currentRestaurant);
+            }
+        });
     }
-    // 沒影片 → 用原來的圖片
-    if (r.image) {
-        return `<div class="${wrapperClass}"><img src="${r.image}" alt="${r.name}" onerror="this.style.display='none'"></div>`;
-    }
-    return '';
-}
-
-// 廣告影片：追蹤播放事件 + 失敗時降級到 poster/image
-function attachAdMediaListeners(container, r, kind) {
-    const v = container.querySelector('.ad-media__video');
-    if (!v) return;
-    let played = false;
-    v.addEventListener('playing', () => {
-        if (played) return;
-        played = true;
-        track('ad_video_played', { kind, or_id: r.or_id, name: r.name });
-    }, { once: true });
-    v.addEventListener('error', () => {
-        // 影片載失敗 → 換成 poster 或 image 當靜態圖
-        const fallback = r.video_poster || r.image;
-        if (!fallback) { v.remove(); return; }
-        const img = document.createElement('img');
-        img.src = fallback;
-        img.alt = r.name;
-        v.replaceWith(img);
-        track('ad_video_error', { kind, or_id: r.or_id, name: r.name });
+    // 預約 CTA 點擊追蹤
+    container.querySelectorAll('.booking-btn').forEach(el => {
+        el.addEventListener('click', () => track('ad_cta_click', { kind, or_id: r.or_id, name: r.name, url: r.url }));
     });
-    const reelLink = container.querySelector('.ad-media__reel');
-    if (reelLink) {
-        reelLink.addEventListener('click', () => track('ad_video_reel_click', { kind, or_id: r.or_id, name: r.name }));
+    container.querySelectorAll('.navigation-btn').forEach(el => {
+        el.addEventListener('click', () => track('navigation_click', { or_id: r.or_id, name: r.name, from: 'ad', kind }));
+    });
+
+    // 影片：追蹤 + 失敗 fallback
+    const v = container.querySelector('.card-video');
+    if (v) {
+        let played = false;
+        v.addEventListener('playing', () => {
+            if (played) return;
+            played = true;
+            track('ad_video_played', { kind, or_id: r.or_id, name: r.name });
+        }, { once: true });
+        v.addEventListener('error', () => {
+            // 影片載失敗 → 退回靜態圖（用 poster 或第一張 restaurant image）
+            const fallback = r.video_poster || (r.images && r.images[0]) || r.door_photo_url;
+            if (!fallback) { v.remove(); return; }
+            const img = document.createElement('img');
+            img.src = fallback;
+            img.alt = r.name;
+            v.replaceWith(img);
+            track('ad_video_error', { kind, or_id: r.or_id, name: r.name });
+        });
+        const reelLink = container.querySelector('.card-video__reel');
+        if (reelLink) {
+            reelLink.addEventListener('click', (e) => {
+                e.stopPropagation();
+                track('ad_video_reel_click', { kind, or_id: r.or_id, name: r.name });
+            });
+        }
+    } else {
+        // 沒影片 → 初始化圖片輪播
+        initImageCarousels();
     }
 }
 
