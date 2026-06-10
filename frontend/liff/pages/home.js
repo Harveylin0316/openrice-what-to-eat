@@ -68,19 +68,54 @@ function shuffleInPlace(arr) {
     return arr;
 }
 
+// 贊助店家輪替索引（持久化在 localStorage）
+// 保證每次廣告 cycle 開頭的贊助店家依序輪播 A→B→C→D→A...
+// 不會因為單純隨機 shuffle 而連續看到同一家
+const SPO_ROTATION_KEY = 'rr_spo_rotation_idx';
+
+function arrangeSponsoredEntries(spoEntries) {
+    if (!spoEntries.length) return [];
+    const N = spoEntries.length;
+    // 用 sponsored or_id 排序後組合當 signature，避免店家更新後 idx 亂套
+    const sig = spoEntries.map(e => e.data.or_id).sort((a, b) => a - b).join(',');
+
+    let idx = 0;
+    try {
+        const saved = JSON.parse(localStorage.getItem(SPO_ROTATION_KEY) || 'null');
+        if (saved && saved.sig === sig && Number.isInteger(saved.idx)) {
+            idx = saved.idx % N;
+        }
+    } catch { /* localStorage 失敗就從 0 開始 */ }
+
+    // 把 idx 對應的店家排到尾端（pop 第一個取出 = 這家當 cycle 第一個展示的廣告）
+    // 其他 N-1 家洗牌放前面
+    const first = spoEntries[idx];
+    const others = spoEntries.filter((_, i) => i !== idx);
+    shuffleInPlace(others);
+    const arranged = [...others, first];
+
+    // 推進 idx 給下次用，保證下一輪 cycle 開頭換下一家
+    const nextIdx = (idx + 1) % N;
+    try { localStorage.setItem(SPO_ROTATION_KEY, JSON.stringify({ sig, idx: nextIdx })); }
+    catch { /* */ }
+
+    return arranged;
+}
+
 function pickNextAd() {
     const groups = buildAdGroups();
     const totalCount = groups.sponsored.length + groups.offer.length + groups.tip.length;
     if (totalCount === 0) return null;
 
     if (adQueue.length === 0) {
-        // 各分組內部洗牌
-        const spo = shuffleInPlace(groups.sponsored.slice());
+        // 贊助店家用 round-robin 輪替（每輪 cycle 開頭換下一家）
+        const spo = arrangeSponsoredEntries(groups.sponsored.slice());
+        // offer / tip 維持隨機洗牌（offer 有 17 家、tip 只 3 條，隨機體感較好）
         const off = shuffleInPlace(groups.offer.slice());
         const tip = shuffleInPlace(groups.tip.slice());
         // 順序：tip 在前、offer 中間、sponsored 在尾（pop 從尾取 → sponsored 最先）
         adQueue = [...tip, ...off, ...spo];
-        // 防接縫處撞同一個（要播的下一個是尾端，舊版的最後一個剛好也是同一個）
+        // 防接縫處撞同一個（適用 offer/tip；sponsored 已由 round-robin 保證不重複）
         if (adQueue.length > 1 && lastAdSig && adSig(adQueue[adQueue.length - 1]) === lastAdSig) {
             const last = adQueue.length - 1;
             [adQueue[last], adQueue[last - 1]] = [adQueue[last - 1], adQueue[last]];
