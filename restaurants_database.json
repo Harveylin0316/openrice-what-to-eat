@@ -21218,7 +21218,11 @@
           "has_discount": true,
           "discount_pct": "9.1%"
         }
-      ]
+      ],
+      "video_url": "/liff/videos/496703.mp4",
+      "has_video": true,
+      "video_poster": "/liff/videos/496703.jpg",
+      "video_reel_url": "https://www.instagram.com/reel/DZMLyKkCEEJ/"
     },
     {
       "or_id": 496932,
@@ -40468,7 +40472,11 @@
           "has_discount": false,
           "discount_pct": null
         }
-      ]
+      ],
+      "video_url": "/liff/videos/541025.mp4",
+      "has_video": true,
+      "video_poster": "/liff/videos/541025.jpg",
+      "video_reel_url": "https://www.instagram.com/reel/DZHqBhjjCPF/"
     },
     {
       "or_id": 541205,
@@ -84050,7 +84058,11 @@
           "has_discount": false,
           "discount_pct": null
         }
-      ]
+      ],
+      "video_url": "/liff/videos/752116.mp4",
+      "has_video": true,
+      "video_poster": "/liff/videos/752116.jpg",
+      "video_reel_url": "https://www.instagram.com/reel/DZWbgFyiOo3/"
     },
     {
       "or_id": 752241,

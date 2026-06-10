@@ -5,4 +5,7 @@ or_id,video_url,video_poster,video_reel_url,note
 # - video_reel_url:   可選。IG Reel 連結，點影片時可跳轉。
 # - note:             內部備註，不會用到。
 # 加完後跑：python3 _rebuild/13_apply_videos.py
-526998,/liff/videos/526998.mp4,/liff/videos/526998.jpg,https://www.instagram.com/reel/DYowg5VEaPN/,濟安鮨 POC
+496703,/liff/videos/496703.mp4,/liff/videos/496703.jpg,https://www.instagram.com/reel/DZMLyKkCEEJ/,上吉燒肉
+526998,/liff/videos/526998.mp4,/liff/videos/526998.jpg,https://www.instagram.com/reel/DYowg5VEaPN/,濟安鮨
+541025,/liff/videos/541025.mp4,/liff/videos/541025.jpg,https://www.instagram.com/reel/DZHqBhjjCPF/,侍燒肉
+752116,/liff/videos/752116.mp4,/liff/videos/752116.jpg,https://www.instagram.com/reel/DZWbgFyiOo3/,拾漁永康店
