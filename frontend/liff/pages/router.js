@@ -111,6 +111,8 @@ async function loadPage(pageName) {
     document.body.dataset.page = pageName;
     // LINE header 以 title 顯示 app 身分
     document.title = pageName === 'map' ? 'OpenRice 好康地圖' : '今天吃什麼';
+    // 首繪防閃現的 data-boot 由 router 接手後移除（否則 map 開場 fallback 到 home 時外殼會被卡住隱藏）
+    document.documentElement.removeAttribute('data-boot');
 
     try {
         // 調用對應頁面的初始化函數

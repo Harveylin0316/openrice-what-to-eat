@@ -12,6 +12,25 @@
     <link rel="stylesheet" href="style.css">
     <!-- 生活地圖頁樣式（Leaflet 本體由 map.js 動態載入） -->
     <link rel="stylesheet" href="map.css">
+    <!-- 首繪前判定目標頁：地圖為預設首頁時，隱藏舊版外殼避免「今天吃什麼」閃現
+         （router 載入完成後會移除 data-boot 接手控制） -->
+    <script>
+    (function () {
+        var known = { home: 1, lottery: 1, map: 1 };
+        var page = 'map';
+        var path = location.pathname;
+        if (path.indexOf('/liff/') === 0) {
+            var seg = path.slice(6).split('/')[0];
+            if (known[seg]) page = seg;
+        }
+        if (page === 'map') {
+            var q = new URLSearchParams(location.search).get('page');
+            if (q && known[q]) page = q;
+        }
+        document.documentElement.setAttribute('data-boot', page);
+        if (page === 'map') document.title = 'OpenRice 好康地圖';
+    })();
+    </script>
     <!-- LINE LIFF SDK -->
     <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 </head>

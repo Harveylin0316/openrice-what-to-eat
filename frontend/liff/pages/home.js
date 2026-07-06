@@ -165,14 +165,28 @@ function hideInitProgress() {
     if (mainContent) mainContent.style.display = 'block';
 }
 
+// 首頁靜態表單的快照：抽獎頁會整個覆寫 #mainContent，
+// 之後再回首頁時需要用這份快照復原，否則首頁只剩抽獎頁殘骸
+const HOME_HTML_SNAPSHOT = (() => {
+    const mc = document.getElementById('mainContent');
+    return mc ? mc.innerHTML : '';
+})();
+
 // 初始化首頁
 export async function initHomePage() {
     console.log('初始化首頁：今天吃什麼');
-    
+
     try {
         // 顯示初始化進度（確保 mainContent 隱藏）
         const mainContent = document.getElementById('mainContent');
         if (mainContent) mainContent.style.display = 'none';
+
+        // 表單 DOM 被其他頁（抽獎）覆寫過 → 先復原再初始化
+        if (mainContent && !document.getElementById('recommendationForm') && HOME_HTML_SNAPSHOT) {
+            console.log('偵測到首頁 DOM 被覆寫，從快照復原');
+            mainContent.innerHTML = HOME_HTML_SNAPSHOT;
+            setupLocationButton(); // 復原後的新按鈕需要重新綁定
+        }
         
         showInitProgress('正在載入篩選選項...');
         
@@ -1419,10 +1433,11 @@ function autoGetUserLocation() {
     return;
 }
 
-// 設置位置按鈕事件
+// 設置位置按鈕事件（dataset 防重複綁定：DOM 復原後會再呼叫一次）
 function setupLocationButton() {
     const getLocationBtn = document.getElementById('getLocationBtn');
-    if (getLocationBtn) {
+    if (getLocationBtn && !getLocationBtn.dataset.bound) {
+        getLocationBtn.dataset.bound = '1';
         getLocationBtn.addEventListener('click', getUserLocation);
     }
 }

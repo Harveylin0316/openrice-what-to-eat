@@ -154,17 +154,49 @@ def main():
     for p in pins:
         tier_counts[p['t']] = tier_counts.get(p['t'], 0) + 1
 
+    # 搜尋用地點索引：行政區 + 地標（捷運站/商圈），質心取自店家座標
+    from collections import defaultdict
+    district_pts = defaultdict(list)
+    landmark_pts = defaultdict(list)
+    for r in restaurants:
+        if not r.get('enabled', True) or r.get('city') not in CITY_ALLOWLIST:
+            continue
+        coords = r.get('coordinates') or {}
+        if coords.get('lat') is None:
+            continue
+        pt = (coords['lat'], coords['lng'])
+        if r.get('district'):
+            district_pts[(r.get('city'), r['district'])].append(pt)
+        for lm in r.get('landmarks') or []:
+            landmark_pts[lm].append(pt)
+
+    def centroid(pts):
+        return (round(sum(p[0] for p in pts) / len(pts), 6),
+                round(sum(p[1] for p in pts) / len(pts), 6))
+
+    places = []
+    for (city, district), pts in district_pts.items():
+        lat, lng = centroid(pts)
+        places.append({'n': district, 'd': city, 't': 'district', 'lat': lat, 'lng': lng, 'c': len(pts)})
+    for lm, pts in landmark_pts.items():
+        if len(pts) < 2:  # 只有一間店的地標雜訊多，略過
+            continue
+        lat, lng = centroid(pts)
+        places.append({'n': lm, 't': 'landmark', 'lat': lat, 'lng': lng, 'c': len(pts)})
+    places.sort(key=lambda p: -p['c'])  # 店多的地點排前，搜尋建議更準
+
     os.makedirs(os.path.dirname(OUTPUT), exist_ok=True)
     payload = {
         'generated_at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
         'count': len(pins),
         'pins': pins,
+        'places': places,
     }
     with open(OUTPUT, 'w', encoding='utf-8') as f:
         json.dump(payload, f, ensure_ascii=False, separators=(',', ':'))
 
     size_kb = os.path.getsize(OUTPUT) / 1024
-    print(f"✅ map_pins.json：{len(pins)} pins（{size_kb:.0f} KB）")
+    print(f"✅ map_pins.json：{len(pins)} pins + {len(places)} places（{size_kb:.0f} KB）")
     print(f"   tiers: {tier_counts}")
     print(f"   skipped: disabled={skipped_disabled}, no-coords={skipped_nocoords}, outside-allowlist={skipped_city}")
     return 0

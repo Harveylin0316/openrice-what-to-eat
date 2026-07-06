@@ -184,6 +184,20 @@ tiers = coupon 306 / none 245 / booking_offer 12 / sponsored 4。
   document.title = OpenRice 好康地圖；定位鈕改十字準星 SVG
 - 驗證：E2E 18 步、6 裝置 × 6 狀態矩陣（320→768）、無定位動線，全綠
 
+**P7 真機回饋修正（2026-07-06，Owner 實機測試回報）**：
+- **修「找店/抽獎都變抽獎頁」bug**：根因是抽獎頁整頁覆寫 `#mainContent` 毀掉
+  找店頁靜態表單。home.js 於載入時快照自身 DOM，被覆寫後自動復原並重綁事件
+- **一切留在地圖內**：移除「找店」側邊鈕（搜尋+篩選+幫我決定已涵蓋其功能，
+  `/liff/home` 仍可直達供 Rich Menu 相容）；抽獎保留側邊入口
+- **抽選輪盤動畫**：🎯 在畫面內候選店間跳動、店名快速輪替、減速落定（~1.3s，
+  尊重 prefers-reduced-motion）——「隨機」成為看得見的儀式
+- **開場防閃現**：index.html 首繪前內聯腳本判定目標頁，地圖路由直接隱藏舊版
+  外殼（router 接手後移除 data-boot）；LINE header 開場即顯示「OpenRice 好康地圖」
+- **進場即請求定位**（Owner 決策：好康地圖以「你附近」為核心；拒絕不擋路）
+- **頂部搜尋欄**（Google Maps 式）：行政區（30）/ 地標·捷運站·商圈（80）/
+  餐廳名三類建議，選擇即 flyTo 跳轉（餐廳另開迷你卡）；
+  地點索引由 generate_map_pins.py 從店家座標算質心，零外部 geocoding 依賴
+
 **未來迭代（本輪未做）**：
 - 深色模式（需連磚圖 dark_matter 與 home/lottery 一起，app 目前全域鎖淺色）
 - 抽獎變地圖活動圖釘（抽獎無地理錨點，需產品定義）

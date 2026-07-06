@@ -39,6 +39,7 @@ const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'satur
 let map = null;
 let clusterGroup = null;
 let allPins = [];               // map_pins.json 的原始資料
+let allPlaces = [];             // 搜尋用地點索引（行政區/地標，含質心座標）
 let pinMarkers = new Map();     // pin.id -> L.CircleMarker
 let userLocation = null;
 let userMarker = null;
@@ -140,15 +141,19 @@ function ensureMapRoot() {
     root.id = 'mapRoot';
     root.className = 'map-root';
     root.innerHTML = `
+        <div class="map-search" role="search">
+            <input type="search" id="mapSearchInput" class="map-search__input"
+                   placeholder="搜尋地區、捷運站、餐廳…" autocomplete="off"
+                   aria-label="搜尋地區、捷運站或餐廳" enterkeyhint="search">
+            <button type="button" class="map-search__clear" id="mapSearchClear" aria-label="清除搜尋" hidden>✕</button>
+            <ul class="map-search__results" id="mapSearchResults" hidden></ul>
+        </div>
         <div class="map-chips" role="toolbar" aria-label="地圖篩選">
             <button type="button" class="map-chip" id="chipDeals" aria-pressed="false">🎫 只看好康</button>
             <button type="button" class="map-chip" id="chipOpen" aria-pressed="false">🕐 營業中</button>
             <button type="button" class="map-chip" id="chipBookable" aria-pressed="false">📅 可訂位</button>
         </div>
         <div class="map-side-nav">
-            <button type="button" class="map-side-btn" id="chipHome" aria-label="條件找店">
-                <span aria-hidden="true">📝</span><small>找店</small>
-            </button>
             <button type="button" class="map-side-btn" id="chipLottery" aria-label="抽獎活動">
                 <span aria-hidden="true">🎁</span><small>抽獎</small>
             </button>
@@ -559,6 +564,34 @@ function viewportCandidates() {
     });
 }
 
+// 輪盤動畫：🎯 在候選店之間跳動、店名快速輪替、逐步減速 → 落在贏家
+// （隨機感的儀式：讓「抽」被看見，而不是畫面直接跳答案）
+async function rouletteReveal(decoyPins, body) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!decoyPins.length) return;
+    const delays = [80, 90, 100, 120, 150, 190, 240, 300];
+    const steps = Math.min(decoyPins.length, delays.length);
+    for (let i = 0; i < steps; i++) {
+        const p = decoyPins[i];
+        setSpotlightPin(p.lat, p.lng);
+        body.innerHTML = `<p class="map-spotlight__loading map-spotlight__roulette">🎲 ${escapeHtml(p.n)}</p>`;
+        await new Promise(r => setTimeout(r, delays[i]));
+    }
+}
+
+// 從畫面內抽 n 個過場候選（排除贏家本人）
+function sampleDecoys(winnerName, n) {
+    if (!map) return [];
+    const bounds = map.getBounds();
+    const pool = allPins.filter(p => p.n !== winnerName && bounds.contains([p.lat, p.lng]));
+    // Fisher–Yates 部分洗牌取前 n 個
+    for (let i = pool.length - 1; i > Math.max(0, pool.length - n - 1); i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(-n).reverse();
+}
+
 async function drawSpotlight() {
     if (decideInProgress) return;
     decideInProgress = true;
@@ -616,6 +649,7 @@ async function drawSpotlight() {
 
         decideCount++; // 只計成功展示的抽數，網路失敗不消耗贊助保底節奏
         spotlightExcludes.push(restaurant.name);
+        await rouletteReveal(sampleDecoys(restaurant.name, 7), body);
         renderSpotlight(restaurant, isSponsoredPick);
         track('map_decide_result', {
             or_id: restaurant.or_id, name: restaurant.name,
@@ -759,16 +793,8 @@ function locateUser({ silent = false } = {}) {
     });
 }
 
-// 只有已授權過定位才靜默自動定位，避免一打開 app 就跳權限彈窗嚇跑用戶
-async function autoLocateIfGranted() {
-    try {
-        if (navigator.permissions && navigator.permissions.query) {
-            const st = await navigator.permissions.query({ name: 'geolocation' });
-            if (st.state === 'granted') locateUser({ silent: true });
-            return;
-        }
-    } catch (e) { /* permissions API 不支援 → 保守：不自動要權限 */ }
-}
+// 進場即請求定位（Owner 決策 2026-07-06：好康地圖以「你附近」為核心，
+// 開門見山要位置；拒絕也不擋路，地圖照樣能逛、能搜尋、能抽）
 
 function showUserMarker() {
     const L = window.L;
@@ -784,6 +810,93 @@ function showUserMarker() {
         interactive: false,
         zIndexOffset: 900,
     }).addTo(map);
+}
+
+// ---- 搜尋（像 Google Maps：輸入地區/捷運站/餐廳 → 跳轉） ----
+
+function searchMatches(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    const placeHits = allPlaces
+        .filter(p => p.n.toLowerCase().includes(q))
+        .slice(0, 5)
+        .map(p => ({ kind: p.t, name: p.n, sub: p.t === 'district' ? p.d : `${p.c} 間餐廳`, lat: p.lat, lng: p.lng }));
+    const pinHits = allPins
+        .filter(p => p.n.toLowerCase().includes(q))
+        .slice(0, Math.max(3, 8 - placeHits.length))
+        .map(p => ({ kind: 'restaurant', name: p.n, sub: p.d, pin: p }));
+    return [...placeHits, ...pinHits];
+}
+
+const SEARCH_ICON = { district: '🏙️', landmark: '📍', restaurant: '🍽️' };
+
+function renderSearchResults(matches) {
+    const list = document.getElementById('mapSearchResults');
+    if (!matches.length) {
+        list.hidden = true;
+        list.innerHTML = '';
+        return;
+    }
+    list.innerHTML = matches.map((m, i) => `
+        <li><button type="button" class="map-search__item" data-idx="${i}">
+            <span aria-hidden="true">${SEARCH_ICON[m.kind]}</span>
+            <span class="map-search__item-name">${escapeHtml(m.name)}</span>
+            <span class="map-search__item-sub">${escapeHtml(m.sub || '')}</span>
+        </button></li>`).join('');
+    list.hidden = false;
+    list.querySelectorAll('.map-search__item').forEach(btn => {
+        btn.addEventListener('click', () => selectSearchResult(matches[Number(btn.dataset.idx)]));
+    });
+}
+
+function closeSearch({ clear = false } = {}) {
+    const input = document.getElementById('mapSearchInput');
+    const list = document.getElementById('mapSearchResults');
+    if (clear && input) {
+        input.value = '';
+        document.getElementById('mapSearchClear').hidden = true;
+    }
+    if (list) { list.hidden = true; list.innerHTML = ''; }
+    if (input) input.blur();
+}
+
+function selectSearchResult(m) {
+    track('map_search_select', { kind: m.kind, name: m.name });
+    closeSearch();
+    savedSheetView = null;
+    programmaticMove = true;
+    if (m.kind === 'restaurant') {
+        map.flyTo([m.pin.lat, m.pin.lng], 17, { duration: 0.8 });
+        showMiniCard(m.pin);
+    } else {
+        // 行政區看全貌、地標看街區
+        map.flyTo([m.lat, m.lng], m.kind === 'district' ? 15 : 16, { duration: 0.8 });
+    }
+}
+
+function wireSearch() {
+    const input = document.getElementById('mapSearchInput');
+    const clearBtn = document.getElementById('mapSearchClear');
+    let debounceTimer = null;
+
+    input.addEventListener('input', () => {
+        clearBtn.hidden = !input.value;
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            const matches = searchMatches(input.value);
+            renderSearchResults(matches);
+            if (input.value.trim()) track('map_search', { query: input.value.trim(), hits: matches.length });
+        }, 180);
+    });
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            const first = searchMatches(input.value)[0];
+            if (first) selectSearchResult(first);
+        } else if (e.key === 'Escape') {
+            closeSearch({ clear: true });
+        }
+    });
+    clearBtn.addEventListener('click', () => { closeSearch({ clear: true }); input.focus(); });
 }
 
 // ---- 事件接線 ----
@@ -812,15 +925,13 @@ function wireControls() {
 
     document.getElementById('chipLocate').addEventListener('click', () => locateUser({ silent: false }));
 
-    // 其他頁面入口（地圖是預設頁，不能變成死路）
-    document.getElementById('chipHome').addEventListener('click', () => {
-        track('map_nav_click', { to: 'home' });
-        navigateTo('home');
-    });
+    // 抽獎活動入口（找店已收進地圖本身：搜尋欄 + 篩選 + 幫我決定）
     document.getElementById('chipLottery').addEventListener('click', () => {
         track('map_nav_click', { to: 'lottery' });
         navigateTo('lottery');
     });
+
+    wireSearch();
 
     document.getElementById('mapDecideBtn').addEventListener('click', () => {
         track('map_decide_click', { draw_count: decideCount + 1 });
@@ -894,6 +1005,7 @@ export async function initMapPage() {
             }),
         ]);
         allPins = pinsRes.pins || [];
+        allPlaces = pinsRes.places || [];
 
         map = L.map('liffMap', {
             preferCanvas: true,
@@ -927,7 +1039,7 @@ export async function initMapPage() {
         map.on('movestart', () => {
             if (!programmaticMove) savedSheetView = null;
         });
-        map.on('click', () => { closeMiniCard(); });
+        map.on('click', () => { closeMiniCard(); closeSearch(); });
 
         // 店名標籤只在高 zoom 顯示（cluster 散開後）；低 zoom 的孤立 pin 不顯示避免雜訊
         const syncLabels = () => {
@@ -956,8 +1068,8 @@ export async function initMapPage() {
             },
         };
 
-        // 已授權過才靜默定位（不主動跳權限彈窗；失敗不打擾，地圖照樣能逛）
-        autoLocateIfGranted();
+        // 進場即請求定位（拒絕不擋路：地圖照樣能逛、能搜尋）
+        locateUser({ silent: true });
     } catch (err) {
         console.error('地圖初始化失敗:', err);
         const canvas = document.getElementById('liffMap');

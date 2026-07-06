@@ -32,6 +32,13 @@
  * 磚圖也是淺色 Voyager。待 P5 連磚圖（dark_matter）與 home/lottery 一起做，
  * 避免深色 UI 疊在淺色地圖上且 accent 對比不足。 */
 
+/* ---- 開場防閃現：首繪前 index.html 內聯腳本判定目標頁是地圖時，
+ * 隱藏舊版外殼（header/表單/footer），只留載入 spinner。
+ * router 載入第一個頁面後移除 data-boot 接手。---- */
+html[data-boot="map"] .header,
+html[data-boot="map"] .footer,
+html[data-boot="map"] #mainContent { display: none !important; }
+
 /* ---- 頁面切換：地圖頁全螢幕、隱藏一般頁面容器 ---- */
 
 .map-root { display: none; }
@@ -90,11 +97,96 @@ body.is-map-page { overflow: hidden; }
 /* 蓋掉 leaflet 預設 tooltip 箭頭 */
 .map-pin-label::before { display: none; }
 
-/* ---- 頂部篩選 chips ---- */
+/* ---- 頂部搜尋欄（像 Google Maps：輸入地區/捷運站/餐廳跳轉） ---- */
+
+.map-search {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 520; /* 高於 chips，結果下拉蓋在 chips 上 */
+}
+.map-search__input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 44px 0 16px;
+  border: 1px solid var(--lm-border);
+  border-radius: 999px;
+  background: var(--lm-surface);
+  color: var(--lm-text);
+  font-size: 15px;
+  box-shadow: var(--lm-shadow-md);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.map-search__input::placeholder { color: var(--lm-text-muted); }
+.map-search__input:focus {
+  outline: none;
+  border-color: var(--lm-accent);
+  box-shadow: var(--lm-shadow-md), 0 0 0 3px rgba(228, 78, 37, 0.18);
+}
+.map-search__input::-webkit-search-cancel-button { display: none; }
+.map-search__clear {
+  position: absolute;
+  top: 1px;
+  right: 4px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  color: var(--lm-text-muted);
+  font-size: 15px;
+  cursor: pointer;
+}
+.map-search__results {
+  margin: 6px 0 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--lm-surface);
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius);
+  box-shadow: var(--lm-shadow-lg);
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.map-search__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 15px;
+  color: var(--lm-text);
+  cursor: pointer;
+  border-radius: var(--lm-radius-sm);
+}
+.map-search__item:active { background: var(--lm-bg); }
+.map-search__item-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.map-search__item-sub {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--lm-text-muted);
+}
+.map-search__item:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 3px rgba(228, 78, 37, 0.4);
+}
+
+/* ---- 頂部篩選 chips（讓位給搜尋欄，下移一階） ---- */
 
 .map-chips {
   position: absolute;
-  top: 12px;
+  top: 70px;
   left: 12px;
   right: 12px;
   z-index: 500;
@@ -406,6 +498,7 @@ body.is-map-page { overflow: hidden; }
 /* 桌面（≥768px）：控制項對齊置中的 480px 欄位，與 sheet 一致
  * 選擇器帶 .map-root 前綴：本區塊在部分基础規則之前，需贏過後面的同權重宣告 */
 @media (min-width: 768px) {
+  .map-root .map-search,
   .map-root .map-chips {
     left: 50%;
     right: auto;
@@ -662,6 +755,19 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   text-align: center;
   font-size: 15px;
   color: var(--lm-text-body);
+}
+.map-spotlight__roulette {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--lm-text);
+  animation: map-roulette-tick 90ms ease-out;
+}
+@keyframes map-roulette-tick {
+  from { opacity: 0.4; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-spotlight__roulette { animation: none; }
 }
 .map-spotlight__actions {
   display: flex;
