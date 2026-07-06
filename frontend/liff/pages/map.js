@@ -11,7 +11,6 @@ import {
     filterGeneralTags
 } from '../shared/utils.js';
 import { track } from '../shared/tracker.js';
-import { navigateTo } from './router.js';
 
 // ---- 常數 ----
 
@@ -40,7 +39,8 @@ let map = null;
 let clusterGroup = null;
 let allPins = [];               // map_pins.json 的原始資料
 let allPlaces = [];             // 搜尋用地點索引（行政區/地標，含質心座標）
-let pinMarkers = new Map();     // pin.id -> L.CircleMarker
+let pinMarkers = new Map();     // pin.id -> L.CircleMarker（一般 pin，走 cluster）
+let sponsorMarkers = new Map(); // pin.id -> L.Marker（贊助店專屬圖釘，永不聚合）
 let userLocation = null;
 let userMarker = null;
 let activeFilters = { deals: false, open: false, bookable: false, budget: null };
@@ -171,9 +171,6 @@ function ensureMapRoot() {
                 <span class="map-sheet__summary" id="mapCountPill" role="status" aria-live="polite">載入地圖中…</span>
             </button>
             <div class="map-sheet__body" id="sheetBody">
-                <button type="button" class="map-sheet__lottery" id="sheetLotteryBanner">
-                    🎁 抽獎活動 — 邀請好友拿抽獎機會<span aria-hidden="true"> ›</span>
-                </button>
                 <div class="map-sheet__legend" aria-label="圖例">
                     <span><i class="map-dot" style="background:#E44E25"></i>精選</span>
                     <span><i class="map-dot" style="background:#E5A000"></i>訂位優惠</span>
@@ -241,6 +238,31 @@ function buildMarker(L, pin) {
     return marker;
 }
 
+// 贊助店專屬圖釘：醒目、永不被 cluster 聚合、任何 zoom 都看得到、店名常駐
+// （付費曝光的核心價值：不能被聚合圈吃掉）
+function buildSponsorMarker(L, pin) {
+    const marker = L.marker([pin.lat, pin.lng], {
+        icon: L.divIcon({
+            className: 'map-sponsor-wrap',
+            html: '<div class="map-sponsor-pin"><span aria-hidden="true">⭐</span></div>',
+            iconSize: [36, 44],
+            iconAnchor: [18, 42],
+        }),
+        zIndexOffset: 800,
+    });
+    marker.bindTooltip(pin.n, {
+        permanent: true,
+        direction: 'right',
+        offset: [14, -24],
+        className: 'map-pin-label map-pin-label--sponsor',
+    });
+    marker.on('click', () => {
+        track('map_pin_click', { or_id: pin.id, name: pin.n, tier: pin.t, sponsor_pin: true });
+        showMiniCard(pin);
+    });
+    return marker;
+}
+
 function applyFilters() {
     if (!clusterGroup) return;
     savedSheetView = null; // 篩選變了，舊的清單脈絡不再成立
@@ -248,11 +270,19 @@ function applyFilters() {
     const visible = [];
     clusterGroup.clearLayers();
     for (const pin of allPins) {
-        if (pinPassesFilters(pin, now)) {
-            visible.push(pinMarkers.get(pin.id));
-        }
+        if (!pinPassesFilters(pin, now)) continue;
+        if (sponsorMarkers.has(pin.id)) continue; // 贊助圖釘獨立管理，不進 cluster
+        visible.push(pinMarkers.get(pin.id));
     }
     clusterGroup.addLayers(visible);
+    // 贊助圖釘：通過篩選才顯示（例如「營業中」時已打烊的贊助店也要誠實隱藏）
+    for (const pin of allPins) {
+        const m = sponsorMarkers.get(pin.id);
+        if (!m) continue;
+        const pass = pinPassesFilters(pin, now);
+        if (pass && !map.hasLayer(m)) m.addTo(map);
+        else if (!pass && map.hasLayer(m)) map.removeLayer(m);
+    }
     updateCountPill();
 }
 
@@ -276,7 +306,10 @@ function updateCountPill() {
             ? '沒有符合篩選的店家，試試放寬篩選'
             : '這一帶還沒有店家，拖動地圖看看別區';
     } else {
-        pill.textContent = `畫面內 ${inView} 間 · ${deals} 間有好康`;
+        // 窄屏用短版，避免被 FAB 保留區截斷
+        pill.textContent = window.matchMedia('(max-width: 360px)').matches
+            ? `${inView} 間 · ${deals} 好康`
+            : `畫面內 ${inView} 間 · ${deals} 間有好康`;
     }
     if (sheetOpen) renderSheetList();
 }
@@ -335,13 +368,16 @@ function sheetRowsInView() {
         if (!bounds.contains([pin.lat, pin.lng])) continue;
         rows.push(pin);
     }
-    // 有定位 → 由近到遠；沒定位 → 好康優先、再依評分
+    // 贊助店置頂（付費曝光，清單同樣給位）；其後有定位由近到遠、沒定位好康+評分
+    const spo = (p) => (p.t === 'sponsored' ? 1 : 0);
     if (userLocation) {
         rows.sort((a, b) =>
-            calculateDistance(userLocation.lat, userLocation.lng, a.lat, a.lng) -
-            calculateDistance(userLocation.lat, userLocation.lng, b.lat, b.lng));
+            (spo(b) - spo(a)) ||
+            (calculateDistance(userLocation.lat, userLocation.lng, a.lat, a.lng) -
+             calculateDistance(userLocation.lat, userLocation.lng, b.lat, b.lng)));
     } else {
         rows.sort((a, b) =>
+            (spo(b) - spo(a)) ||
             (TIER_WEIGHT[b.t] - TIER_WEIGHT[a.t]) || ((b.r || 0) - (a.r || 0)));
     }
     return rows;
@@ -828,11 +864,17 @@ function searchMatches(query) {
 
 const SEARCH_ICON = { district: '🏙️', landmark: '📍', restaurant: '🍽️' };
 
-function renderSearchResults(matches) {
+function renderSearchResults(matches, query = '') {
     const list = document.getElementById('mapSearchResults');
     if (!matches.length) {
-        list.hidden = true;
-        list.innerHTML = '';
+        // 有輸入但沒結果 → 給回饋而不是無聲消失
+        if (query.trim()) {
+            list.innerHTML = `<li class="map-search__empty">找不到「${escapeHtml(query.trim())}」，試試地區或捷運站名</li>`;
+            list.hidden = false;
+        } else {
+            list.hidden = true;
+            list.innerHTML = '';
+        }
         return;
     }
     list.innerHTML = matches.map((m, i) => `
@@ -882,7 +924,7 @@ function wireSearch() {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
             const matches = searchMatches(input.value);
-            renderSearchResults(matches);
+            renderSearchResults(matches, input.value);
             if (input.value.trim()) track('map_search', { query: input.value.trim(), hits: matches.length });
         }, 180);
     });
@@ -923,11 +965,8 @@ function wireControls() {
 
     document.getElementById('chipLocate').addEventListener('click', () => locateUser({ silent: false }));
 
-    // 抽獎活動入口：融合在好康清單面板頂部（它本來就是好康的一種）
-    document.getElementById('sheetLotteryBanner').addEventListener('click', () => {
-        track('map_nav_click', { to: 'lottery', source: 'sheet_banner' });
-        navigateTo('lottery');
-    });
+    // 抽獎模組已下架（Owner 2026-07-06）：/liff/lottery 路由保留供直接連結，
+    // 地圖上不再有入口
 
     wireSearch();
 
@@ -965,9 +1004,11 @@ function wireControls() {
     // Escape 依序關閉最上層的浮層
     document.addEventListener('keydown', e => {
         if (e.key !== 'Escape') return;
+        const searchResults = document.getElementById('mapSearchResults');
         const spotlight = document.getElementById('mapSpotlight');
         const minicard = document.getElementById('mapMiniCard');
-        if (spotlight && !spotlight.hidden) closeSpotlight();
+        if (searchResults && !searchResults.hidden) closeSearch();
+        else if (spotlight && !spotlight.hidden) closeSpotlight();
         else if (minicard && !minicard.hidden) closeMiniCard();
         else if (sheetOpen) setSheetOpen(false);
     });
@@ -1024,7 +1065,11 @@ export async function initMapPage() {
             showCoverageOnHover: false,
         });
         for (const pin of allPins) {
-            pinMarkers.set(pin.id, buildMarker(L, pin));
+            if (pin.t === 'sponsored') {
+                sponsorMarkers.set(pin.id, buildSponsorMarker(L, pin));
+            } else {
+                pinMarkers.set(pin.id, buildMarker(L, pin));
+            }
         }
         map.addLayer(clusterGroup);
         applyFilters();

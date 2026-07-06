@@ -94,6 +94,38 @@ body.is-map-page { overflow: hidden; }
 }
 .map-pin-label--deal { color: var(--lm-accent-press); font-weight: 600; }
 .map-canvas.show-labels .map-pin-label { display: block; }
+
+/* 贊助店圖釘：醒目星星釘，任何 zoom 都顯示（永不聚合），店名常駐 */
+.map-sponsor-pin {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lm-accent);
+  border: 2.5px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(20, 16, 12, 0.35);
+  font-size: 17px;
+  position: relative;
+}
+.map-sponsor-pin::after { /* 底部小尖角，指向精確位置 */
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top: 7px solid var(--lm-accent);
+}
+.map-canvas .map-pin-label--sponsor {
+  display: block; /* 不受 zoom 門檻限制：贊助店名常駐 */
+  color: var(--lm-accent-press);
+  font-weight: 700;
+  border: 1px solid rgba(228, 78, 37, 0.35);
+}
+.map-canvas.is-spotlight .map-pin-label--sponsor { display: none; }
+.map-canvas.is-spotlight .map-sponsor-pin { opacity: 0.25; }
 /* 聚光燈時所有店名標籤讓位（卡片上已有店名）；tooltip pane 不吃 overlay 淡出，需獨立隱藏 */
 .map-canvas.is-spotlight.show-labels .map-pin-label { display: none; }
 /* 蓋掉 leaflet 預設 tooltip 箭頭 */
@@ -116,7 +148,7 @@ body.is-map-page { overflow: hidden; }
   border-radius: 999px;
   background: var(--lm-surface);
   color: var(--lm-text);
-  font-size: 15px;
+  font-size: 16px; /* iOS：<16px 的輸入框聚焦會強制放大整頁，必須 ≥16 */
   box-shadow: var(--lm-shadow-chip);
   -webkit-appearance: none;
   appearance: none;
@@ -182,6 +214,11 @@ body.is-map-page { overflow: hidden; }
 .map-search__item:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 3px rgba(228, 78, 37, 0.4);
+}
+.map-search__empty {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--lm-text-muted);
 }
 
 /* ---- 頂部篩選 chips（讓位給搜尋欄，下移一階） ---- */
@@ -477,27 +514,6 @@ body.is-map-page { overflow: hidden; }
   .map-root .map-locate-btn { right: calc(50% - 240px + 16px); }
 }
 
-/* 抽獎活動橫幅（sheet 內）：它就是好康的一種，融合進好康清單 */
-.map-sheet__lottery {
-  display: block;
-  margin: 0 12px 10px;
-  min-height: 44px;
-  padding: 10px 14px;
-  border: 1px solid #F3DFA0;
-  border-radius: 10px;
-  background: var(--lm-or-yellow-subtle);
-  color: var(--lm-or-yellow-deep);
-  font-size: 14px;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-}
-.map-sheet__lottery span { float: right; color: var(--lm-or-yellow-deep); }
-.map-sheet__lottery:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(228, 78, 37, 0.4);
-}
-
 /* 圖例列（sheet 內） */
 .map-sheet__legend {
   display: flex;
@@ -616,14 +632,15 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   top: 8px;
   right: 8px;
   z-index: 2;
-  width: 44px;
-  height: 44px;
-  border: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--lm-border);
   border-radius: 50%;
-  background: rgba(26, 24, 21, 0.55);
-  color: #fff;
-  font-size: 16px;
+  background: var(--lm-surface);
+  color: var(--lm-text-muted);
+  font-size: 14px;
   cursor: pointer;
+  box-shadow: var(--lm-shadow-chip);
 }
 
 /* ---- 迷你卡 ---- */
