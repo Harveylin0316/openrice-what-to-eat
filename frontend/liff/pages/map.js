@@ -25,6 +25,68 @@ const TIER = {
 
 const ONBOARD_KEY = 'rr_map_onboarded_v1';
 
+// ---- 遊戲化（八角框架黑帽，詳見 _redesign/gamification-octalysis.md）----
+const DICE_BASE_QUOTA = 10;    // 每日抽選額度（CD6 稀缺：籌碼經濟）
+const DICE_STREAK_BONUS = 2;   // 連續 ≥3 天 → 每日 +2（CD8 損失：斷了就沒）
+const STREAK_BONUS_DAYS = 3;
+const DAIKICHI_RATE = 0.12;    // 大吉機率（CD7 變動獎勵），觸發奉還 1 次
+const DICE_KEY = 'rr_map_dice';
+const STREAK_KEY = 'rr_map_streak';
+
+function localDateKey(d = new Date()) {
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
+function getStreak() {
+    try {
+        const s = JSON.parse(localStorage.getItem(STREAK_KEY) || 'null');
+        if (s && typeof s.days === 'number') return s;
+    } catch (e) { /* ignore */ }
+    return { last: '', days: 0 };
+}
+
+// 每日開啟計數：連續天數 +1 或歸零重來
+function bumpStreak() {
+    const today = localDateKey();
+    const s = getStreak();
+    if (s.last === today) return s;
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    s.days = (s.last === localDateKey(yesterday)) ? s.days + 1 : 1;
+    s.last = today;
+    try { localStorage.setItem(STREAK_KEY, JSON.stringify(s)); } catch (e) { /* ignore */ }
+    track('map_streak', { days: s.days });
+    return s;
+}
+
+function getDice() {
+    try {
+        const o = JSON.parse(localStorage.getItem(DICE_KEY) || 'null');
+        if (o && o.date === localDateKey()) return o;
+    } catch (e) { /* ignore */ }
+    return { date: localDateKey(), used: 0 }; // 跨日自動重置
+}
+
+function diceQuota() {
+    return DICE_BASE_QUOTA + (getStreak().days >= STREAK_BONUS_DAYS ? DICE_STREAK_BONUS : 0);
+}
+
+function diceRemaining() {
+    return Math.max(0, diceQuota() - getDice().used);
+}
+
+function consumeDice(n = 1) {
+    const o = getDice();
+    o.used = Math.max(0, o.used + n);
+    try { localStorage.setItem(DICE_KEY, JSON.stringify(o)); } catch (e) { /* ignore */ }
+    updateFabBadge();
+}
+
+function updateFabBadge() {
+    const el = document.getElementById('fabDiceCount');
+    if (el) el.textContent = `×${diceRemaining()}`;
+}
+
 const DEFAULT_CENTER = [25.0478, 121.5170]; // 台北車站（無定位時的起點）
 const DEFAULT_ZOOM = 14;
 const SPOTLIGHT_ZOOM = 16;
@@ -41,6 +103,8 @@ let allPins = [];               // map_pins.json 的原始資料
 let allPlaces = [];             // 搜尋用地點索引（行政區/地標，含質心座標）
 let pinMarkers = new Map();     // pin.id -> L.CircleMarker（一般 pin，走 cluster）
 let sponsorMarkers = new Map(); // pin.id -> L.Marker（贊助店專屬圖釘，永不聚合）
+let starPin = null;             // 今日之星（日期種子每日輪換，金冠圖釘）
+let starMarker = null;
 let userLocation = null;
 let userMarker = null;
 let activeFilters = { deals: false, open: false, bookable: false, budget: null };
@@ -162,7 +226,7 @@ function ensureMapRoot() {
         </button>
         <div class="map-toast" id="mapToast" role="status" aria-live="polite" hidden></div>
         <div id="liffMap" class="map-canvas" role="application" aria-label="餐廳好康地圖"></div>
-        <button type="button" class="map-fab" id="mapDecideBtn">🎲 幫我決定</button>
+        <button type="button" class="map-fab" id="mapDecideBtn">🎲 幫我決定<span class="map-fab__count" id="fabDiceCount"></span></button>
 
         <div class="map-sheet" id="mapSheet">
             <button type="button" class="map-sheet__handle" id="sheetHandle"
@@ -238,6 +302,38 @@ function buildMarker(L, pin) {
     return marker;
 }
 
+// 今日之星：日期種子每日輪換一間好康店（CD6+CD7：每日新鮮感 + 過期不候）
+function pickStarPin() {
+    const pool = allPins.filter(p => p.t === 'coupon' || p.t === 'booking_offer');
+    if (!pool.length) return null;
+    const d = new Date();
+    const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+    return pool[seed % pool.length];
+}
+
+function buildStarMarker(L, pin) {
+    const marker = L.marker([pin.lat, pin.lng], {
+        icon: L.divIcon({
+            className: 'map-sponsor-wrap',
+            html: '<div class="map-star-pin"><span aria-hidden="true">👑</span></div>',
+            iconSize: [36, 44],
+            iconAnchor: [18, 42],
+        }),
+        zIndexOffset: 700,
+    });
+    marker.bindTooltip(`今日之星 · ${pin.n}`, {
+        permanent: true,
+        direction: 'right',
+        offset: [14, -24],
+        className: 'map-pin-label map-pin-label--star',
+    });
+    marker.on('click', () => {
+        track('map_star_pin_click', { or_id: pin.id, name: pin.n });
+        showMiniCard(pin);
+    });
+    return marker;
+}
+
 // 贊助店專屬圖釘：醒目、永不被 cluster 聚合、任何 zoom 都看得到、店名常駐
 // （付費曝光的核心價值：不能被聚合圈吃掉）
 function buildSponsorMarker(L, pin) {
@@ -272,6 +368,7 @@ function applyFilters() {
     for (const pin of allPins) {
         if (!pinPassesFilters(pin, now)) continue;
         if (sponsorMarkers.has(pin.id)) continue; // 贊助圖釘獨立管理，不進 cluster
+        if (starPin && pin.id === starPin.id) continue; // 今日之星有專屬金冠釘
         visible.push(pinMarkers.get(pin.id));
     }
     clusterGroup.addLayers(visible);
@@ -486,10 +583,13 @@ function showMiniCard(pin) {
         ? offers.map(o => `<li>🎁 ${escapeHtml(o)}</li>`)
         : (pin.t === 'coupon' ? ['<li>🎁 OpenRice 優惠券 — 詳情見餐廳頁</li>'] : []);
 
+    const isStar = starPin && pin.id === starPin.id;
     body.innerHTML = `
         ${pin.img ? `<img class="map-minicard__img" src="${escapeHtml(pin.img)}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">` : ''}
         <div class="map-minicard__info">
-            <div class="map-minicard__badges">${tierBadgeHtml(pin.t)}</div>
+            <div class="map-minicard__badges">
+                ${isStar ? '<span class="map-badge map-badge--star">🌟 今日之星</span>' : ''}${tierBadgeHtml(pin.t)}
+            </div>
             <h3 class="map-minicard__name">${pin.url
                 ? `<a href="${escapeHtml(pin.url)}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(pin.n)}<span class="map-minicard__more"> ›</span></a>`
                 : escapeHtml(pin.n)}</h3>
@@ -499,6 +599,7 @@ function showMiniCard(pin) {
             ${opening && opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</p>` : ''}
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
             ${offerLines.length ? `<ul class="map-minicard__offers">${offerLines.join('')}</ul>` : ''}
+            ${isStar ? '<p class="map-minicard__star-note">每天換一間，明天就不是它了</p>' : ''}
             <div class="map-minicard__actions">
                 ${pin.url ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(pin.url)}" target="_blank" rel="noopener">${pin.b ? '線上訂位' : '查看餐廳'}</a>` : ''}
                 <a class="map-btn map-btn--ghost" data-track="navigation" href="${navigationUrl(pin.lat, pin.lng, pin.n)}" target="_blank" rel="noopener">🧭 導航</a>
@@ -636,7 +737,24 @@ async function drawSpotlight() {
     closeMiniCard();
     clearSpotlightPin(); // 清掉上一抽的 🎯，避免載入/失敗時殘留指向舊店
     panel.hidden = false;
+    panel.classList.remove('is-daikichi');
     updateCardOpenState();
+
+    // 額度用完：鎖老虎機、不鎖工具（清單/搜尋/迷你卡照常）
+    if (diceRemaining() <= 0) {
+        const streakDays = getStreak().days;
+        body.innerHTML = `<p class="map-spotlight__loading">🎲 今日 ${diceQuota()} 次抽選用完啦！<br>
+            明天 0 點重置${streakDays < STREAK_BONUS_DAYS ? '，連續來 3 天每日還會 +2 次 🔥' : ''}</p>`;
+        links.innerHTML = '<button type="button" class="map-btn map-btn--primary" id="quotaBrowseBtn">先逛逛好康清單</button>';
+        document.getElementById('quotaBrowseBtn').addEventListener('click', () => {
+            closeSpotlight();
+            setSheetOpen(true);
+        });
+        track('map_dice_quota_exhausted', { quota: diceQuota() });
+        decideInProgress = false;
+        return;
+    }
+
     body.innerHTML = '<p class="map-spotlight__loading">🎲 正在為你挑選…</p>';
     links.innerHTML = '';
 
@@ -682,12 +800,22 @@ async function drawSpotlight() {
         }
 
         decideCount++; // 只計成功展示的抽數，網路失敗不消耗贊助保底節奏
+        consumeDice(1);
         spotlightExcludes.push(restaurant.name);
         await rouletteReveal(sampleDecoys(restaurant.name, 7), body);
-        renderSpotlight(restaurant, isSponsoredPick);
+
+        // ✨ 大吉時刻（變動獎勵）：金色特效 + 奉還 1 次抽選
+        const isDaikichi = Math.random() < DAIKICHI_RATE;
+        renderSpotlight(restaurant, isSponsoredPick, isDaikichi);
+        if (isDaikichi) {
+            panel.classList.add('is-daikichi');
+            consumeDice(-1);
+            showPillMessage('✨ 大吉！奉還 1 次抽選機會', 4000);
+            track('map_daikichi', { or_id: restaurant.or_id, draw_count: decideCount });
+        }
         track('map_decide_result', {
             or_id: restaurant.or_id, name: restaurant.name,
-            sponsored: isSponsoredPick, draw_count: decideCount,
+            sponsored: isSponsoredPick, daikichi: isDaikichi, draw_count: decideCount,
         });
     } catch (err) {
         console.error('幫我決定失敗:', err);
@@ -697,7 +825,7 @@ async function drawSpotlight() {
     }
 }
 
-function renderSpotlight(r, isSponsoredPick) {
+function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
     const body = document.getElementById('spotlightBody');
     const links = document.getElementById('spotlightActionLinks');
     const coords = r.coordinates || {};
@@ -735,6 +863,7 @@ function renderSpotlight(r, isSponsoredPick) {
         ${heroImage ? `<img class="map-spotlight__img" src="${escapeHtml(heroImage)}" alt="" decoding="async" onerror="this.style.display='none'">` : ''}
         <div class="map-spotlight__info">
             <div class="map-minicard__badges">
+                ${isDaikichi ? '<span class="map-badge map-badge--daikichi">✨ 大吉</span>' : ''}
                 ${isSponsoredPick ? '<span class="map-badge map-badge--sponsored">精選推薦</span>' : tierBadgeHtml(tier)}
             </div>
             ${evidence && evidence.length ? `<p class="map-spotlight__evidence">${escapeHtml(Array.isArray(evidence) ? evidence[0] : evidence)}</p>` : ''}
@@ -1071,8 +1200,20 @@ export async function initMapPage() {
                 pinMarkers.set(pin.id, buildMarker(L, pin));
             }
         }
+        // 今日之星：金冠圖釘常駐（不進 cluster、不受篩選——編輯位）
+        starPin = pickStarPin();
+        if (starPin) {
+            starMarker = buildStarMarker(L, starPin).addTo(map);
+        }
         map.addLayer(clusterGroup);
         applyFilters();
+
+        // 遊戲化開場：連續天數 + 抽選額度 badge
+        const streak = bumpStreak();
+        updateFabBadge();
+        if (streak.days >= 2) {
+            setTimeout(() => showPillMessage(`🔥 連續 ${streak.days} 天逛好康地圖！今日抽選 ${diceQuota()} 次`, 5000), 2200);
+        }
 
         map.on('moveend', () => {
             updateCountPill();
