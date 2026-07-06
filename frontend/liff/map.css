@@ -1,0 +1,381 @@
+/* 生活地圖頁樣式（自包含）
+ * tokens 沿用 _redesign/ux-architecture.md：暖中性底、accent 珊瑚、無 infinite 動畫、
+ * 無 backdrop-filter、觸控目標 ≥44px、支援深色模式 */
+
+:root {
+  --lm-bg: #FAFAF9;
+  --lm-surface: #FFFFFF;
+  --lm-border: #E8E5E0;
+  --lm-text: #1A1815;
+  --lm-text-body: #3D3A35;
+  --lm-text-muted: #8A857E;
+  --lm-accent: #E8754F;
+  --lm-accent-press: #B85530;
+  --lm-success: #2E9A66;
+  --lm-warning: #D9961F;
+  --lm-shadow-md: 0 4px 12px rgba(20, 16, 12, 0.12), 0 2px 4px rgba(20, 16, 12, 0.06);
+  --lm-shadow-lg: 0 12px 24px rgba(20, 16, 12, 0.16), 0 4px 8px rgba(20, 16, 12, 0.08);
+  --lm-radius: 14px;
+  --lm-radius-sm: 8px;
+  --lm-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lm-bg: #1A1815;
+    --lm-surface: #232019;
+    --lm-border: #3D3A35;
+    --lm-text: #F4F2EF;
+    --lm-text-body: #D4D0CA;
+    --lm-text-muted: #8A857E;
+    --lm-accent: #F5A57A;
+    --lm-accent-press: #F8B891;
+    --lm-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --lm-shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* ---- 頁面切換：地圖頁全螢幕、隱藏一般頁面容器 ---- */
+
+.map-root { display: none; }
+
+body.is-map-page .map-root {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+
+body.is-map-page .container { display: none; }
+body.is-map-page { overflow: hidden; }
+
+.map-canvas {
+  position: absolute;
+  inset: 0;
+  background: var(--lm-bg); /* 磚圖載入前/失敗時的底色 */
+  z-index: 0;
+}
+
+/* 聚光燈模式：cluster pin 整層淡出（canvas pane），聚光 pin 在 marker pane 不受影響 */
+.map-canvas.is-spotlight .leaflet-overlay-pane { opacity: 0.25; transition: opacity 240ms ease; }
+.map-canvas.is-spotlight .leaflet-marker-pane .marker-cluster { opacity: 0.25; }
+
+/* ---- 頂部篩選 chips ---- */
+
+.map-chips {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 500;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.map-chips::-webkit-scrollbar { display: none; }
+
+.map-chip {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--lm-border);
+  border-radius: 999px;
+  background: var(--lm-surface);
+  color: var(--lm-text-body);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--lm-shadow-md);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.map-chip.is-active {
+  background: var(--lm-accent);
+  border-color: var(--lm-accent);
+  color: #fff;
+}
+.map-chip--locate {
+  margin-left: auto;
+  min-width: 44px;
+  padding: 0;
+  font-size: 18px;
+}
+.map-chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(232, 117, 79, 0.4);
+}
+
+/* ---- 畫面內統計 pill ---- */
+
+.map-count-pill {
+  position: absolute;
+  left: 12px;
+  bottom: calc(28px + var(--lm-safe-bottom));
+  z-index: 500;
+  background: var(--lm-surface);
+  color: var(--lm-text-body);
+  border: 1px solid var(--lm-border);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  box-shadow: var(--lm-shadow-md);
+  pointer-events: none;
+  max-width: calc(100% - 190px); /* 讓出右側 FAB 空間 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- 幫我決定 FAB ---- */
+
+.map-fab {
+  position: absolute;
+  right: 16px;
+  bottom: calc(20px + var(--lm-safe-bottom));
+  z-index: 600;
+  min-height: 52px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 999px;
+  background: var(--lm-accent);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: var(--lm-shadow-lg);
+  cursor: pointer;
+}
+.map-fab:active { background: var(--lm-accent-press); transform: scale(0.97); }
+.map-fab:focus-visible { outline: none; box-shadow: var(--lm-shadow-lg), 0 0 0 3px rgba(232, 117, 79, 0.4); }
+
+/* ---- 卡片共用（迷你卡 / 聚光燈卡）---- */
+
+.map-minicard,
+.map-spotlight {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + var(--lm-safe-bottom));
+  z-index: 700;
+  background: var(--lm-surface);
+  border-radius: var(--lm-radius);
+  box-shadow: var(--lm-shadow-lg);
+  overflow: hidden;
+  animation: map-card-in 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes map-card-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-minicard, .map-spotlight { animation: none; }
+  .map-canvas.is-spotlight .leaflet-overlay-pane { transition: none; }
+}
+
+@media (min-width: 768px) {
+  .map-minicard, .map-spotlight {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: 440px;
+  }
+}
+
+.map-card-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(26, 24, 21, 0.55);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* ---- 迷你卡 ---- */
+
+.map-minicard__body { display: flex; gap: 12px; padding: 12px; }
+.map-minicard__img {
+  width: 96px;
+  height: 96px;
+  flex: 0 0 auto;
+  object-fit: cover;
+  border-radius: var(--lm-radius-sm);
+}
+.map-minicard__info { min-width: 0; flex: 1; }
+.map-minicard__name {
+  margin: 2px 0 4px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--lm-text);
+  line-height: 1.3;
+}
+.map-minicard__meta {
+  margin: 0 0 2px;
+  font-size: 13px;
+  color: var(--lm-text-muted);
+}
+.map-minicard__meta.is-open { color: var(--lm-success); }
+.map-minicard__badges { min-height: 0; }
+.map-minicard__tags { margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.map-tag {
+  font-size: 12px;
+  color: var(--lm-text-body);
+  background: var(--lm-bg);
+  border: 1px solid var(--lm-border);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+.map-minicard__offers {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--lm-text-body);
+}
+.map-minicard__offers li { margin-bottom: 2px; }
+.map-minicard__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* ---- badge ---- */
+
+.map-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 2px 8px;
+  margin-bottom: 2px;
+}
+.map-badge--sponsored     { background: #FBEDE4; color: #B85530; }
+.map-badge--booking_offer { background: #FAF0DC; color: #93660F; }
+.map-badge--coupon        { background: #E3F3EB; color: #1F6B47; }
+@media (prefers-color-scheme: dark) {
+  .map-badge--sponsored     { background: #3D2A22; color: #F5A57A; }
+  .map-badge--booking_offer { background: #3A3120; color: #E8B85B; }
+  .map-badge--coupon        { background: #1F3329; color: #6FCF9E; }
+}
+
+/* ---- 按鈕 ---- */
+
+.map-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.map-btn--primary { background: var(--lm-accent); color: #fff; }
+.map-btn--primary:active { background: var(--lm-accent-press); }
+.map-btn--ghost {
+  background: transparent;
+  color: var(--lm-text-body);
+  border: 1px solid var(--lm-border);
+}
+
+/* ---- 聚光燈卡 ---- */
+
+.map-spotlight__img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+.map-spotlight__info { padding: 12px 14px 4px; }
+.map-spotlight__evidence {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: var(--lm-accent);
+  font-weight: 500;
+}
+.map-spotlight__name {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--lm-text);
+  line-height: 1.25;
+}
+.map-spotlight__loading {
+  padding: 28px 16px;
+  margin: 0;
+  text-align: center;
+  font-size: 15px;
+  color: var(--lm-text-body);
+}
+.map-spotlight__actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px calc(12px);
+}
+.map-spotlight__actions #spotlightActionLinks {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+/* ---- 聚光燈大頭針 / 使用者位置 ---- */
+
+.map-spotlight-pin__dot {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+}
+
+.map-user-pin__dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #2F80ED;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.35);
+}
+
+/* ---- cluster 配色（覆蓋 MarkerCluster.Default 的螢光綠）
+ * 注意：MarkerCluster.Default.css 由 map.js 動態載入、晚於本檔，
+ * 需以 .map-canvas 前綴提高特異性才能覆蓋。---- */
+
+.map-canvas .marker-cluster-small,
+.map-canvas .marker-cluster-medium,
+.map-canvas .marker-cluster-large {
+  background-color: rgba(232, 117, 79, 0.25);
+}
+.map-canvas .marker-cluster-small div,
+.map-canvas .marker-cluster-medium div,
+.map-canvas .marker-cluster-large div {
+  background-color: rgba(232, 117, 79, 0.85);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ---- 地圖載入錯誤 ---- */
+
+.map-error {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--lm-text-body);
+  font-size: 15px;
+}

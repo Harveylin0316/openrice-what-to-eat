@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>P0 Spike：Leaflet + cluster 效能驗證（851 pins）</title>
+<link rel="stylesheet" href="../../frontend/liff/vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="../../frontend/liff/vendor/leaflet/MarkerCluster.css">
+<link rel="stylesheet" href="../../frontend/liff/vendor/leaflet/MarkerCluster.Default.css">
+<style>
+  html, body { margin: 0; height: 100%; }
+  #map { width: 100%; height: 100%; background: #e8e5e0; }
+  #hud {
+    position: fixed; top: 8px; left: 8px; z-index: 9999;
+    background: rgba(0,0,0,.75); color: #0f0; font: 12px/1.5 monospace;
+    padding: 8px 10px; border-radius: 6px; white-space: pre;
+  }
+  .pin-deal { border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="hud">loading…</div>
+<script src="../../frontend/liff/vendor/leaflet/leaflet.js"></script>
+<script src="../../frontend/liff/vendor/leaflet/leaflet.markercluster.js"></script>
+<script>
+const HUD = document.getElementById('hud');
+const RESULTS = { timings: {}, fps: {} };
+window.__SPIKE_RESULTS = RESULTS;
+
+const TIER_COLOR = { sponsored: '#E8754F', booking_offer: '#D9961F', coupon: '#2E9A66', none: '#8A857E' };
+
+function mark(name, t0) {
+  const ms = Math.round(performance.now() - t0);
+  RESULTS.timings[name] = ms;
+  HUD.textContent = Object.entries(RESULTS.timings).map(([k, v]) => `${k}: ${v}ms`).join('\n');
+  return ms;
+}
+
+// FPS 取樣：在 duration 期間數 rAF 幀
+function measureFps(label, durationMs) {
+  return new Promise(resolve => {
+    let frames = 0;
+    const start = performance.now();
+    function tick() {
+      frames++;
+      if (performance.now() - start < durationMs) requestAnimationFrame(tick);
+      else {
+        const fps = Math.round(frames / ((performance.now() - start) / 1000));
+        RESULTS.fps[label] = fps;
+        resolve(fps);
+      }
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+async function main() {
+  const tAll = performance.now();
+
+  // 1. 載入 pins
+  let t0 = performance.now();
+  const res = await fetch('../../frontend/liff/data/map_pins.json');
+  const data = await res.json();
+  mark('fetch+parse pins', t0);
+
+  // 2. 初始化地圖（canvas renderer，模擬 LIFF 建議設定）
+  t0 = performance.now();
+  const map = L.map('map', {
+    preferCanvas: true,
+    zoomControl: false,
+    attributionControl: false,
+  }).setView([25.0478, 121.5170], 13); // 台北車站
+  // 磚圖：CARTO Voyager（測試環境抓不到就跳過，pin 效能不依賴磚）
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19,
+  }).addTo(map);
+  mark('map init', t0);
+
+  // 3. 建 851 個 circleMarker + clustering
+  t0 = performance.now();
+  const cluster = L.markerClusterGroup({
+    chunkedLoading: true,
+    disableClusteringAtZoom: 17,
+    maxClusterRadius: 60,
+  });
+  for (const p of data.pins) {
+    const m = L.circleMarker([p.lat, p.lng], {
+      radius: p.t === 'sponsored' ? 10 : 7,
+      color: '#fff', weight: 2,
+      fillColor: TIER_COLOR[p.t], fillOpacity: 0.95,
+    });
+    m.bindPopup(`<b>${p.n}</b><br>${p.d} · ${p.t}`);
+    cluster.addLayer(m);
+  }
+  map.addLayer(cluster);
+  mark(`add ${data.pins.length} pins+cluster`, t0);
+
+  // 4. 效能劇本：待命 → 連續 zoom → 連續 pan
+  await new Promise(r => setTimeout(r, 300));
+  const idleFps = measureFps('idle', 1000);
+  await idleFps;
+
+  // zoom 劇本：13 → 16 → 11 → 14（觸發 cluster 重算）
+  const zoomScript = [16, 11, 14, 15];
+  const zoomFpsP = measureFps('zoom-storm', zoomScript.length * 700);
+  for (const z of zoomScript) {
+    map.setZoom(z, { animate: true });
+    await new Promise(r => setTimeout(r, 700));
+  }
+  await zoomFpsP;
+
+  // pan 劇本：台北市區平移一圈
+  const panTargets = [
+    [25.033, 121.5654], [25.0478, 121.5170], [25.0630, 121.5330], [25.0410, 121.5080],
+  ];
+  const panFpsP = measureFps('pan-tour', panTargets.length * 800);
+  for (const c of panTargets) {
+    map.panTo(c, { animate: true, duration: 0.6 });
+    await new Promise(r => setTimeout(r, 800));
+  }
+  await panFpsP;
+
+  // 5. 稀疏區測試：飛去台南（zoom 動畫大距離）
+  t0 = performance.now();
+  map.flyTo([22.9997, 120.2270], 14, { duration: 1.2 });
+  await new Promise(r => setTimeout(r, 1500));
+  mark('flyTo 台南', t0);
+
+  RESULTS.timings.total = Math.round(performance.now() - tAll);
+  RESULTS.done = true;
+  HUD.textContent =
+    Object.entries(RESULTS.timings).map(([k, v]) => `${k}: ${v}ms`).join('\n') +
+    '\n---\n' +
+    Object.entries(RESULTS.fps).map(([k, v]) => `${k}: ${v}fps`).join('\n');
+}
+main().catch(e => { RESULTS.error = String(e); RESULTS.done = true; HUD.textContent = 'ERROR: ' + e; });
+</script>
+</body>
+</html>

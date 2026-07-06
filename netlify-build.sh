@@ -4,6 +4,16 @@
 
 echo "開始 Netlify 構建..."
 
+# 生成生活地圖 pin 資料（失敗時使用已提交的 frontend/liff/data/map_pins.json）
+if command -v python3 >/dev/null 2>&1 && [ -f "generate_map_pins.py" ]; then
+  echo "生成地圖 pin 資料..."
+  if python3 generate_map_pins.py; then
+    echo "✅ map_pins.json 生成成功"
+  else
+    echo "⚠️ map_pins.json 生成失敗，使用已提交版本"
+  fi
+fi
+
 # 檢查數據庫文件是否存在
 if [ -f "restaurants_database.json" ]; then
   echo "找到數據庫文件，複製到函數目錄..."
