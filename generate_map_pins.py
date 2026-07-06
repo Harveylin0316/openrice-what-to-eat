@@ -43,6 +43,38 @@ def derive_deal_tier(r):
     return TIER_NONE
 
 
+def map_budget_to_category(db_budget):
+    """把資料庫預算字串映射到前端 5 分類。
+    與 backend/utils/recommendation.js 的 parseBudgetRange + mapBudgetToCategory
+    保持一致（中心點判斷法），前端篩選結果才會與推薦引擎一致。"""
+    import re
+    if not db_budget:
+        return None
+    m = re.search(r'(\d+)-(\d+)', db_budget)
+    if m:
+        lo, hi = int(m.group(1)), int(m.group(2))
+        center = (lo + hi) / 2
+    else:
+        m = re.search(r'(\d+)以上', db_budget)
+        if m:
+            center = int(m.group(1)) + 500  # 「XXX以上」假設範圍較大
+        else:
+            m = re.search(r'(\d+)以下', db_budget)
+            if m:
+                center = int(m.group(1)) / 2
+            else:
+                return None
+    if center <= 200:
+        return '200元內'
+    if center <= 500:
+        return '200-500元'
+    if center <= 1000:
+        return '500-1000元'
+    if center <= 1500:
+        return '1000-1500元'
+    return '1500以上'
+
+
 def compact_hours(opening_hours):
     """壓縮營業時間：{monday:["11:00-21:00"],...} -> [["11:00-21:00"],...] 週一到週日"""
     if not isinstance(opening_hours, dict):
@@ -77,6 +109,9 @@ def build_pin(r):
         pin['r'] = r['rating']
     if r.get('budget'):
         pin['bud'] = r['budget']
+        bc = map_budget_to_category(r['budget'])
+        if bc:
+            pin['bc'] = bc  # 前端預算分類（bottom sheet 篩選用）
     if r.get('door_photo_url'):
         pin['img'] = r['door_photo_url']
     elif r.get('images'):

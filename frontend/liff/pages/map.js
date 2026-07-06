@@ -38,7 +38,11 @@ let allPins = [];               // map_pins.json 的原始資料
 let pinMarkers = new Map();     // pin.id -> L.CircleMarker
 let userLocation = null;
 let userMarker = null;
-let activeFilters = { deals: false, open: false, bookable: false };
+let activeFilters = { deals: false, open: false, bookable: false, budget: null };
+let sheetOpen = false;
+
+const BUDGET_CATEGORIES = ['200元內', '200-500元', '500-1000元', '1000-1500元', '1500以上'];
+const TIER_WEIGHT = { sponsored: 3, booking_offer: 2, coupon: 1, none: 0 };
 let sponsoredRestaurants = [];
 
 // 聚光燈（幫我決定）狀態
@@ -133,8 +137,19 @@ function ensureMapRoot() {
         </div>
         <button type="button" class="map-locate-btn" id="chipLocate" aria-label="定位到我的位置">📍</button>
         <div id="liffMap" class="map-canvas" role="application" aria-label="餐廳好康地圖"></div>
-        <div class="map-count-pill" id="mapCountPill" role="status" aria-live="polite">載入地圖中…</div>
         <button type="button" class="map-fab" id="mapDecideBtn">🎲 幫我決定</button>
+
+        <div class="map-sheet" id="mapSheet">
+            <button type="button" class="map-sheet__handle" id="sheetHandle"
+                    aria-expanded="false" aria-controls="sheetBody">
+                <span class="map-sheet__grip" aria-hidden="true"></span>
+                <span class="map-sheet__summary" id="mapCountPill" role="status" aria-live="polite">載入地圖中…</span>
+            </button>
+            <div class="map-sheet__body" id="sheetBody">
+                <div class="map-sheet__budget" id="sheetBudget" role="group" aria-label="預算篩選"></div>
+                <ul class="map-sheet__list" id="sheetList"></ul>
+            </div>
+        </div>
 
         <div class="map-minicard" id="mapMiniCard" hidden>
             <button type="button" class="map-card-close" id="miniCardClose" aria-label="關閉">✕</button>
@@ -159,6 +174,8 @@ function ensureMapRoot() {
 function pinPassesFilters(pin, now) {
     if (activeFilters.deals && pin.t === 'none') return false;
     if (activeFilters.bookable && !pin.b) return false;
+    // 預算：無預算資料的店不被篩掉（與後端 matchesBudget 規則一致）
+    if (activeFilters.budget && pin.bc && pin.bc !== activeFilters.budget) return false;
     if (activeFilters.open) {
         const hours = expandHours(pin.h);
         if (!hours) return false;
@@ -212,13 +229,122 @@ function updateCountPill() {
         }
     }
     if (inView === 0) {
-        const filtered = activeFilters.deals || activeFilters.open || activeFilters.bookable;
+        const filtered = activeFilters.deals || activeFilters.open || activeFilters.bookable || activeFilters.budget;
         pill.textContent = filtered
-            ? '沒有符合篩選的店家，試試關掉上方篩選'
+            ? '沒有符合篩選的店家，試試放寬篩選'
             : '這一帶還沒有店家，拖動地圖看看別區';
     } else {
         pill.textContent = `畫面內 ${inView} 間餐廳 · ${deals} 個好康`;
     }
+    if (sheetOpen) renderSheetList();
+}
+
+// ---- Bottom sheet：與地圖視窗連動的清單 ----
+
+const SHEET_MAX_ROWS = 60;
+
+function setSheetOpen(open) {
+    sheetOpen = open;
+    const root = document.getElementById('mapRoot');
+    const handle = document.getElementById('sheetHandle');
+    root.classList.toggle('is-sheet-open', open);
+    handle.setAttribute('aria-expanded', String(open));
+    if (open) {
+        closeMiniCard();
+        closeSpotlight();
+        renderSheetList();
+    }
+    track(open ? 'map_sheet_open' : 'map_sheet_close', {});
+}
+
+function renderBudgetChips() {
+    const wrap = document.getElementById('sheetBudget');
+    wrap.innerHTML = BUDGET_CATEGORIES.map(c =>
+        `<button type="button" class="map-chip map-chip--sm${activeFilters.budget === c ? ' is-active' : ''}"
+                 data-budget="${c}" aria-pressed="${activeFilters.budget === c}">${c}</button>`
+    ).join('');
+    wrap.querySelectorAll('[data-budget]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const val = btn.dataset.budget;
+            activeFilters.budget = activeFilters.budget === val ? null : val; // 再點一次取消
+            track('map_filter_budget', { budget: activeFilters.budget });
+            renderBudgetChips();
+            applyFilters();
+        });
+    });
+}
+
+function sheetRowsInView() {
+    if (!map) return [];
+    const bounds = map.getBounds();
+    const now = new Date();
+    const rows = [];
+    for (const pin of allPins) {
+        if (!pinPassesFilters(pin, now)) continue;
+        if (!bounds.contains([pin.lat, pin.lng])) continue;
+        rows.push(pin);
+    }
+    // 有定位 → 由近到遠；沒定位 → 好康優先、再依評分
+    if (userLocation) {
+        rows.sort((a, b) =>
+            calculateDistance(userLocation.lat, userLocation.lng, a.lat, a.lng) -
+            calculateDistance(userLocation.lat, userLocation.lng, b.lat, b.lng));
+    } else {
+        rows.sort((a, b) =>
+            (TIER_WEIGHT[b.t] - TIER_WEIGHT[a.t]) || ((b.r || 0) - (a.r || 0)));
+    }
+    return rows;
+}
+
+function renderSheetList() {
+    const list = document.getElementById('sheetList');
+    if (!list) return;
+    const rows = sheetRowsInView();
+    const shown = rows.slice(0, SHEET_MAX_ROWS);
+
+    if (!shown.length) {
+        list.innerHTML = '<li class="map-sheet__empty">這個範圍沒有符合的店，拖動地圖或放寬篩選</li>';
+        return;
+    }
+
+    list.innerHTML = shown.map(pin => {
+        const hours = expandHours(pin.h);
+        const opening = hours ? getOpeningStatus(hours) : null;
+        const dist = distanceLabel(pin.lat, pin.lng);
+        return `
+        <li>
+            <button type="button" class="map-sheet__item" data-pin-id="${pin.id}">
+                ${pin.img
+                    ? `<img class="map-sheet__thumb" src="${escapeHtml(pin.img)}" alt="" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">`
+                    : '<span class="map-sheet__thumb map-sheet__thumb--empty">🍽️</span>'}
+                <span class="map-sheet__item-info">
+                    <span class="map-sheet__item-top">
+                        <span class="map-sheet__item-name">${escapeHtml(pin.n)}</span>
+                        ${tierBadgeHtml(pin.t)}
+                    </span>
+                    <span class="map-sheet__item-meta">
+                        ${pin.r ? `⭐ ${pin.r}` : ''}${dist ? `　${dist}` : ''}${pin.bud ? `　💰 ${escapeHtml(pin.bud)}` : ''}
+                    </span>
+                    ${opening && opening.label
+                        ? `<span class="map-sheet__item-meta ${opening.openNow ? 'is-open' : ''}">${escapeHtml(opening.label)}</span>`
+                        : ''}
+                </span>
+            </button>
+        </li>`;
+    }).join('') + (rows.length > SHEET_MAX_ROWS
+        ? `<li class="map-sheet__empty">還有 ${rows.length - SHEET_MAX_ROWS} 間，拉近地圖看更多</li>`
+        : '');
+
+    list.querySelectorAll('.map-sheet__item').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pin = allPins.find(p => p.id === Number(btn.dataset.pinId));
+            if (!pin) return;
+            track('map_sheet_item_click', { or_id: pin.id, name: pin.n, tier: pin.t });
+            setSheetOpen(false);
+            map.flyTo([pin.lat, pin.lng], Math.max(map.getZoom(), 16), { duration: 0.6 });
+            showMiniCard(pin);
+        });
+    });
 }
 
 // 暫時性提示（定位失敗等），幾秒後還原成統計文字
@@ -557,6 +683,35 @@ function wireControls() {
 
     document.getElementById('miniCardClose').addEventListener('click', closeMiniCard);
     document.getElementById('spotlightClose').addEventListener('click', closeSpotlight);
+
+    // bottom sheet：點擊切換 + 手勢上下滑
+    const handle = document.getElementById('sheetHandle');
+    let dragStartY = null;
+    let dragToggled = false; // 手勢已切換過 → 抑制隨後的 click 再切回來
+    handle.addEventListener('click', () => {
+        if (dragToggled) { dragToggled = false; return; }
+        setSheetOpen(!sheetOpen);
+    });
+    handle.addEventListener('pointerdown', e => { dragStartY = e.clientY; dragToggled = false; });
+    handle.addEventListener('pointermove', e => {
+        if (dragStartY == null) return;
+        const dy = e.clientY - dragStartY;
+        if (dy < -30 && !sheetOpen) { setSheetOpen(true); dragToggled = true; dragStartY = null; }
+        else if (dy > 30 && sheetOpen) { setSheetOpen(false); dragToggled = true; dragStartY = null; }
+    });
+    handle.addEventListener('pointerup', () => { dragStartY = null; });
+
+    renderBudgetChips();
+
+    // Escape 依序關閉最上層的浮層
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        const spotlight = document.getElementById('mapSpotlight');
+        const minicard = document.getElementById('mapMiniCard');
+        if (spotlight && !spotlight.hidden) closeSpotlight();
+        else if (minicard && !minicard.hidden) closeMiniCard();
+        else if (sheetOpen) setSheetOpen(false);
+    });
 }
 
 // ---- 進入點 ----
