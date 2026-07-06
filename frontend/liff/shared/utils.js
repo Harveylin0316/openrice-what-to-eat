@@ -55,7 +55,7 @@ function parseTimeToMinutes(str) {
  * @param {Object} openingHours - 七天的營業時間 map (monday..sunday)，每個 value 是 ["11:30-14:00", "17:00-22:00"]
  * @param {Date} now - 當前時間（測試用，預設為現在）
  * @returns {Object} { status: 'open' | 'closing-soon' | 'closed-today' | 'opens-later' | 'unknown',
- *                     label: '營業中 · 22:00 打烊' / '17:30 開始' / '今日休息',
+ *                     label: '營業中 · 22:00 打烊' / '尚未營業 · 17:30 開店' / '今日休息',
  *                     openNow: bool }
  */
 export function getOpeningStatus(openingHours, now = new Date()) {
@@ -94,7 +94,7 @@ export function getOpeningStatus(openingHours, now = new Date()) {
         const closeStr = `${String(closeH).padStart(2, '0')}:${String(closeM).padStart(2, '0')}`;
         // 30 分鐘內打烊 → closing-soon
         if (currentClose - nowMin <= 30) {
-            return { status: 'closing-soon', label: `${closeStr} 打烊`, openNow: true };
+            return { status: 'closing-soon', label: `即將打烊 · ${closeStr}`, openNow: true };
         }
         return { status: 'open', label: `營業中 · ${closeStr} 打烊`, openNow: true };
     }
@@ -103,7 +103,7 @@ export function getOpeningStatus(openingHours, now = new Date()) {
         const m = nextOpen % 60;
         return {
             status: 'opens-later',
-            label: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')} 開始`,
+            label: `尚未營業 · ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')} 開店`,
             openNow: false,
         };
     }

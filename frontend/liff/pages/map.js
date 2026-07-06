@@ -15,12 +15,16 @@ import { navigateTo } from './router.js';
 
 // ---- 常數 ----
 
+// 好康層級：半徑階梯讓好康 pin 在地圖上大聲、一般店安靜
+// coupon 用 teal 與「營業中」的綠（--lm-success）區分，一色一義
 const TIER = {
-    sponsored:     { color: '#E8754F', label: '精選推薦', radius: 10 },
-    booking_offer: { color: '#D9961F', label: '訂位獨家優惠', radius: 8 },
-    coupon:        { color: '#2E9A66', label: '有優惠券', radius: 7 },
+    sponsored:     { color: '#E44E25', label: '精選推薦', radius: 12 },   // OR 紅橘
+    booking_offer: { color: '#E5A000', label: '訂位獨家優惠', radius: 10 }, // OR 黃系（地圖上加深保對比）
+    coupon:        { color: '#0E8C7F', label: '有優惠券', radius: 9 },
     none:          { color: '#8A857E', label: '', radius: 6 },
 };
+
+const ONBOARD_KEY = 'rr_map_onboarded_v1';
 
 const DEFAULT_CENTER = [25.0478, 121.5170]; // 台北車站（無定位時的起點）
 const DEFAULT_ZOOM = 14;
@@ -40,6 +44,8 @@ let userLocation = null;
 let userMarker = null;
 let activeFilters = { deals: false, open: false, bookable: false, budget: null };
 let sheetOpen = false;
+let savedSheetView = null;      // 清單→店家卡後保留的視角/捲動位置，重開清單時還原
+let programmaticMove = false;   // 區分程式 flyTo 與使用者拖動（拖動會清掉 savedSheetView）
 
 const BUDGET_CATEGORIES = ['200元內', '200-500元', '500-1000元', '1000-1500元', '1500以上'];
 const TIER_WEIGHT = { sponsored: 3, booking_offer: 2, coupon: 1, none: 0 };
@@ -138,10 +144,23 @@ function ensureMapRoot() {
             <button type="button" class="map-chip" id="chipDeals" aria-pressed="false">🎫 只看好康</button>
             <button type="button" class="map-chip" id="chipOpen" aria-pressed="false">🕐 營業中</button>
             <button type="button" class="map-chip" id="chipBookable" aria-pressed="false">📅 可訂位</button>
-            <button type="button" class="map-chip" id="chipHome">📝 找店</button>
-            <button type="button" class="map-chip" id="chipLottery">🎁 抽獎</button>
         </div>
-        <button type="button" class="map-locate-btn" id="chipLocate" aria-label="定位到我的位置">📍</button>
+        <div class="map-side-nav">
+            <button type="button" class="map-side-btn" id="chipHome" aria-label="條件找店">
+                <span aria-hidden="true">📝</span><small>找店</small>
+            </button>
+            <button type="button" class="map-side-btn" id="chipLottery" aria-label="抽獎活動">
+                <span aria-hidden="true">🎁</span><small>抽獎</small>
+            </button>
+        </div>
+        <button type="button" class="map-locate-btn" id="chipLocate" aria-label="定位到我的位置">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+                <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+                <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+            </svg>
+        </button>
+        <div class="map-toast" id="mapToast" role="status" aria-live="polite" hidden></div>
         <div id="liffMap" class="map-canvas" role="application" aria-label="餐廳好康地圖"></div>
         <button type="button" class="map-fab" id="mapDecideBtn">🎲 幫我決定</button>
 
@@ -152,6 +171,12 @@ function ensureMapRoot() {
                 <span class="map-sheet__summary" id="mapCountPill" role="status" aria-live="polite">載入地圖中…</span>
             </button>
             <div class="map-sheet__body" id="sheetBody">
+                <div class="map-sheet__legend" aria-label="圖例">
+                    <span><i class="map-dot" style="background:#E44E25"></i>精選</span>
+                    <span><i class="map-dot" style="background:#E5A000"></i>訂位優惠</span>
+                    <span><i class="map-dot" style="background:#0E8C7F"></i>優惠券</span>
+                    <span><i class="map-dot" style="background:#8A857E"></i>一般</span>
+                </div>
                 <div class="map-sheet__budget" id="sheetBudget" role="group" aria-label="預算篩選"></div>
                 <ul class="map-sheet__list" id="sheetList"></ul>
             </div>
@@ -199,6 +224,13 @@ function buildMarker(L, pin) {
         fillColor: t.color,
         fillOpacity: 0.95,
     });
+    // 高 zoom（cluster 散開後）顯示店名標籤：掃視地圖不用逐顆點
+    marker.bindTooltip(pin.n, {
+        permanent: true,
+        direction: 'right',
+        offset: [8, 0],
+        className: `map-pin-label${pin.t !== 'none' ? ' map-pin-label--deal' : ''}`,
+    });
     marker.on('click', () => {
         track('map_pin_click', { or_id: pin.id, name: pin.n, tier: pin.t });
         showMiniCard(pin);
@@ -208,6 +240,7 @@ function buildMarker(L, pin) {
 
 function applyFilters() {
     if (!clusterGroup) return;
+    savedSheetView = null; // 篩選變了，舊的清單脈絡不再成立
     const now = new Date();
     const visible = [];
     clusterGroup.clearLayers();
@@ -240,7 +273,7 @@ function updateCountPill() {
             ? '沒有符合篩選的店家，試試放寬篩選'
             : '這一帶還沒有店家，拖動地圖看看別區';
     } else {
-        pill.textContent = `畫面內 ${inView} 間 · ${deals} 個好康`;
+        pill.textContent = `畫面內 ${inView} 間 · ${deals} 間有好康`;
     }
     if (sheetOpen) renderSheetList();
 }
@@ -258,7 +291,16 @@ function setSheetOpen(open) {
     if (open) {
         closeMiniCard();
         closeSpotlight();
-        renderSheetList();
+        // 從清單點過店家 → 回來時還原當時的視角與捲動位置，逛到一半不歸零
+        if (savedSheetView && map) {
+            programmaticMove = true;
+            map.setView(savedSheetView.center, savedSheetView.zoom, { animate: false });
+            renderSheetList();
+            document.getElementById('sheetList').scrollTop = savedSheetView.scrollTop;
+            savedSheetView = null;
+        } else {
+            renderSheetList();
+        }
     }
     track(open ? 'map_sheet_open' : 'map_sheet_close', {});
 }
@@ -346,21 +388,30 @@ function renderSheetList() {
             const pin = allPins.find(p => p.id === Number(btn.dataset.pinId));
             if (!pin) return;
             track('map_sheet_item_click', { or_id: pin.id, name: pin.n, tier: pin.t });
+            // 記住清單當下的視角/捲動位置，關卡片重開清單時還原
+            savedSheetView = {
+                center: map.getCenter(),
+                zoom: map.getZoom(),
+                scrollTop: document.getElementById('sheetList').scrollTop,
+            };
             setSheetOpen(false);
+            programmaticMove = true;
             map.flyTo([pin.lat, pin.lng], Math.max(map.getZoom(), 16), { duration: 0.6 });
             showMiniCard(pin);
         });
     });
 }
 
-// 暫時性提示（定位失敗等），幾秒後還原成統計文字
-let pillMessageTimer = null;
+// 暫時性提示 toast（定位失敗、首次教學等）：獨立元素可換行，
+// 不塞進統計 pill（窄屏會截斷到看不懂）
+let toastTimer = null;
 function showPillMessage(text, ms = 4000) {
-    const pill = document.getElementById('mapCountPill');
-    if (!pill) return;
-    pill.textContent = text;
-    clearTimeout(pillMessageTimer);
-    pillMessageTimer = setTimeout(updateCountPill, ms);
+    const toast = document.getElementById('mapToast');
+    if (!toast) return;
+    toast.textContent = text;
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toast.hidden = true; }, ms);
 }
 
 // ---- 迷你資訊卡（點 pin）----
@@ -369,6 +420,14 @@ function tierBadgeHtml(tier) {
     if (!tier || tier === 'none') return '';
     const t = TIER[tier];
     return `<span class="map-badge map-badge--${tier}">${t.label}</span>`;
+}
+
+// 迷你卡/聚光燈任一開啟時，FAB 與定位鈕讓位（換一個/關閉就在卡上）
+function updateCardOpenState() {
+    const spotlight = document.getElementById('mapSpotlight');
+    const minicard = document.getElementById('mapMiniCard');
+    const anyOpen = (spotlight && !spotlight.hidden) || (minicard && !minicard.hidden);
+    document.getElementById('mapRoot').classList.toggle('is-card-open', anyOpen);
 }
 
 function showMiniCard(pin) {
@@ -383,17 +442,24 @@ function showMiniCard(pin) {
     const tags = filterGeneralTags(pin.tg || []);
     const offers = pin.of || [];
 
+    // 有券但沒有券內容資料 → 通用說明（誠實：不假裝知道折扣內容）
+    const offerLines = offers.length
+        ? offers.map(o => `<li>🎁 ${escapeHtml(o)}</li>`)
+        : (pin.t === 'coupon' ? ['<li>🎁 OpenRice 優惠券 — 詳情見餐廳頁</li>'] : []);
+
     body.innerHTML = `
         ${pin.img ? `<img class="map-minicard__img" src="${escapeHtml(pin.img)}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">` : ''}
         <div class="map-minicard__info">
             <div class="map-minicard__badges">${tierBadgeHtml(pin.t)}</div>
-            <h3 class="map-minicard__name">${escapeHtml(pin.n)}</h3>
+            <h3 class="map-minicard__name">${pin.url
+                ? `<a href="${escapeHtml(pin.url)}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(pin.n)}<span class="map-minicard__more"> ›</span></a>`
+                : escapeHtml(pin.n)}</h3>
             <p class="map-minicard__meta">
-                ${pin.r ? `⭐ ${formatRating(pin.r)}　` : ''}${escapeHtml(pin.d || '')}${dist ? `　·　${dist}` : ''}
+                ${pin.r ? `⭐ ${formatRating(pin.r)}　` : ''}${escapeHtml(pin.d || '')}${dist ? `　·　${dist}` : ''}${pin.bud ? `　·　💰 ${escapeHtml(pin.bud)}` : ''}
             </p>
-            ${opening && opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''}">${escapeHtml(opening.label)}</p>` : ''}
+            ${opening && opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</p>` : ''}
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
-            ${offers.length ? `<ul class="map-minicard__offers">${offers.map(o => `<li>🎁 ${escapeHtml(o)}</li>`).join('')}</ul>` : ''}
+            ${offerLines.length ? `<ul class="map-minicard__offers">${offerLines.join('')}</ul>` : ''}
             <div class="map-minicard__actions">
                 ${pin.url ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(pin.url)}" target="_blank" rel="noopener">${pin.b ? '線上訂位' : '查看餐廳'}</a>` : ''}
                 <a class="map-btn map-btn--ghost" data-track="navigation" href="${navigationUrl(pin.lat, pin.lng, pin.n)}" target="_blank" rel="noopener">🧭 導航</a>
@@ -409,11 +475,13 @@ function showMiniCard(pin) {
     });
 
     card.hidden = false;
+    updateCardOpenState();
 }
 
 function closeMiniCard() {
     const card = document.getElementById('mapMiniCard');
     if (card) card.hidden = true;
+    updateCardOpenState();
 }
 
 // ---- 聚光燈：幫我決定 ----
@@ -448,8 +516,47 @@ function buildDecideFormData() {
         formData.userLocation = userLocation;
         formData.maxDistance = 5.0; // 交通方式不限 = 5km（沿用首頁規則）
     }
+    if (activeFilters.budget) {
+        formData.budget = activeFilters.budget; // 尊重使用者設定的預算篩選
+    }
     // 無定位：不帶位置參數，後端在北北基白名單內隨機推薦
     return formData;
+}
+
+// pin（精簡格式）→ renderSpotlight 吃的餐廳物件格式
+function pinToRestaurant(pin) {
+    return {
+        or_id: pin.id,
+        name: pin.n,
+        coordinates: { lat: pin.lat, lng: pin.lng },
+        rating: pin.r,
+        district: pin.d,
+        budget: pin.bud,
+        opening_hours: expandHours(pin.h),
+        cuisine_style: pin.tg || [],
+        type: [],
+        booking_offers: pin.of || [],
+        door_photo_url: pin.img,
+        url: pin.url,
+        bookable: pin.b,
+        _tier: pin.t,
+    };
+}
+
+// 「幫我決定」候選池 = 使用者眼前的世界：畫面內 + 通過目前篩選 + 今天有開
+function viewportCandidates() {
+    if (!map) return [];
+    const bounds = map.getBounds();
+    const now = new Date();
+    return allPins.filter(pin => {
+        if (!pinPassesFilters(pin, now)) return false;
+        if (!bounds.contains([pin.lat, pin.lng])) return false;
+        if (spotlightExcludes.includes(pin.n)) return false;
+        // 今日休息的店不推（'opens-later' 稍後開門仍可推薦；沒有時間資料不懲罰）
+        const hours = expandHours(pin.h);
+        if (hours && getOpeningStatus(hours, now).status === 'closed-today') return false;
+        return true;
+    });
 }
 
 async function drawSpotlight() {
@@ -462,6 +569,7 @@ async function drawSpotlight() {
     closeMiniCard();
     clearSpotlightPin(); // 清掉上一抽的 🎯，避免載入/失敗時殘留指向舊店
     panel.hidden = false;
+    updateCardOpenState();
     body.innerHTML = '<p class="map-spotlight__loading">🎲 正在為你挑選…</p>';
     links.innerHTML = '';
 
@@ -474,20 +582,35 @@ async function drawSpotlight() {
             restaurant = nextSponsoredPick();
             isSponsoredPick = !!restaurant;
         }
+
+        // 主要路徑：從使用者眼前的地圖抽（畫面內 + 通過篩選 + 今天有開），
+        // 抽選結果與「畫面內 N 間」的心智模型一致
         if (!restaurant) {
-            const results = await fetchRecommendations(buildDecideFormData(), spotlightExcludes, 1);
+            const candidates = viewportCandidates();
+            if (candidates.length) {
+                const pick = candidates[Math.floor(Math.random() * candidates.length)];
+                restaurant = pinToRestaurant(pick);
+            }
+        }
+
+        // 後備路徑：畫面內沒有合適的店 → 用推薦 API 在附近 5km / 北北基抽
+        if (!restaurant) {
+            let results = await fetchRecommendations(buildDecideFormData(), spotlightExcludes, 1);
             if (!results.length) {
-                // 全抽過了 → 重置排除清單再抽一次
-                spotlightExcludes = [];
-                const retry = await fetchRecommendations(buildDecideFormData(), [], 1);
-                restaurant = retry[0] || null;
-            } else {
-                restaurant = results[0];
+                spotlightExcludes = []; // 全抽過了 → 重置排除清單再抽一次
+                results = await fetchRecommendations(buildDecideFormData(), [], 1);
+            }
+            restaurant = results[0] || null;
+            // API 不會過濾今日休息：抽到就換一次（只換一次，避免迴圈）
+            if (restaurant && getOpeningStatus(restaurant.opening_hours).status === 'closed-today') {
+                spotlightExcludes.push(restaurant.name);
+                const retry = await fetchRecommendations(buildDecideFormData(), spotlightExcludes, 1);
+                if (retry[0]) restaurant = retry[0];
             }
         }
 
         if (!restaurant) {
-            body.innerHTML = '<p class="map-spotlight__loading">附近找不到合適的店，拖動地圖換一帶試試</p>';
+            body.innerHTML = '<p class="map-spotlight__loading">這一帶沒有符合條件的店，拖動地圖或放寬篩選再試</p>';
             return;
         }
 
@@ -513,9 +636,14 @@ function renderSpotlight(r, isSponsoredPick) {
     const hasCoords = coords.lat != null && coords.lng != null;
 
     // 聚光燈效果：鏡頭飛過去 + 其他 pin 淡出 + 專屬大頭針
+    // 卡片蓋住下半屏，鏡頭中心往下偏移，讓 🎯 落在可見的上半部（短屏也不被卡片吃掉）
     if (hasCoords && map) {
         setSpotlightPin(coords.lat, coords.lng);
-        map.flyTo([coords.lat, coords.lng], SPOTLIGHT_ZOOM, { duration: 0.9 });
+        const cardHeight = Math.min(window.innerHeight * 0.45, 420);
+        const target = map.project([coords.lat, coords.lng], SPOTLIGHT_ZOOM)
+            .add([0, cardHeight / 2]);
+        programmaticMove = true;
+        map.flyTo(map.unproject(target, SPOTLIGHT_ZOOM), SPOTLIGHT_ZOOM, { duration: 0.9 });
     } else {
         clearSpotlightPin(); // 沒座標的店：不留上一抽的 🎯 與淡出狀態
     }
@@ -530,7 +658,10 @@ function renderSpotlight(r, isSponsoredPick) {
     const offers = r.booking_offers || [];
     const heroImage = r.door_photo_url || (r.images && r.images[0]) || '';
     const pin = allPins.find(p => p.id === r.or_id);
-    const tier = isSponsoredPick ? 'sponsored' : (pin ? pin.t : 'none');
+    const tier = isSponsoredPick ? 'sponsored' : (r._tier || (pin ? pin.t : 'none'));
+    const offerLines = offers.length
+        ? offers.slice(0, 3).map(o => `<li>🎁 ${escapeHtml(o)}</li>`)
+        : (tier === 'coupon' ? ['<li>🎁 OpenRice 優惠券 — 詳情見餐廳頁</li>'] : []);
 
     body.innerHTML = `
         ${heroImage ? `<img class="map-spotlight__img" src="${escapeHtml(heroImage)}" alt="" decoding="async" onerror="this.style.display='none'">` : ''}
@@ -539,13 +670,15 @@ function renderSpotlight(r, isSponsoredPick) {
                 ${isSponsoredPick ? '<span class="map-badge map-badge--sponsored">精選推薦</span>' : tierBadgeHtml(tier)}
             </div>
             ${evidence && evidence.length ? `<p class="map-spotlight__evidence">${escapeHtml(Array.isArray(evidence) ? evidence[0] : evidence)}</p>` : ''}
-            <h3 class="map-spotlight__name">${escapeHtml(r.name)}</h3>
+            <h3 class="map-spotlight__name">${r.url
+                ? `<a href="${escapeHtml(r.url)}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(r.name)}<span class="map-minicard__more"> ›</span></a>`
+                : escapeHtml(r.name)}</h3>
             <p class="map-minicard__meta">
-                ${r.rating ? `⭐ ${formatRating(r.rating)}　` : ''}${escapeHtml(r.district || '')}${dist ? `　·　${dist}` : ''}
+                ${r.rating ? `⭐ ${formatRating(r.rating)}　` : ''}${escapeHtml(r.district || '')}${dist ? `　·　${dist}` : ''}${r.budget ? `　·　💰 ${escapeHtml(r.budget)}` : ''}
             </p>
-            ${opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''}">${escapeHtml(opening.label)}</p>` : ''}
+            ${opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</p>` : ''}
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
-            ${offers.length ? `<ul class="map-minicard__offers">${offers.slice(0, 3).map(o => `<li>🎁 ${escapeHtml(o)}</li>`).join('')}</ul>` : ''}
+            ${offerLines.length ? `<ul class="map-minicard__offers">${offerLines.join('')}</ul>` : ''}
         </div>
     `;
 
@@ -589,6 +722,7 @@ function closeSpotlight() {
     const panel = document.getElementById('mapSpotlight');
     if (panel) panel.hidden = true;
     clearSpotlightPin();
+    updateCardOpenState();
 }
 
 // ---- 定位 ----
@@ -604,7 +738,8 @@ function locateUser({ silent = false } = {}) {
             pos => {
                 userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                 showUserMarker();
-                if (map) map.flyTo([userLocation.lat, userLocation.lng], 15, { duration: 0.8 });
+                // zoom 16：店名標籤開啟、cluster 部分散開，落地即可掃視
+                if (map) map.flyTo([userLocation.lat, userLocation.lng], 16, { duration: 0.8 });
                 track('map_locate', { success: true });
                 resolve(true);
             },
@@ -663,6 +798,15 @@ function wireControls() {
             chip.setAttribute('aria-pressed', String(activeFilters[key]));
             track('map_filter_toggle', { filter: key, active: activeFilters[key] });
             applyFilters();
+            // 第一次開「只看好康」提示清單入口（不自動展開：使用者此刻想看的是地圖）
+            if (key === 'deals' && activeFilters.deals) {
+                try {
+                    if (!sessionStorage.getItem('rr_map_deals_hint_shown')) {
+                        sessionStorage.setItem('rr_map_deals_hint_shown', '1');
+                        showPillMessage('👆 上拉底部清單，好康一次看完', 5000);
+                    }
+                } catch (e) { /* ignore */ }
+            }
         });
     }
 
@@ -775,10 +919,32 @@ export async function initMapPage() {
         map.addLayer(clusterGroup);
         applyFilters();
 
-        map.on('moveend', updateCountPill);
+        map.on('moveend', () => {
+            updateCountPill();
+            programmaticMove = false;
+        });
+        // 使用者自己拖動地圖 → 已離開原本逛的清單脈絡，不再還原
+        map.on('movestart', () => {
+            if (!programmaticMove) savedSheetView = null;
+        });
         map.on('click', () => { closeMiniCard(); });
 
+        // 店名標籤只在高 zoom 顯示（cluster 散開後）；低 zoom 的孤立 pin 不顯示避免雜訊
+        const syncLabels = () => {
+            document.getElementById('liffMap').classList.toggle('show-labels', map.getZoom() >= 16);
+        };
+        map.on('zoomend', syncLabels);
+        syncLabels();
+
         track('map_open', { pins: allPins.length });
+
+        // 首次開啟：一次性身分+圖例提示（之後圖例常駐在清單面板裡）
+        try {
+            if (!localStorage.getItem(ONBOARD_KEY)) {
+                localStorage.setItem(ONBOARD_KEY, '1');
+                setTimeout(() => showPillMessage('OpenRice 好康地圖 🔴精選 🟡訂位優惠 🟢有券・點圓點看店家', 8000), 1200);
+            }
+        } catch (e) { /* private mode: 略過 */ }
 
         // 除錯/自動化測試掛鉤
         window.__lifeMap = {

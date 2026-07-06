@@ -109,6 +109,8 @@ async function loadPage(pageName) {
     document.body.classList.toggle('is-map-page', pageName === 'map');
     // 標記當前頁面：回地圖浮動鈕只在「已載入的非地圖頁」顯示（避免初始化時閃現）
     document.body.dataset.page = pageName;
+    // LINE header 以 title 顯示 app 身分
+    document.title = pageName === 'map' ? 'OpenRice 好康地圖' : '今天吃什麼';
 
     try {
         // 調用對應頁面的初始化函數

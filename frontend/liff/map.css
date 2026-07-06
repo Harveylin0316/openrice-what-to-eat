@@ -64,6 +64,31 @@ body.is-map-page { overflow: hidden; }
 /* 聚光燈模式：cluster pin 整層淡出（canvas pane），聚光 pin 在 marker pane 不受影響 */
 .map-canvas.is-spotlight .leaflet-overlay-pane { opacity: 0.25; transition: opacity 240ms ease; }
 .map-canvas.is-spotlight .leaflet-marker-pane .marker-cluster { opacity: 0.25; }
+.map-canvas.is-spotlight .map-pin-label { display: none; }
+
+/* 店名標籤：高 zoom（≥16，map.js 控制 .show-labels）才顯示 */
+.map-pin-label {
+  display: none;
+  background: rgba(255, 255, 255, 0.92);
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(20, 16, 12, 0.25);
+  color: var(--lm-text-body);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 6px;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.map-pin-label--deal { color: var(--lm-accent-press); font-weight: 600; }
+.map-canvas.show-labels .map-pin-label { display: block; }
+/* 聚光燈時所有店名標籤讓位（卡片上已有店名）；tooltip pane 不吃 overlay 淡出，需獨立隱藏 */
+.map-canvas.is-spotlight.show-labels .map-pin-label { display: none; }
+/* 蓋掉 leaflet 預設 tooltip 箭頭 */
+.map-pin-label::before { display: none; }
 
 /* ---- 頂部篩選 chips ---- */
 
@@ -80,6 +105,11 @@ body.is-map-page { overflow: hidden; }
   scrollbar-width: none;
 }
 .map-chips::-webkit-scrollbar { display: none; }
+/* 右緣漸隱：提示 chips 列可以橫滑 */
+.map-chips {
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+}
 
 .map-chip {
   flex: 0 0 auto;
@@ -113,16 +143,73 @@ body.is-map-page { overflow: hidden; }
   z-index: 500;
   width: 48px;
   height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--lm-border);
   border-radius: 50%;
   background: var(--lm-surface);
-  font-size: 20px;
+  color: var(--lm-text-body);
   box-shadow: var(--lm-shadow-md);
   cursor: pointer;
 }
 .map-locate-btn:focus-visible {
   outline: none;
   box-shadow: var(--lm-shadow-md), 0 0 0 3px rgba(228, 78, 37, 0.4);
+}
+
+/* 右側快捷導航（找店/抽獎）：疊在定位鈕上方，與篩選 chips 分離 */
+.map-side-nav {
+  position: absolute;
+  right: 16px;
+  bottom: calc(144px + var(--lm-safe-bottom)); /* 定位鈕(88+48)上方 8px */
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.map-side-btn {
+  width: 48px;
+  min-height: 54px;
+  padding: 6px 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  border: 1px solid var(--lm-border);
+  border-radius: 14px;
+  background: var(--lm-surface);
+  box-shadow: var(--lm-shadow-md);
+  cursor: pointer;
+  color: var(--lm-text-body);
+}
+.map-side-btn span { font-size: 18px; line-height: 1.2; }
+.map-side-btn small { font-size: 10px; font-weight: 500; }
+.map-side-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--lm-shadow-md), 0 0 0 3px rgba(228, 78, 37, 0.4);
+}
+.map-root.is-sheet-open .map-side-nav,
+.map-root.is-card-open .map-side-nav { display: none; }
+
+/* 提示 toast：浮在收合把手列上方，可換行（訊息不再塞進統計 pill 被截斷） */
+.map-toast {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: calc(60px + var(--lm-safe-bottom));
+  z-index: 670;
+  margin-inline: auto;
+  max-width: 456px;
+  background: rgba(26, 24, 21, 0.88);
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  box-shadow: var(--lm-shadow-lg);
+  pointer-events: none;
 }
 
 /* ---- Bottom sheet：收合＝統計把手列，展開＝與地圖連動的清單 ---- */
@@ -154,13 +241,16 @@ body.is-map-page { overflow: hidden; }
 }
 
 .map-sheet__handle {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
   gap: 4px;
   width: 100%;
   min-height: 52px;
-  padding: 8px 90px 8px 16px; /* 右側讓出 FAB 空間（收合時 FAB 疊在同一水平） */
+  /* 右側讓出 FAB 實際佔位（約 126px 寬 + 12px 邊距 + 餘裕），文字先 ellipsis 不鑽到 FAB 下面 */
+  padding: 8px 152px 8px 16px;
   border: none;
   background: none;
   cursor: pointer;
@@ -173,6 +263,11 @@ body.is-map-page { overflow: hidden; }
   border-radius: var(--lm-radius) var(--lm-radius) 0 0;
 }
 .map-sheet__grip {
+  /* 絕對置中：不跟著 FAB 保留空間偏左 */
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 36px;
   height: 4px;
   border-radius: 2px;
@@ -205,7 +300,7 @@ body.is-map-page { overflow: hidden; }
 }
 .map-sheet__budget::-webkit-scrollbar { display: none; }
 .map-chip--sm {
-  min-height: 36px;
+  min-height: 44px; /* 觸控目標 ≥44px；視覺上靠無陰影/小字保持輕量 */
   padding: 0 12px;
   font-size: 13px;
   box-shadow: none;
@@ -265,6 +360,11 @@ body.is-map-page { overflow: hidden; }
   gap: 6px;
   min-width: 0;
 }
+.map-sheet__item-top .map-badge {
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-bottom: 0;
+}
 .map-sheet__item-name {
   font-size: 15px;
   font-weight: 600;
@@ -289,9 +389,51 @@ body.is-map-page { overflow: hidden; }
   list-style: none;
 }
 
-/* sheet 展開時：FAB 與定位鈕讓位（清單為主角） */
+/* sheet 展開或卡片（迷你卡/聚光燈）開啟時：FAB 與定位鈕讓位 */
 .map-root.is-sheet-open .map-fab,
-.map-root.is-sheet-open .map-locate-btn { display: none; }
+.map-root.is-sheet-open .map-locate-btn,
+.map-root.is-card-open .map-fab,
+.map-root.is-card-open .map-locate-btn { display: none; }
+
+/* 窄屏（≤360px）：卡片按鈕縮小避免換行 */
+@media (max-width: 360px) {
+  .map-btn { font-size: 13px; padding: 0 10px; white-space: nowrap; }
+  .map-spotlight__actions { gap: 6px; padding: 10px 10px 12px; }
+  .map-minicard__actions { gap: 6px; }
+}
+.map-btn { white-space: nowrap; }
+
+/* 桌面（≥768px）：控制項對齊置中的 480px 欄位，與 sheet 一致
+ * 選擇器帶 .map-root 前綴：本區塊在部分基础規則之前，需贏過後面的同權重宣告 */
+@media (min-width: 768px) {
+  .map-root .map-chips {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(480px, calc(100% - 24px));
+  }
+  .map-root .map-fab { right: calc(50% - 240px + 12px); }
+  .map-root .map-locate-btn,
+  .map-root .map-side-nav { right: calc(50% - 240px + 16px); }
+}
+
+/* 圖例列（sheet 內） */
+.map-sheet__legend {
+  display: flex;
+  gap: 14px;
+  padding: 0 16px 8px;
+  font-size: 12px;
+  color: var(--lm-text-muted);
+}
+.map-sheet__legend span { display: inline-flex; align-items: center; gap: 4px; }
+.map-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
 
 /* ---- 回地圖浮動鈕（顯示在 home / 抽獎等非地圖頁） ---- */
 
@@ -319,6 +461,18 @@ body.is-map-page { overflow: hidden; }
   box-shadow: var(--lm-shadow-lg), 0 0 0 3px rgba(228, 78, 37, 0.4);
 }
 body[data-page]:not([data-page="map"]) .back-to-map-btn { display: block; }
+/* 頁面內容底部保留空間，浮動鈕不壓到頁面自己的主要按鈕（如「開始推薦」） */
+body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
+/* 短屏（≤600px 高）：底部空間吃緊，改停靠右上角，完全避開全寬 CTA */
+@media (max-height: 600px) {
+  .back-to-map-btn {
+    left: auto;
+    right: 12px;
+    bottom: auto;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    transform: none;
+  }
+}
 
 /* ---- 幫我決定 FAB ---- */
 
@@ -415,7 +569,11 @@ body[data-page]:not([data-page="map"]) .back-to-map-btn { display: block; }
   color: var(--lm-text-muted);
 }
 .map-minicard__meta.is-open { color: var(--lm-success); }
+.map-minicard__meta.is-closed { color: var(--lm-warning); font-weight: 600; }
 .map-minicard__badges { min-height: 0; }
+.map-minicard__name a { color: inherit; text-decoration: none; }
+.map-minicard__more { color: var(--lm-text-muted); font-weight: 400; }
+.map-spotlight__name a { color: inherit; text-decoration: none; }
 .map-minicard__tags { margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .map-tag {
   font-size: 12px;
@@ -451,7 +609,7 @@ body[data-page]:not([data-page="map"]) .back-to-map-btn { display: block; }
 }
 .map-badge--sponsored     { background: var(--lm-accent-subtle); color: var(--lm-accent-press); }
 .map-badge--booking_offer { background: var(--lm-or-yellow-subtle); color: var(--lm-or-yellow-deep); }
-.map-badge--coupon        { background: #E3F3EB; color: #1F6B47; }
+.map-badge--coupon        { background: #DDF0EE; color: #0B5F57; }
 
 /* ---- 按鈕 ---- */
 
@@ -542,16 +700,19 @@ body[data-page]:not([data-page="map"]) .back-to-map-btn { display: block; }
  * 注意：MarkerCluster.Default.css 由 map.js 動態載入、晚於本檔，
  * 需以 .map-canvas 前綴提高特異性才能覆蓋。---- */
 
+/* cluster 用中性色：品牌紅只留給精選 pin / FAB / 選中態，
+ * 聚合圈是「數量」不是「好康」，不該搶走層級 */
 .map-canvas .marker-cluster-small,
 .map-canvas .marker-cluster-medium,
 .map-canvas .marker-cluster-large {
-  background-color: rgba(228, 78, 37, 0.22);
+  background-color: rgba(78, 59, 45, 0.15);
 }
 .map-canvas .marker-cluster-small div,
 .map-canvas .marker-cluster-medium div,
 .map-canvas .marker-cluster-large div {
-  background-color: rgba(228, 78, 37, 0.9);
-  color: #fff;
+  background-color: #FDFBF7;
+  border: 1px solid rgba(78, 59, 45, 0.25);
+  color: #4E3B2D;
   font-weight: 600;
 }
 

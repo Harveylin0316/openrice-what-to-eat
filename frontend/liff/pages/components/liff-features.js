@@ -147,12 +147,16 @@ function setupExternalLinks() {
         
         // 阻止默認行為
         e.preventDefault();
-        
+
+        // data-liff-internal：在 LINE 內建瀏覽器開啟（可一鍵返回，LIFF 狀態保留）
+        // 用於「看詳情」這類看完要回來繼續逛的連結
+        const internal = link.hasAttribute('data-liff-internal');
+
         // 使用 liff.openWindow() 打開外部連結
         try {
             liff.openWindow({
                 url: href,
-                external: true
+                external: !internal
             });
         } catch (error) {
             console.error('打開外部連結失敗:', error);
