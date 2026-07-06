@@ -123,8 +123,8 @@ def build_pin(r):
         pin['h'] = hours
     if offers:
         pin['of'] = offers[:3]  # 迷你卡最多顯示 3 條優惠
-    # 摘要 tags（迷你卡顯示用，最多 2 個）
-    tags = (r.get('cuisine_style') or []) + (r.get('type') or [])
+    # 摘要 tags（迷你卡顯示用，去重後最多 2 個）
+    tags = list(dict.fromkeys((r.get('cuisine_style') or []) + (r.get('type') or [])))
     if tags:
         pin['tg'] = tags[:2]
     return pin

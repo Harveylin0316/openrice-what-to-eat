@@ -67,6 +67,12 @@ function escapeHtml(s) {
     }[c]));
 }
 
+// 評分顯示：資料庫有 3.342857 這種原始浮點數，一律取一位小數
+function formatRating(r) {
+    if (r == null) return '';
+    return String(Math.round(Number(r) * 10) / 10);
+}
+
 function distanceLabel(lat, lng) {
     if (!userLocation) return '';
     const d = calculateDistance(userLocation.lat, userLocation.lng, lat, lng);
@@ -132,7 +138,7 @@ function ensureMapRoot() {
             <button type="button" class="map-chip" id="chipDeals" aria-pressed="false">🎫 只看好康</button>
             <button type="button" class="map-chip" id="chipOpen" aria-pressed="false">🕐 營業中</button>
             <button type="button" class="map-chip" id="chipBookable" aria-pressed="false">📅 可訂位</button>
-            <button type="button" class="map-chip" id="chipHome">📝 條件找店</button>
+            <button type="button" class="map-chip" id="chipHome">📝 找店</button>
             <button type="button" class="map-chip" id="chipLottery">🎁 抽獎</button>
         </div>
         <button type="button" class="map-locate-btn" id="chipLocate" aria-label="定位到我的位置">📍</button>
@@ -234,7 +240,7 @@ function updateCountPill() {
             ? '沒有符合篩選的店家，試試放寬篩選'
             : '這一帶還沒有店家，拖動地圖看看別區';
     } else {
-        pill.textContent = `畫面內 ${inView} 間餐廳 · ${deals} 個好康`;
+        pill.textContent = `畫面內 ${inView} 間 · ${deals} 個好康`;
     }
     if (sheetOpen) renderSheetList();
 }
@@ -323,7 +329,7 @@ function renderSheetList() {
                         ${tierBadgeHtml(pin.t)}
                     </span>
                     <span class="map-sheet__item-meta">
-                        ${pin.r ? `⭐ ${pin.r}` : ''}${dist ? `　${dist}` : ''}${pin.bud ? `　💰 ${escapeHtml(pin.bud)}` : ''}
+                        ${pin.r ? `⭐ ${formatRating(pin.r)}` : ''}${dist ? `　${dist}` : ''}${pin.bud ? `　💰 ${escapeHtml(pin.bud)}` : ''}
                     </span>
                     ${opening && opening.label
                         ? `<span class="map-sheet__item-meta ${opening.openNow ? 'is-open' : ''}">${escapeHtml(opening.label)}</span>`
@@ -383,7 +389,7 @@ function showMiniCard(pin) {
             <div class="map-minicard__badges">${tierBadgeHtml(pin.t)}</div>
             <h3 class="map-minicard__name">${escapeHtml(pin.n)}</h3>
             <p class="map-minicard__meta">
-                ${pin.r ? `⭐ ${pin.r}　` : ''}${escapeHtml(pin.d || '')}${dist ? `　·　${dist}` : ''}
+                ${pin.r ? `⭐ ${formatRating(pin.r)}　` : ''}${escapeHtml(pin.d || '')}${dist ? `　·　${dist}` : ''}
             </p>
             ${opening && opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''}">${escapeHtml(opening.label)}</p>` : ''}
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
@@ -520,7 +526,7 @@ function renderSpotlight(r, isSponsoredPick) {
         : null;
     const evidence = generateEvidence(r, distanceKm != null ? { distance: distanceKm } : {});
     const opening = getOpeningStatus(r.opening_hours);
-    const tags = filterGeneralTags([...(r.cuisine_style || []), ...(r.type || [])]).slice(0, 3);
+    const tags = [...new Set(filterGeneralTags([...(r.cuisine_style || []), ...(r.type || [])]))].slice(0, 3);
     const offers = r.booking_offers || [];
     const heroImage = r.door_photo_url || (r.images && r.images[0]) || '';
     const pin = allPins.find(p => p.id === r.or_id);
@@ -535,7 +541,7 @@ function renderSpotlight(r, isSponsoredPick) {
             ${evidence && evidence.length ? `<p class="map-spotlight__evidence">${escapeHtml(Array.isArray(evidence) ? evidence[0] : evidence)}</p>` : ''}
             <h3 class="map-spotlight__name">${escapeHtml(r.name)}</h3>
             <p class="map-minicard__meta">
-                ${r.rating ? `⭐ ${r.rating}　` : ''}${escapeHtml(r.district || '')}${dist ? `　·　${dist}` : ''}
+                ${r.rating ? `⭐ ${formatRating(r.rating)}　` : ''}${escapeHtml(r.district || '')}${dist ? `　·　${dist}` : ''}
             </p>
             ${opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''}">${escapeHtml(opening.label)}</p>` : ''}
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}

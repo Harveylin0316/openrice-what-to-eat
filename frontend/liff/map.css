@@ -1,7 +1,11 @@
 /* 生活地圖頁樣式（自包含）
- * tokens 沿用 _redesign/ux-architecture.md：暖中性底、accent 珊瑚、無 infinite 動畫、
- * 無 backdrop-filter、觸控目標 ≥44px、支援深色模式 */
+ * tokens 沿用 _redesign/ux-architecture.md：暖中性底、無 infinite 動畫、
+ * 無 backdrop-filter、觸控目標 ≥44px；配色 = OpenRice 品牌色 */
 
+/* OpenRice 品牌色（取自 openrice-logo.png 實際採樣）：
+ * OR 紅橘 #E44E25（主 CTA、贊助層）、OR 黃 #FFD300（訂位優惠家族，
+ * 與 style.css 的 --accent-500 #FFCC00 / --accent-deep #8B5A00 同家族）、
+ * 深咖啡 #4E3B2D（logo 文字色） */
 :root {
   --lm-bg: #FAFAF9;
   --lm-surface: #FFFFFF;
@@ -9,8 +13,12 @@
   --lm-text: #1A1815;
   --lm-text-body: #3D3A35;
   --lm-text-muted: #8A857E;
-  --lm-accent: #E8754F;
-  --lm-accent-press: #B85530;
+  --lm-accent: #E44E25;        /* OR 紅橘 */
+  --lm-accent-press: #B93C1A;
+  --lm-accent-subtle: #FDE9E2;
+  --lm-or-yellow: #FFD300;     /* OR 黃 */
+  --lm-or-yellow-deep: #8B5A00;
+  --lm-or-yellow-subtle: #FFF6CC;
   --lm-success: #2E9A66;
   --lm-warning: #D9961F;
   --lm-shadow-md: 0 4px 12px rgba(20, 16, 12, 0.12), 0 2px 4px rgba(20, 16, 12, 0.06);
@@ -94,7 +102,7 @@ body.is-map-page { overflow: hidden; }
 }
 .map-chip:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(232, 117, 79, 0.4);
+  box-shadow: 0 0 0 3px rgba(228, 78, 37, 0.4);
 }
 
 /* 定位鈕：獨立浮動在 FAB 上方（地圖 app 慣例位置，不被 chips 橫滑擠走） */
@@ -114,7 +122,7 @@ body.is-map-page { overflow: hidden; }
 }
 .map-locate-btn:focus-visible {
   outline: none;
-  box-shadow: var(--lm-shadow-md), 0 0 0 3px rgba(232, 117, 79, 0.4);
+  box-shadow: var(--lm-shadow-md), 0 0 0 3px rgba(228, 78, 37, 0.4);
 }
 
 /* ---- Bottom sheet：收合＝統計把手列，展開＝與地圖連動的清單 ---- */
@@ -161,7 +169,7 @@ body.is-map-page { overflow: hidden; }
 }
 .map-sheet__handle:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 3px rgba(232, 117, 79, 0.4);
+  box-shadow: inset 0 0 0 3px rgba(228, 78, 37, 0.4);
   border-radius: var(--lm-radius) var(--lm-radius) 0 0;
 }
 .map-sheet__grip {
@@ -227,7 +235,7 @@ body.is-map-page { overflow: hidden; }
 }
 .map-sheet__item:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 3px rgba(232, 117, 79, 0.4);
+  box-shadow: inset 0 0 0 3px rgba(228, 78, 37, 0.4);
   border-radius: var(--lm-radius-sm);
 }
 .map-sheet__thumb {
@@ -285,6 +293,33 @@ body.is-map-page { overflow: hidden; }
 .map-root.is-sheet-open .map-fab,
 .map-root.is-sheet-open .map-locate-btn { display: none; }
 
+/* ---- 回地圖浮動鈕（顯示在 home / 抽獎等非地圖頁） ---- */
+
+.back-to-map-btn {
+  display: none; /* 預設隱藏（含 LIFF 初始化中），router 載入非地圖頁後才顯示 */
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(16px + var(--lm-safe-bottom));
+  z-index: 800;
+  min-height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  background: var(--lm-accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: var(--lm-shadow-lg);
+  cursor: pointer;
+}
+.back-to-map-btn:active { background: var(--lm-accent-press); }
+.back-to-map-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--lm-shadow-lg), 0 0 0 3px rgba(228, 78, 37, 0.4);
+}
+body[data-page]:not([data-page="map"]) .back-to-map-btn { display: block; }
+
 /* ---- 幫我決定 FAB ---- */
 
 .map-fab {
@@ -304,7 +339,7 @@ body.is-map-page { overflow: hidden; }
   cursor: pointer;
 }
 .map-fab:active { background: var(--lm-accent-press); transform: scale(0.97); }
-.map-fab:focus-visible { outline: none; box-shadow: var(--lm-shadow-lg), 0 0 0 3px rgba(232, 117, 79, 0.4); }
+.map-fab:focus-visible { outline: none; box-shadow: var(--lm-shadow-lg), 0 0 0 3px rgba(228, 78, 37, 0.4); }
 
 /* ---- 卡片共用（迷你卡 / 聚光燈卡）---- */
 
@@ -414,8 +449,8 @@ body.is-map-page { overflow: hidden; }
   padding: 2px 8px;
   margin-bottom: 2px;
 }
-.map-badge--sponsored     { background: #FBEDE4; color: #B85530; }
-.map-badge--booking_offer { background: #FAF0DC; color: #93660F; }
+.map-badge--sponsored     { background: var(--lm-accent-subtle); color: var(--lm-accent-press); }
+.map-badge--booking_offer { background: var(--lm-or-yellow-subtle); color: var(--lm-or-yellow-deep); }
 .map-badge--coupon        { background: #E3F3EB; color: #1F6B47; }
 
 /* ---- 按鈕 ---- */
@@ -510,12 +545,12 @@ body.is-map-page { overflow: hidden; }
 .map-canvas .marker-cluster-small,
 .map-canvas .marker-cluster-medium,
 .map-canvas .marker-cluster-large {
-  background-color: rgba(232, 117, 79, 0.25);
+  background-color: rgba(228, 78, 37, 0.22);
 }
 .map-canvas .marker-cluster-small div,
 .map-canvas .marker-cluster-medium div,
 .map-canvas .marker-cluster-large div {
-  background-color: rgba(232, 117, 79, 0.85);
+  background-color: rgba(228, 78, 37, 0.9);
   color: #fff;
   font-weight: 600;
 }

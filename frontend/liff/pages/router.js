@@ -70,6 +70,12 @@ export function initRouter() {
     
     // 初始化 LINE 特定功能（分享、關閉等）
     initLiffFeatures();
+
+    // 回地圖浮動鈕（非地圖頁顯示，樣式由 map.css 的 body.is-map-page 控制）
+    const backToMapBtn = document.getElementById('backToMapBtn');
+    if (backToMapBtn) {
+        backToMapBtn.addEventListener('click', () => navigateTo(DEFAULT_PAGE));
+    }
     
     // 從 URL 解析頁面
     const page = parsePageFromUrl();
@@ -101,6 +107,8 @@ async function loadPage(pageName) {
 
     // 地圖頁全螢幕顯示、隱藏一般頁面容器（map.css 依此 class 切換）
     document.body.classList.toggle('is-map-page', pageName === 'map');
+    // 標記當前頁面：回地圖浮動鈕只在「已載入的非地圖頁」顯示（避免初始化時閃現）
+    document.body.dataset.page = pageName;
 
     try {
         // 調用對應頁面的初始化函數
