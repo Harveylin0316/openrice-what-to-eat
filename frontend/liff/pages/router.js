@@ -43,11 +43,9 @@ function parsePageFromUrl() {
             console.log('從 pathname 解析頁面:', pageFromPath);
             return pageFromPath;
         }
-    } else if (pathname === '/liff' || pathname === '/liff/') {
-        // /liff 或 /liff/ 視為首頁（生活地圖）
-        console.log('從 pathname 解析頁面: map (根路徑)');
-        return DEFAULT_PAGE;
     }
+    // 注意：/liff 根路徑不在此提前 return，讓 ?page=home 等舊查詢參數
+    // （文件與 Rich Menu 使用的網址格式）仍然有效，最後才 fallback 到地圖
 
     // 向後兼容：從查詢參數解析
     const pageFromQuery = urlParams.get('page');

@@ -20,20 +20,9 @@
   --lm-safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --lm-bg: #1A1815;
-    --lm-surface: #232019;
-    --lm-border: #3D3A35;
-    --lm-text: #F4F2EF;
-    --lm-text-body: #D4D0CA;
-    --lm-text-muted: #8A857E;
-    --lm-accent: #F5A57A;
-    --lm-accent-press: #F8B891;
-    --lm-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-    --lm-shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.6);
-  }
-}
+/* 深色模式暫不啟用：全 app（index.html meta color-scheme + style.css）刻意鎖淺色，
+ * 磚圖也是淺色 Voyager。待 P5 連磚圖（dark_matter）與 home/lottery 一起做，
+ * 避免深色 UI 疊在淺色地圖上且 accent 對比不足。 */
 
 /* ---- 頁面切換：地圖頁全螢幕、隱藏一般頁面容器 ---- */
 
@@ -55,6 +44,9 @@ body.is-map-page { overflow: hidden; }
   background: var(--lm-bg); /* 磚圖載入前/失敗時的底色 */
   z-index: 0;
 }
+/* leaflet.css 由 map.js 動態載入、晚於本檔，其 .leaflet-container{background:#ddd}
+ * 會蓋掉上面的底色，需更高特異性覆蓋回來 */
+.map-canvas.leaflet-container { background: var(--lm-bg); }
 
 /* 聚光燈模式：cluster pin 整層淡出（canvas pane），聚光 pin 在 marker pane 不受影響 */
 .map-canvas.is-spotlight .leaflet-overlay-pane { opacity: 0.25; transition: opacity 240ms ease; }
@@ -95,15 +87,29 @@ body.is-map-page { overflow: hidden; }
   border-color: var(--lm-accent);
   color: #fff;
 }
-.map-chip--locate {
-  margin-left: auto;
-  min-width: 44px;
-  padding: 0;
-  font-size: 18px;
-}
 .map-chip:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(232, 117, 79, 0.4);
+}
+
+/* 定位鈕：獨立浮動在 FAB 上方（地圖 app 慣例位置，不被 chips 橫滑擠走） */
+.map-locate-btn {
+  position: absolute;
+  right: 16px;
+  bottom: calc(88px + var(--lm-safe-bottom));
+  z-index: 500;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--lm-border);
+  border-radius: 50%;
+  background: var(--lm-surface);
+  font-size: 20px;
+  box-shadow: var(--lm-shadow-md);
+  cursor: pointer;
+}
+.map-locate-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--lm-shadow-md), 0 0 0 3px rgba(232, 117, 79, 0.4);
 }
 
 /* ---- 畫面內統計 pill ---- */
@@ -259,11 +265,6 @@ body.is-map-page { overflow: hidden; }
 .map-badge--sponsored     { background: #FBEDE4; color: #B85530; }
 .map-badge--booking_offer { background: #FAF0DC; color: #93660F; }
 .map-badge--coupon        { background: #E3F3EB; color: #1F6B47; }
-@media (prefers-color-scheme: dark) {
-  .map-badge--sponsored     { background: #3D2A22; color: #F5A57A; }
-  .map-badge--booking_offer { background: #3A3120; color: #E8B85B; }
-  .map-badge--coupon        { background: #1F3329; color: #6FCF9E; }
-}
 
 /* ---- 按鈕 ---- */
 

@@ -11,6 +11,7 @@ import {
     filterGeneralTags
 } from '../shared/utils.js';
 import { track } from '../shared/tracker.js';
+import { navigateTo } from './router.js';
 
 // ---- 常數 ----
 
@@ -127,10 +128,12 @@ function ensureMapRoot() {
             <button type="button" class="map-chip" id="chipDeals" aria-pressed="false">🎫 只看好康</button>
             <button type="button" class="map-chip" id="chipOpen" aria-pressed="false">🕐 營業中</button>
             <button type="button" class="map-chip" id="chipBookable" aria-pressed="false">📅 可訂位</button>
-            <button type="button" class="map-chip map-chip--locate" id="chipLocate" aria-label="定位到我的位置">📍</button>
+            <button type="button" class="map-chip" id="chipHome">📝 條件找店</button>
+            <button type="button" class="map-chip" id="chipLottery">🎁 抽獎</button>
         </div>
+        <button type="button" class="map-locate-btn" id="chipLocate" aria-label="定位到我的位置">📍</button>
         <div id="liffMap" class="map-canvas" role="application" aria-label="餐廳好康地圖"></div>
-        <div class="map-count-pill" id="mapCountPill" role="status" aria-live="polite"></div>
+        <div class="map-count-pill" id="mapCountPill" role="status" aria-live="polite">載入地圖中…</div>
         <button type="button" class="map-fab" id="mapDecideBtn">🎲 幫我決定</button>
 
         <div class="map-minicard" id="mapMiniCard" hidden>
@@ -208,9 +211,24 @@ function updateCountPill() {
             if (pin.t !== 'none') deals++;
         }
     }
-    pill.textContent = inView === 0
-        ? '這一帶還沒有店家，拖動地圖看看別區'
-        : `畫面內 ${inView} 間餐廳 · ${deals} 個好康`;
+    if (inView === 0) {
+        const filtered = activeFilters.deals || activeFilters.open || activeFilters.bookable;
+        pill.textContent = filtered
+            ? '沒有符合篩選的店家，試試關掉上方篩選'
+            : '這一帶還沒有店家，拖動地圖看看別區';
+    } else {
+        pill.textContent = `畫面內 ${inView} 間餐廳 · ${deals} 個好康`;
+    }
+}
+
+// 暫時性提示（定位失敗等），幾秒後還原成統計文字
+let pillMessageTimer = null;
+function showPillMessage(text, ms = 4000) {
+    const pill = document.getElementById('mapCountPill');
+    if (!pill) return;
+    pill.textContent = text;
+    clearTimeout(pillMessageTimer);
+    pillMessageTimer = setTimeout(updateCountPill, ms);
 }
 
 // ---- 迷你資訊卡（點 pin）----
@@ -274,10 +292,21 @@ function nextSponsoredPick() {
     try {
         idx = parseInt(localStorage.getItem(SPO_ROTATION_KEY) || '0', 10) || 0;
     } catch (e) { /* private mode：退化為固定第一家 */ }
-    const pick = sponsoredRestaurants[idx % sponsoredRestaurants.length];
-    try {
-        localStorage.setItem(SPO_ROTATION_KEY, String((idx + 1) % sponsoredRestaurants.length));
-    } catch (e) { /* ignore */ }
+    // 跳過本輪已抽過的店（避免「換一個」又換到同一家），全被抽過則放棄保底
+    let pick = null;
+    let steps = 0;
+    for (; steps < sponsoredRestaurants.length; steps++) {
+        const candidate = sponsoredRestaurants[(idx + steps) % sponsoredRestaurants.length];
+        if (!spotlightExcludes.includes(candidate.name)) {
+            pick = candidate;
+            break;
+        }
+    }
+    if (pick) {
+        try {
+            localStorage.setItem(SPO_ROTATION_KEY, String((idx + steps + 1) % sponsoredRestaurants.length));
+        } catch (e) { /* ignore */ }
+    }
     return pick;
 }
 
@@ -294,12 +323,12 @@ function buildDecideFormData() {
 async function drawSpotlight() {
     if (decideInProgress) return;
     decideInProgress = true;
-    decideCount++;
 
     const panel = document.getElementById('mapSpotlight');
     const body = document.getElementById('spotlightBody');
     const links = document.getElementById('spotlightActionLinks');
     closeMiniCard();
+    clearSpotlightPin(); // 清掉上一抽的 🎯，避免載入/失敗時殘留指向舊店
     panel.hidden = false;
     body.innerHTML = '<p class="map-spotlight__loading">🎲 正在為你挑選…</p>';
     links.innerHTML = '';
@@ -308,8 +337,8 @@ async function drawSpotlight() {
         let restaurant = null;
         let isSponsoredPick = false;
 
-        // 每第 N 抽：贊助店保底曝光（輪替），維持廣告庫存價值
-        if (decideCount % SPONSOR_EVERY === 0) {
+        // 每第 N 次成功展示：贊助店保底曝光（輪替、跳過已抽過的），維持廣告庫存價值
+        if ((decideCount + 1) % SPONSOR_EVERY === 0) {
             restaurant = nextSponsoredPick();
             isSponsoredPick = !!restaurant;
         }
@@ -327,11 +356,11 @@ async function drawSpotlight() {
 
         if (!restaurant) {
             body.innerHTML = '<p class="map-spotlight__loading">附近找不到合適的店，拖動地圖換一帶試試</p>';
-            decideInProgress = false;
             return;
         }
 
-        if (!isSponsoredPick) spotlightExcludes.push(restaurant.name);
+        decideCount++; // 只計成功展示的抽數，網路失敗不消耗贊助保底節奏
+        spotlightExcludes.push(restaurant.name);
         renderSpotlight(restaurant, isSponsoredPick);
         track('map_decide_result', {
             or_id: restaurant.or_id, name: restaurant.name,
@@ -355,6 +384,8 @@ function renderSpotlight(r, isSponsoredPick) {
     if (hasCoords && map) {
         setSpotlightPin(coords.lat, coords.lng);
         map.flyTo([coords.lat, coords.lng], SPOTLIGHT_ZOOM, { duration: 0.9 });
+    } else {
+        clearSpotlightPin(); // 沒座標的店：不留上一抽的 🎯 與淡出狀態
     }
 
     const dist = hasCoords ? distanceLabel(coords.lat, coords.lng) : '';
@@ -433,7 +464,7 @@ function closeSpotlight() {
 function locateUser({ silent = false } = {}) {
     return new Promise(resolve => {
         if (!navigator.geolocation) {
-            if (!silent) alert('這台裝置不支援定位，改用拖動地圖探索吧');
+            if (!silent) showPillMessage('這台裝置不支援定位，拖動地圖探索吧');
             resolve(false);
             return;
         }
@@ -449,14 +480,27 @@ function locateUser({ silent = false } = {}) {
                 console.warn('定位失敗:', err && err.message);
                 track('map_locate', { success: false, code: err && err.code });
                 if (!silent) {
-                    // 定位被拒是最大流失點：不擋路，地圖照樣能逛
-                    alert('拿不到定位沒關係，直接拖動地圖探索，或用「幫我決定」隨機抽一間！');
+                    // 定位被拒是最大流失點：不用 alert 擋路，地圖照樣能逛
+                    showPillMessage(err && err.code === 1
+                        ? '定位被封鎖了，可到 LINE/系統設定開啟，或直接拖地圖逛'
+                        : '拿不到定位，拖動地圖探索或用 🎲 幫我決定', 5000);
                 }
                 resolve(false);
             },
             { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
         );
     });
+}
+
+// 只有已授權過定位才靜默自動定位，避免一打開 app 就跳權限彈窗嚇跑用戶
+async function autoLocateIfGranted() {
+    try {
+        if (navigator.permissions && navigator.permissions.query) {
+            const st = await navigator.permissions.query({ name: 'geolocation' });
+            if (st.state === 'granted') locateUser({ silent: true });
+            return;
+        }
+    } catch (e) { /* permissions API 不支援 → 保守：不自動要權限 */ }
 }
 
 function showUserMarker() {
@@ -492,6 +536,16 @@ function wireControls() {
 
     document.getElementById('chipLocate').addEventListener('click', () => locateUser({ silent: false }));
 
+    // 其他頁面入口（地圖是預設頁，不能變成死路）
+    document.getElementById('chipHome').addEventListener('click', () => {
+        track('map_nav_click', { to: 'home' });
+        navigateTo('home');
+    });
+    document.getElementById('chipLottery').addEventListener('click', () => {
+        track('map_nav_click', { to: 'lottery' });
+        navigateTo('lottery');
+    });
+
     document.getElementById('mapDecideBtn').addEventListener('click', () => {
         track('map_decide_click', { draw_count: decideCount + 1 });
         drawSpotlight();
@@ -521,7 +575,11 @@ export async function initMapPage() {
     wireControls();
 
     try {
-        // Leaflet、pin 資料、贊助店平行載入
+        // 贊助店名單只有「幫我決定」第 4 抽才用得到：
+        // 背景載入，不擋首屏（serverless 冷啟可能秒級延遲）
+        loadSponsoredRestaurants().then(list => { sponsoredRestaurants = list; });
+
+        // Leaflet 與 pin 資料平行載入
         const pinsUrl = new URL('../data/map_pins.json', import.meta.url);
         const [L, pinsRes] = await Promise.all([
             loadLeaflet(),
@@ -529,7 +587,6 @@ export async function initMapPage() {
                 if (!r.ok) throw new Error(`pin 資料載入失敗: ${r.status}`);
                 return r.json();
             }),
-            loadSponsoredRestaurants().then(list => { sponsoredRestaurants = list; }),
         ]);
         allPins = pinsRes.pins || [];
 
@@ -572,8 +629,8 @@ export async function initMapPage() {
             },
         };
 
-        // 靜默嘗試定位（失敗不打擾：地圖照樣能逛）
-        locateUser({ silent: true });
+        // 已授權過才靜默定位（不主動跳權限彈窗；失敗不打擾，地圖照樣能逛）
+        autoLocateIfGranted();
     } catch (err) {
         console.error('地圖初始化失敗:', err);
         const canvas = document.getElementById('liffMap');
