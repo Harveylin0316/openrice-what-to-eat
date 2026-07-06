@@ -198,6 +198,12 @@ tiers = coupon 306 / none 245 / booking_offer 12 / sponsored 4。
   餐廳名三類建議，選擇即 flyTo 跳轉（餐廳另開迷你卡）；
   地點索引由 generate_map_pins.py 從店家座標算質心，零外部 geocoding 依賴
 
+**P8 表面淨化（2026-07-06，Owner 真機回饋）**：
+- 抽獎入口融合進好康清單面板頂部橫幅（OR 黃）——它本來就是好康的一種；
+  移除側邊浮動抽獎鈕，地圖表面只剩定位鈕與 FAB
+- 浮動控制項陰影改輕薄（--lm-shadow-chip）＋細邊框：大片模糊陰影在
+  淺色磚圖上像髒污；FAB 保留重陰影（唯一主 CTA）
+
 **未來迭代（本輪未做）**：
 - 深色模式（需連磚圖 dark_matter 與 home/lottery 一起，app 目前全域鎖淺色）
 - 抽獎變地圖活動圖釘（抽獎無地理錨點，需產品定義）

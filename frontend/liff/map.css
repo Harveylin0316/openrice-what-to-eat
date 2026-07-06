@@ -23,6 +23,8 @@
   --lm-warning: #D9961F;
   --lm-shadow-md: 0 4px 12px rgba(20, 16, 12, 0.12), 0 2px 4px rgba(20, 16, 12, 0.06);
   --lm-shadow-lg: 0 12px 24px rgba(20, 16, 12, 0.16), 0 4px 8px rgba(20, 16, 12, 0.08);
+  /* 地圖上的浮動控制項：輕薄陰影＋細邊框就夠「浮」，大片模糊在淺色磚圖上像髒污 */
+  --lm-shadow-chip: 0 1px 3px rgba(20, 16, 12, 0.10), 0 1px 2px rgba(20, 16, 12, 0.06);
   --lm-radius: 14px;
   --lm-radius-sm: 8px;
   --lm-safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -115,7 +117,7 @@ body.is-map-page { overflow: hidden; }
   background: var(--lm-surface);
   color: var(--lm-text);
   font-size: 15px;
-  box-shadow: var(--lm-shadow-md);
+  box-shadow: var(--lm-shadow-chip);
   -webkit-appearance: none;
   appearance: none;
 }
@@ -213,7 +215,7 @@ body.is-map-page { overflow: hidden; }
   color: var(--lm-text-body);
   font-size: 14px;
   font-weight: 500;
-  box-shadow: var(--lm-shadow-md);
+  box-shadow: var(--lm-shadow-chip);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -242,47 +244,13 @@ body.is-map-page { overflow: hidden; }
   border-radius: 50%;
   background: var(--lm-surface);
   color: var(--lm-text-body);
-  box-shadow: var(--lm-shadow-md);
+  box-shadow: var(--lm-shadow-chip);
   cursor: pointer;
 }
 .map-locate-btn:focus-visible {
   outline: none;
-  box-shadow: var(--lm-shadow-md), 0 0 0 3px rgba(228, 78, 37, 0.4);
+  box-shadow: var(--lm-shadow-chip), 0 0 0 3px rgba(228, 78, 37, 0.4);
 }
-
-/* 右側快捷導航（找店/抽獎）：疊在定位鈕上方，與篩選 chips 分離 */
-.map-side-nav {
-  position: absolute;
-  right: 16px;
-  bottom: calc(144px + var(--lm-safe-bottom)); /* 定位鈕(88+48)上方 8px */
-  z-index: 500;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.map-side-btn {
-  width: 48px;
-  min-height: 54px;
-  padding: 6px 0 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  border: 1px solid var(--lm-border);
-  border-radius: 14px;
-  background: var(--lm-surface);
-  box-shadow: var(--lm-shadow-md);
-  cursor: pointer;
-  color: var(--lm-text-body);
-}
-.map-side-btn span { font-size: 18px; line-height: 1.2; }
-.map-side-btn small { font-size: 10px; font-weight: 500; }
-.map-side-btn:focus-visible {
-  outline: none;
-  box-shadow: var(--lm-shadow-md), 0 0 0 3px rgba(228, 78, 37, 0.4);
-}
-.map-root.is-sheet-open .map-side-nav,
-.map-root.is-card-open .map-side-nav { display: none; }
 
 /* 提示 toast：浮在收合把手列上方，可換行（訊息不再塞進統計 pill 被截斷） */
 .map-toast {
@@ -506,8 +474,28 @@ body.is-map-page { overflow: hidden; }
     width: min(480px, calc(100% - 24px));
   }
   .map-root .map-fab { right: calc(50% - 240px + 12px); }
-  .map-root .map-locate-btn,
-  .map-root .map-side-nav { right: calc(50% - 240px + 16px); }
+  .map-root .map-locate-btn { right: calc(50% - 240px + 16px); }
+}
+
+/* 抽獎活動橫幅（sheet 內）：它就是好康的一種，融合進好康清單 */
+.map-sheet__lottery {
+  display: block;
+  margin: 0 12px 10px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid #F3DFA0;
+  border-radius: 10px;
+  background: var(--lm-or-yellow-subtle);
+  color: var(--lm-or-yellow-deep);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.map-sheet__lottery span { float: right; color: var(--lm-or-yellow-deep); }
+.map-sheet__lottery:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(228, 78, 37, 0.4);
 }
 
 /* 圖例列（sheet 內） */

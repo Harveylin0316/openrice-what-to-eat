@@ -153,11 +153,6 @@ function ensureMapRoot() {
             <button type="button" class="map-chip" id="chipOpen" aria-pressed="false">🕐 營業中</button>
             <button type="button" class="map-chip" id="chipBookable" aria-pressed="false">📅 可訂位</button>
         </div>
-        <div class="map-side-nav">
-            <button type="button" class="map-side-btn" id="chipLottery" aria-label="抽獎活動">
-                <span aria-hidden="true">🎁</span><small>抽獎</small>
-            </button>
-        </div>
         <button type="button" class="map-locate-btn" id="chipLocate" aria-label="定位到我的位置">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
@@ -176,6 +171,9 @@ function ensureMapRoot() {
                 <span class="map-sheet__summary" id="mapCountPill" role="status" aria-live="polite">載入地圖中…</span>
             </button>
             <div class="map-sheet__body" id="sheetBody">
+                <button type="button" class="map-sheet__lottery" id="sheetLotteryBanner">
+                    🎁 抽獎活動 — 邀請好友拿抽獎機會<span aria-hidden="true"> ›</span>
+                </button>
                 <div class="map-sheet__legend" aria-label="圖例">
                     <span><i class="map-dot" style="background:#E44E25"></i>精選</span>
                     <span><i class="map-dot" style="background:#E5A000"></i>訂位優惠</span>
@@ -925,9 +923,9 @@ function wireControls() {
 
     document.getElementById('chipLocate').addEventListener('click', () => locateUser({ silent: false }));
 
-    // 抽獎活動入口（找店已收進地圖本身：搜尋欄 + 篩選 + 幫我決定）
-    document.getElementById('chipLottery').addEventListener('click', () => {
-        track('map_nav_click', { to: 'lottery' });
+    // 抽獎活動入口：融合在好康清單面板頂部（它本來就是好康的一種）
+    document.getElementById('sheetLotteryBanner').addEventListener('click', () => {
+        track('map_nav_click', { to: 'lottery', source: 'sheet_banner' });
         navigateTo('lottery');
     });
 
