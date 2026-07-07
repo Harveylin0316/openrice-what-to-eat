@@ -1069,14 +1069,22 @@ async function fillParking(pin) {
     parkingAbort = new AbortController();
     el.hidden = false;
     el.innerHTML = '<span class="map-parking__loading">🅿️ 查附近停車…</span>';
-    // 動態載入，容忍舊版 api.js（沒這個 export 就直接不顯示停車列，不影響卡片其他部分）
+    // 停車資訊目前只涵蓋台北市：非台北市的店直接不顯示這行（誠實不清單噪音）
+    const inTaipei = /台北市/.test(pin.d || '');
+    // 動態載入 api.js —— 帶 ?v 抓新版（否則會配到 webview 快取的舊版 api.js、沒有這個 export）
+    const apiV = (typeof window !== 'undefined' && window.__V) ? ('?v=' + window.__V) : '';
     let fetchNearbyParking;
     try {
-        ({ fetchNearbyParking } = await import('../shared/api.js'));
+        ({ fetchNearbyParking } = await import('../shared/api.js' + apiV));
     } catch (e) { /* ignore */ }
     if (typeof fetchNearbyParking !== 'function') { el.hidden = true; return; }
+    const parkMsg = (t) => { el.innerHTML = `<span class="map-parking__icon" aria-hidden="true">🅿️</span><span class="map-parking__text map-parking__loading">${t}</span>`; };
     fetchNearbyParking(pin.lat, pin.lng, parkingAbort.signal).then(lots => {
-        if (!lots || !lots.length) { el.hidden = true; return; } // 非台北/太遠/API 掛 → 誠實不顯示
+        if (!lots || !lots.length) {
+            // 台北市查無 → 給訊息（不默默消失，才不會像「沒反應」）；非台北市 → 隱藏
+            if (inTaipei) parkMsg('附近查無即時車位'); else el.hidden = true;
+            return;
+        }
         // 優先挑「有即時車位數」的最近場；都沒有再退回最近場
         const lot = lots.find(l => l.available != null) || lots[0];
         let availHtml;
@@ -1098,7 +1106,7 @@ async function fillParking(pin) {
         track('map_parking_shown', { or_id: pin.id, lots: lots.length, nearest_available: lot.available });
     }).catch(err => {
         if (err && err.name === 'AbortError') return;
-        el.hidden = true;
+        if (inTaipei) parkMsg('停車資訊暫時無法取得'); else el.hidden = true;
     });
 }
 
