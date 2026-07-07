@@ -39,13 +39,19 @@ function haversineM(lat1, lng1, lat2, lng2) {
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
-// 逾時保護：台北 API 慢/掛時快速失敗，別讓餐廳卡的「查停車…」轉圈到 function timeout
-async function fetchJson(url, ms) {
+// 逾時保護：台北 API 慢/掛時快速失敗，別讓餐廳卡的「查停車…」轉圈到 function timeout。
+// 標記失敗階段（label）+ HTTP 狀態，讓前端能顯示真正原因。
+async function fetchJson(url, ms, label) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), ms);
   try {
     const res = await fetch(url, { signal: ctrl.signal });
+    if (!res.ok) { const e = new Error(`${label} HTTP ${res.status}`); e.stage = label; e.status = res.status; throw e; }
     return await res.json();
+  } catch (e) {
+    if (e.name === 'AbortError') { const x = new Error(`${label} 逾時`); x.stage = label; x.timeout = true; throw x; }
+    if (!e.stage) e.stage = label;
+    throw e;
   } finally {
     clearTimeout(t);
   }
@@ -56,7 +62,8 @@ let availCache = { at: 0, map: null };
 
 async function getLots() {
   if (descCache.lots && Date.now() - descCache.at < DESC_TTL) return descCache.lots;
-  const json = await fetchJson(DESC_URL, 5000);
+  // 台北 alldesc.json 較大（跨太平洋抓 Azure blob），給到 8s
+  const json = await fetchJson(DESC_URL, 8000, 'desc');
   const parks = (json.data && json.data.park) || [];
   const lots = [];
   for (const p of parks) {
@@ -71,7 +78,7 @@ async function getLots() {
 
 async function getAvail() {
   if (availCache.map && Date.now() - availCache.at < AVAIL_TTL) return availCache.map;
-  const json = await fetchJson(AVAIL_URL, 4000);
+  const json = await fetchJson(AVAIL_URL, 6000, 'avail');
   const parks = (json.data && json.data.park) || [];
   const map = {};
   for (const p of parks) map[String(p.id)] = Number(p.availablecar);
@@ -86,26 +93,31 @@ exports.handler = async (event) => {
   if (!isFinite(lat) || !isFinite(lng)) {
     return { statusCode: 400, headers, body: JSON.stringify({ success: false, error: 'lat/lng required' }) };
   }
-  try {
-    const [lots, avail] = await Promise.all([getLots(), getAvail()]);
-    const near = [];
-    for (const lot of lots) {
-      const d = haversineM(lat, lng, lot.lat, lot.lng);
-      if (d > NEAR_RADIUS_M) continue;
-      const a = avail[lot.id];
-      near.push({
-        name: lot.name,
-        lat: lot.lat, lng: lot.lng,
-        total: lot.total,
-        available: (a != null && a >= 0) ? a : null, // -9 / 缺資料 → null（無即時）
-        dist: Math.round(d),
-        walkMin: Math.max(1, Math.round(d * WALK_DETOUR / 80)),
-      });
-    }
-    near.sort((x, y) => x.dist - y.dist);
-    return { statusCode: 200, headers, body: JSON.stringify({ success: true, lots: near.slice(0, MAX_LOTS) }) };
-  } catch (e) {
-    // 台北 API 掛掉 / 逾時 → 靜默降級，不擋餐廳卡
-    return { statusCode: 200, headers, body: JSON.stringify({ success: false, lots: [] }) };
+  // desc（名稱/座標）是必要的；avail（即時空位）是加分項——avail 掛了仍以「無即時」顯示停車場。
+  // 兩者並行抓（total ≈ max，而非相加），avail 用 allSettled 容錯。
+  const [lotsR, availR] = await Promise.allSettled([getLots(), getAvail()]);
+  if (lotsR.status !== 'fulfilled') {
+    const e = lotsR.reason || {};
+    const reason = e.timeout ? 'desc逾時' : e.status ? `desc HTTP${e.status}` : (e.message || 'desc失敗').slice(0, 20);
+    return { statusCode: 200, headers, body: JSON.stringify({ success: false, lots: [], error: reason }) };
   }
+  const lots = lotsR.value;
+  const avail = availR.status === 'fulfilled' ? availR.value : {};
+
+  const near = [];
+  for (const lot of lots) {
+    const d = haversineM(lat, lng, lot.lat, lot.lng);
+    if (d > NEAR_RADIUS_M) continue;
+    const a = avail[lot.id];
+    near.push({
+      name: lot.name,
+      lat: lot.lat, lng: lot.lng,
+      total: lot.total,
+      available: (a != null && a >= 0) ? a : null, // -9 / 缺資料 → null（無即時）
+      dist: Math.round(d),
+      walkMin: Math.max(1, Math.round(d * WALK_DETOUR / 80)),
+    });
+  }
+  near.sort((x, y) => x.dist - y.dist);
+  return { statusCode: 200, headers, body: JSON.stringify({ success: true, lots: near.slice(0, MAX_LOTS), scanned: lots.length }) };
 };

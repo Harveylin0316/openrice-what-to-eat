@@ -43,7 +43,9 @@ export async function fetchNearbyParking(lat, lng, signal) {
     const res = await fetch(`${API_BASE_URL}/parking/nearby?lat=${lat}&lng=${lng}`, { signal });
     if (!res.ok) { const e = new Error('HTTP ' + res.status); e.status = res.status; throw e; }
     const data = await res.json();
-    return data.success ? (data.lots || []) : [];
+    if (data.success) return data.lots || [];
+    // 後端可回報失敗原因（desc逾時 / desc HTTPxxx…）→ 往上丟讓卡片顯示診斷
+    const e = new Error(data.error || '停車服務異常'); e.backend = data.error || 'unknown'; throw e;
 }
 
 /**

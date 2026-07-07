@@ -1085,7 +1085,7 @@ async function fillParking(pin) {
             if (inTaipei) parkMsg(`停車模組載入失敗（${ver}）`); else el.hidden = true;
             return;
         }
-        lots = await withTimeout(fetchNearbyParking(pin.lat, pin.lng, parkingAbort.signal), 8000, '停車查詢');
+        lots = await withTimeout(fetchNearbyParking(pin.lat, pin.lng, parkingAbort.signal), 12000, '停車查詢');
     } catch (err) {
         if (err && err.name === 'AbortError') return; // 卡片關了/換店
         const msg = (err && err.message) || '';
