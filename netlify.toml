@@ -9,6 +9,13 @@
   # 停車 function 用 global fetch（Node 18+ 才有）；固定版本避免預設漂移
   NODE_VERSION = "20"
 
+# LIFF 的 JS/HTML 每次都跟伺服器驗證（ETag），避免 LINE webview 服務舊版
+# → 修好的程式部署後用戶就拿得到，不會卡在快取的舊版（用戶回報「卡在正在連線 LINE」）
+[[headers]]
+  for = "/liff/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # Netlify Functions 配置
 [functions]
   # Functions 目錄

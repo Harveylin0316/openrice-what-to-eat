@@ -144,6 +144,12 @@ export function getLiffProfile() {
 
 // 頁面載入時初始化 LIFF
 document.addEventListener('DOMContentLoaded', () => {
+    // 防重複開機：app.js 若被載入成兩個模組實例（例如帶 ?v 查詢字串 + 其他頁 import '../app.js'
+    // 兩個 URL＝兩份實例），會註冊兩個 DOMContentLoaded → initRouter 跑兩次 → 地圖重複初始化
+    // (Map container is already initialized)。用全域旗標確保只開機一次。
+    if (window.__rrBooted) return;
+    window.__rrBooted = true;
+
     // Dev bypass: ?dev=1 跳過 LIFF 初始化（本機預覽 / Storybook 用，正式 LIFF 不受影響）
     const params = new URLSearchParams(window.location.search);
     if (params.get('dev') === '1') {

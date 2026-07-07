@@ -302,6 +302,21 @@
     <!-- 回地圖浮動鈕：僅在非地圖頁顯示（map.css 控制），router 接線 -->
     <button type="button" class="back-to-map-btn" id="backToMapBtn">🗺️ 回好康地圖</button>
 
+    <!-- 保險出口：萬一模組/LIFF 載入整個卡住(舊版無限等待)，12 秒後給重載按鈕，
+         不讓用戶乾瞪「正在連線 LINE」。用最相容的 classic script，不依賴模組載入。 -->
+    <script>
+      (function () {
+        setTimeout(function () {
+          var el = document.getElementById('liffLoading');
+          if (el && el.style.display !== 'none' && el.offsetParent !== null) {
+            el.innerHTML =
+              '<p style="margin:0 0 12px;font-size:15px;color:#4E3B2D;">連線久了點，重新載入試試 🙏</p>' +
+              '<button onclick="location.reload()" style="padding:10px 22px;border:none;border-radius:10px;background:#E44E25;color:#fff;font-size:15px;font-weight:600;">重新載入</button>';
+          }
+        }, 12000);
+      })();
+    </script>
+    <!-- ?v 一次性打破舊版快取；長期靠 netlify.toml 的 must-revalidate 讓 JS 每次驗證 -->
     <script type="module" src="app.js"></script>
 </body>
 </html>
