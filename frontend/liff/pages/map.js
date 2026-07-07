@@ -106,8 +106,10 @@ let allPins = [];               // map_pins.json 的原始資料
 let allPlaces = [];             // 搜尋用地點索引（行政區/地標，含質心座標）
 let allCats = [];               // 品類詞彙表（火鍋店/燒肉店/居酒屋…，pin.ct 為索引）
 let catFilter = null;           // 品類篩選 {label, set:Set<catIdx>}，搜尋或快捷 chip 設定
-let extPois = [];               // 未合作餐廳 POI（OSM 松江南京試點）：對照出「有出席回饋」的價值
+let extPois = [];               // 無優惠餐廳 POI（closure-checker 台北市）：對照出「有優惠」的價值
 let extLayer = null;
+let searchFocus = null;         // 搜尋地點錨 {name,lat,lng}：清單改以此排序（Google 式）
+let searchMarker = null;        // 搜尋落點 pin
 let pinMarkers = new Map();     // pin.id -> L.CircleMarker（一般 pin，走 cluster）
 let sponsorMarkers = new Map(); // pin.id -> L.Marker（贊助店專屬圖釘，永不聚合）
 let starPin = null;             // 今日之星（日期種子每日輪換，金冠圖釘）
@@ -272,8 +274,7 @@ function ensureMapRoot() {
                     <span><i class="map-dot" style="background:#E44E25"></i>套餐優惠</span>
                     <span><i class="map-dot" style="background:#E5A000"></i>訂位優惠</span>
                     <span><i class="map-dot" style="background:#68A9A0"></i>出席回饋</span>
-                    <span><i class="map-dot" style="background:#B4AFA8"></i>一般</span>
-                    <span><i class="map-dot map-dot--hollow"></i>未合作</span>
+                    <span><i class="map-dot map-dot--hollow"></i>暫無優惠</span>
                 </div>
                 <div class="map-sheet__budget" id="sheetBudget" role="group" aria-label="預算篩選"></div>
                 <ul class="map-sheet__list" id="sheetList"></ul>
@@ -334,14 +335,18 @@ function makeLabelClickable(marker, pin, trackProps) {
 
 function buildMarker(L, pin) {
     const t = TIER[pin.t] || TIER.none;
+    // 「暫無優惠」(none)：與無優惠 POI 同款空心灰點——用戶眼中兩者等價（不能訂、沒優惠）
+    const hollow = pin.t === 'none';
     const marker = L.circleMarker([pin.lat, pin.lng], {
         radius: t.radius,
-        color: '#fff',
-        weight: 2,
-        fillColor: t.color,
-        fillOpacity: 0.95,
+        color: hollow ? t.color : '#fff',
+        weight: hollow ? 1.5 : 2,
+        fillColor: hollow ? '#FFFFFF' : t.color,
+        fillOpacity: hollow ? 0.9 : 0.95,
     });
+    marker._baseRadius = t.radius;
     // 高 zoom（cluster 散開後）顯示店名標籤：掃視地圖不用逐顆點
+    // z16 先亮「有加碼優惠」的店名，z17 全亮（密集區標籤分層，見 syncLabels）
     marker.bindTooltip(pin.n, {
         permanent: true,
         interactive: true, // 標籤本身可點（否則點文字會穿透到地圖）
@@ -393,7 +398,8 @@ function buildStarMarker(L, pin) {
     return marker;
 }
 
-// ---- 未合作餐廳（OSM 試點）：空心灰點，對照出「合作店有回饋」的價值 ----
+// ---- 無優惠餐廳（灰空心點）：對照出「有優惠店」的價值 ----
+// 對用戶只講價值（有無優惠/訂位），不講內部視角的「合作」
 
 function showExtCard(poi) {
     closeSpotlight();
@@ -403,14 +409,14 @@ function showExtCard(poi) {
     setSelectedRing(poi.lat, poi.lng);
     body.innerHTML = `
         <div class="map-minicard__info">
-            <div class="map-minicard__badges"><span class="map-badge map-badge--ext">尚未合作</span></div>
+            <div class="map-minicard__badges"><span class="map-badge map-badge--ext">暫無優惠</span></div>
             <h3 class="map-minicard__name">${poi.u
                 ? `<a href="${escapeHtml(poi.u)}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(poi.n)}<span class="map-minicard__more"> ›</span></a>`
                 : escapeHtml(poi.n)}</h3>
             <p class="map-minicard__meta">
                 ${poi.r ? `⭐ ${formatRating(poi.r)}　` : ''}${escapeHtml(poi.d || '')}${poi.cu ? `　·　${escapeHtml(poi.cu)}` : ''}${poi.bud ? `　·　💰 ${escapeHtml(poi.bud)}` : ''}
             </p>
-            <p class="map-minicard__ext-note">這間還沒加入出席回饋計畫，訂位拿不到 $3 回饋 😢<br>找有色點的合作店，訂位出席每人回饋 $3</p>
+            <p class="map-minicard__ext-note">這間目前沒有優惠、也不能線上訂位 😢<br>找有色點的店，訂位出席每人回饋 $3</p>
             <div class="map-minicard__actions">
                 <a class="map-btn map-btn--ghost" data-track="navigation" href="${navigationUrl(poi.lat, poi.lng, poi.n)}" target="_blank" rel="noopener">🧭 導航</a>
             </div>
@@ -424,7 +430,6 @@ function buildExtLayer(L) {
     if (!extPois.length || !map) return;
     extLayer = L.layerGroup();
     for (const poi of extPois) {
-        // 1,262 點：不掛常駐標籤（省 DOM），canvas 圓點 + 點擊開卡看名字
         const m = L.circleMarker([poi.lat, poi.lng], {
             radius: 5,
             color: '#9A948C',
@@ -432,6 +437,7 @@ function buildExtLayer(L) {
             fillColor: '#FFFFFF',
             fillOpacity: 0.9,
         });
+        m._poi = poi;
         m.on('click', () => {
             track('map_ext_pin_click', { name: poi.n });
             showExtCard(poi);
@@ -442,9 +448,45 @@ function buildExtLayer(L) {
         const show = map.getZoom() >= 16; // 街區層級才顯示，避免千顆灰點蓋滿市區
         if (show && !map.hasLayer(extLayer)) map.addLayer(extLayer);
         else if (!show && map.hasLayer(extLayer)) map.removeLayer(extLayer);
+        syncExtLabels();
     };
     map.on('zoomend', syncExtLayer);
+    map.on('moveend', syncExtLabels);
     syncExtLayer();
+}
+
+// 灰點店名：拉很近（z≥17）時顯示灰色標籤（用戶回報：zoom 很近應該要看得到名字）。
+// 1,262 點不能全掛常駐 tooltip（DOM 太重）→ 只幫「視窗內」的動態綁定，離開視窗即解綁
+function syncExtLabels() {
+    if (!extLayer || !map) return;
+    const show = map.getZoom() >= 17 && map.hasLayer(extLayer);
+    const bounds = show ? map.getBounds().pad(0.15) : null;
+    extLayer.eachLayer(m => {
+        const inView = show && bounds.contains(m.getLatLng());
+        if (inView && !m.getTooltip()) {
+            m.bindTooltip(m._poi.n, {
+                permanent: true,
+                interactive: true,
+                direction: 'right',
+                offset: [7, 0],
+                className: 'map-pin-label map-pin-label--ext',
+            });
+            m.on('tooltipopen', (e) => {
+                const el = e.tooltip && e.tooltip.getElement();
+                if (el && !el.dataset.clickBound) {
+                    el.dataset.clickBound = '1';
+                    el.addEventListener('click', (ev) => {
+                        ev.stopPropagation();
+                        track('map_ext_pin_click', { name: m._poi.n, via: 'label' });
+                        showExtCard(m._poi);
+                    });
+                }
+            });
+            m.openTooltip();
+        } else if (!inView && m.getTooltip()) {
+            m.unbindTooltip();
+        }
+    });
 }
 
 // 贊助店專屬圖釘：醒目、永不被 cluster 聚合、任何 zoom 都看得到、店名常駐
@@ -581,13 +623,15 @@ function sheetRowsInView() {
         if (!bounds.contains([pin.lat, pin.lng])) continue;
         rows.push(pin);
     }
-    // 贊助店置頂（付費曝光，清單同樣給位）；其後有定位由近到遠、沒定位好康+評分
+    // 贊助店置頂（付費曝光，清單同樣給位）；
+    // 排序錨：搜尋落點優先（「松山文創園區附近有什麼」）> 使用者定位 > 好康+評分
     const spo = (p) => (p.sp ? 1 : 0);
-    if (userLocation) {
+    const anchor = searchFocus || userLocation;
+    if (anchor) {
         rows.sort((a, b) =>
             (spo(b) - spo(a)) ||
-            (calculateDistance(userLocation.lat, userLocation.lng, a.lat, a.lng) -
-             calculateDistance(userLocation.lat, userLocation.lng, b.lat, b.lng)));
+            (calculateDistance(anchor.lat, anchor.lng, a.lat, a.lng) -
+             calculateDistance(anchor.lat, anchor.lng, b.lat, b.lng)));
     } else {
         rows.sort((a, b) =>
             (spo(b) - spo(a)) ||
@@ -607,10 +651,14 @@ function renderSheetList() {
         return;
     }
 
+    // 距離顯示與排序同錨：有搜尋落點時顯示「距該點」的距離
+    const anchor = searchFocus || userLocation;
     list.innerHTML = shown.map(pin => {
         const hours = expandHours(pin.h);
         const opening = hours ? getOpeningStatus(hours) : null;
-        const dist = distanceLabel(pin.lat, pin.lng);
+        const dist = anchor
+            ? formatDistance(calculateDistance(anchor.lat, anchor.lng, pin.lat, pin.lng))
+            : '';
         return `
         <li>
             <button type="button" class="map-sheet__item" data-pin-id="${pin.id}">
@@ -634,7 +682,7 @@ function renderSheetList() {
     }).join('') + (rows.length > SHEET_MAX_ROWS
         ? `<li class="map-sheet__empty">還有 ${rows.length - SHEET_MAX_ROWS} 間，拉近地圖看更多</li>`
         : '') + (extPois.length
-        ? '<li class="map-sheet__footnote">地圖上的灰色小點＝未合作店家（訂位沒有回饋）</li>'
+        ? '<li class="map-sheet__footnote">地圖上的灰色小點＝暫無優惠的餐廳</li>'
         : '');
 
     list.querySelectorAll('.map-sheet__item').forEach(btn => {
@@ -1165,11 +1213,11 @@ function searchMatches(query) {
         .filter(p => p.n.toLowerCase().includes(q))
         .slice(0, Math.max(3, 8 - placeHits.length - catRows.length))
         .map(p => ({ kind: 'restaurant', name: p.n, sub: p.d, pin: p }));
-    // 未合作店（最多 2 筆、排最後）：搜得到 → 點開卡片看見「合作店才有回饋」的對照
+    // 無優惠店（最多 2 筆、排最後）：搜得到 → 點開卡片看見「有優惠店」的對照
     const extHits = extPois
         .filter(p => p.n.toLowerCase().includes(q))
         .slice(0, 2)
-        .map(p => ({ kind: 'ext', name: p.n, sub: `${p.d || ''}·未合作`, poi: p }));
+        .map(p => ({ kind: 'ext', name: p.n, sub: `${p.d || ''}·暫無優惠`, poi: p }));
     return [...catRows, ...placeHits, ...pinHits, ...extHits];
 }
 
@@ -1229,9 +1277,45 @@ function closeSearch({ clear = false } = {}) {
         input.value = '';
         document.getElementById('mapSearchClear').hidden = true;
         if (catFilter) setCatFilter(null, null); // 清搜尋 = 一併解除品類篩選
+        clearSearchFocus(); // 移除搜尋落點 pin 與排序錨
     }
     if (list) { list.hidden = true; list.innerHTML = ''; }
     if (input) input.blur();
+}
+
+// 搜尋落點（Google 式）：地點選中後放一支 pin + 清單以此為錨排序
+function setSearchFocus(name, lat, lng) {
+    clearSearchFocus();
+    searchFocus = { name, lat, lng };
+    const L = window.L;
+    if (!L || !map) return;
+    const base = new URL('../vendor/leaflet/images/', import.meta.url);
+    searchMarker = L.marker([lat, lng], {
+        icon: L.icon({
+            iconUrl: new URL('marker-icon.png', base).href,
+            iconRetinaUrl: new URL('marker-icon-2x.png', base).href,
+            shadowUrl: new URL('marker-shadow.png', base).href,
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            tooltipAnchor: [8, -30],
+        }),
+        zIndexOffset: 900,
+        interactive: false,
+    }).addTo(map);
+    searchMarker.bindTooltip(name, {
+        permanent: true,
+        direction: 'right',
+        className: 'map-pin-label map-pin-label--search',
+    }).openTooltip();
+}
+
+function clearSearchFocus() {
+    searchFocus = null;
+    if (searchMarker && map) {
+        map.removeLayer(searchMarker);
+        searchMarker = null;
+    }
+    if (sheetOpen) renderSheetList();
 }
 
 function selectSearchResult(m) {
@@ -1267,8 +1351,21 @@ function selectSearchResult(m) {
         map.flyTo([m.poi.lat, m.poi.lng], 17, { duration: 0.8 });
         showExtCard(m.poi);
     } else {
-        // 行政區看全貌、地標看街區
-        map.flyTo([m.lat, m.lng], m.kind === 'district' ? 15 : 16, { duration: 0.8 });
+        // 地點（行政區/地標）＝ Google 式落點體驗：
+        // 放 pin 標記該點 → 飛過去 → 自動彈出「附近有什麼」清單（以落點為錨排序）
+        const zoom = m.kind === 'district' ? 15 : 16;
+        setSearchFocus(m.name, m.lat, m.lng);
+        // 清單即將彈出蓋住下半屏 → 鏡頭中心往南偏，讓落點 pin 停在上半可視區（Google 式）
+        const pt = map.project([m.lat, m.lng], zoom);
+        pt.y += map.getSize().y * 0.22;
+        map.flyTo(map.unproject(pt, zoom), zoom, { duration: 0.8 });
+        // 保留搜尋字（✕ = 清除落點與錨）
+        const input = document.getElementById('mapSearchInput');
+        input.value = m.name;
+        document.getElementById('mapSearchClear').hidden = false;
+        setTimeout(() => {
+            if (searchFocus && !sheetOpen) setSheetOpen(true);
+        }, 950); // 等 flyTo 落定再彈清單，不搶鏡頭
     }
 }
 
@@ -1514,12 +1611,27 @@ export async function initMapPage() {
         });
         map.on('click', () => { closeMiniCard(); closeSearch(); });
 
-        // 店名標籤只在高 zoom 顯示（cluster 散開後）；低 zoom 的孤立 pin 不顯示避免雜訊
+        // 店名標籤分層（密集區防標籤互疊）：
+        //   z16 先亮「加碼優惠」店名（紅/金 pin），z17 全亮；低 zoom 不顯示避免雜訊
         const syncLabels = () => {
-            document.getElementById('liffMap').classList.toggle('show-labels', map.getZoom() >= 16);
+            const z = map.getZoom();
+            const el = document.getElementById('liffMap');
+            el.classList.toggle('show-labels', z >= 16);
+            el.classList.toggle('show-labels-all', z >= 17);
         };
         map.on('zoomend', syncLabels);
         syncLabels();
+
+        // 拉近時 pin 略放大（手指點得到；z≥17 半徑 +2px）
+        let pinBumped = false;
+        const syncPinSize = () => {
+            const bump = map.getZoom() >= 17;
+            if (bump === pinBumped) return;
+            pinBumped = bump;
+            pinMarkers.forEach(m => m.setRadius(m._baseRadius + (bump ? 2 : 0)));
+            if (extLayer) extLayer.eachLayer(m => m.setRadius(bump ? 7 : 5));
+        };
+        map.on('zoomend', syncPinSize);
 
         track('map_open', { pins: allPins.length });
 
