@@ -34,6 +34,23 @@ export async function loadBookingOfferRestaurants() {
 }
 
 /**
+ * 查餐廳附近的即時停車位（台北市停管處）。失敗/無資料回空陣列（呼叫端自行隱藏）。
+ * @param {number} lat @param {number} lng @param {AbortSignal} [signal]
+ * @returns {Promise<Array<{name,available,total,walkMin,dist,lat,lng}>>}
+ */
+export async function fetchNearbyParking(lat, lng, signal) {
+    try {
+        const res = await fetch(`${API_BASE_URL}/parking/nearby?lat=${lat}&lng=${lng}`, { signal });
+        if (!res.ok) return [];
+        const data = await res.json();
+        return data.success ? (data.lots || []) : [];
+    } catch (err) {
+        if (err && err.name === 'AbortError') throw err; // 讓呼叫端知道是被取消
+        return [];
+    }
+}
+
+/**
  * 載入篩選選項
  */
 export async function loadFilterOptions() {

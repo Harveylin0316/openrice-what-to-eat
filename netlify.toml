@@ -1,9 +1,13 @@
 [build]
   # 發布目錄（Web App 文件）
   publish = "frontend/web"
-  
+
   # 構建命令：將數據庫文件複製到函數目錄，確保函數可以訪問
   command = "bash netlify-build.sh"
+
+[build.environment]
+  # 停車 function 用 global fetch（Node 18+ 才有）；固定版本避免預設漂移
+  NODE_VERSION = "20"
 
 # Netlify Functions 配置
 [functions]
@@ -15,6 +19,13 @@
 [[redirects]]
   from = "/api/restaurants/*"
   to = "/.netlify/functions/restaurants"
+  status = 200
+  force = true
+
+# 台北市即時停車位（餐廳卡「附近停車」用）
+[[redirects]]
+  from = "/api/parking/*"
+  to = "/.netlify/functions/parking"
   status = 200
   force = true
 

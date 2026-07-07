@@ -2,7 +2,7 @@
 // 三種姿態：逛（地圖探索）、省（只看好康）、決（🎲 幫我決定 → 聚光燈單卡）
 // 依 _redesign/lifestyle-map-architecture.md
 
-import { fetchRecommendations, loadSponsoredRestaurants } from '../shared/api.js';
+import { fetchRecommendations, loadSponsoredRestaurants, fetchNearbyParking } from '../shared/api.js';
 import {
     calculateDistance,
     formatDistance,
@@ -998,6 +998,7 @@ function showMiniCard(pin) {
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
             ${detailLines.length ? `<ul class="map-minicard__offers">${detailLines.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}
             ${isStar ? '<p class="map-minicard__star-note">每天換一間，明天就不是它了</p>' : ''}
+            <div class="map-minicard__parking" id="miniCardParking" hidden></div>
             <div class="map-minicard__actions">
                 ${pin.url ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(pin.url)}" target="_blank" rel="noopener">${pin.b ? '立即訂位' : '看餐廳頁'}</a>` : ''}
                 <a class="map-btn map-btn--ghost map-btn--icon" data-track="navigation" href="${navigationUrl(pin.lat, pin.lng, pin.n)}" target="_blank" rel="noopener" aria-label="導航">🧭</a>
@@ -1028,13 +1029,53 @@ function showMiniCard(pin) {
 
     card.hidden = false;
     updateCardOpenState();
+    fillParking(pin); // 非同步補「附近停車」一行，不擋卡片顯示
 }
 
 function closeMiniCard() {
     const card = document.getElementById('mapMiniCard');
     if (card) card.hidden = true;
+    if (parkingAbort) parkingAbort.abort(); // 取消進行中的停車查詢
     clearSelectedRing();
     updateCardOpenState();
+}
+
+// ---- 附近停車（第一刀：餐廳卡「附近停車」一行）----
+// 開車族的決策點：正在看這間店時，直接告訴他「最近停車場・步行幾分・剩幾位」。
+let parkingAbort = null;
+
+function fillParking(pin) {
+    const el = document.getElementById('miniCardParking');
+    if (!el) return;
+    if (parkingAbort) parkingAbort.abort();
+    parkingAbort = new AbortController();
+    el.hidden = false;
+    el.innerHTML = '<span class="map-parking__loading">🅿️ 查附近停車…</span>';
+    fetchNearbyParking(pin.lat, pin.lng, parkingAbort.signal).then(lots => {
+        if (!lots || !lots.length) { el.hidden = true; return; } // 非台北/太遠/API 掛 → 誠實不顯示
+        // 優先挑「有即時車位數」的最近場；都沒有再退回最近場
+        const lot = lots.find(l => l.available != null) || lots[0];
+        let availHtml;
+        if (lot.available == null) {
+            availHtml = '<span class="map-parking__avail map-parking__avail--unknown">車位即時不明</span>';
+        } else if (lot.available <= 0) {
+            availHtml = '<span class="map-parking__avail map-parking__avail--full">目前額滿</span>';
+        } else {
+            const level = lot.available < 15 ? 'low' : 'ok';
+            availHtml = `<span class="map-parking__avail map-parking__avail--${level}">剩 ${lot.available} 位</span>`;
+        }
+        el.innerHTML =
+            '<span class="map-parking__icon" aria-hidden="true">🅿️</span>' +
+            `<span class="map-parking__text">${escapeHtml(lot.name)}・步行 ${lot.walkMin} 分・${availHtml}</span>` +
+            `<a class="map-parking__nav" href="${navigationUrl(lot.lat, lot.lng, lot.name)}" target="_blank" rel="noopener" data-park-nav>導航</a>`;
+        const nav = el.querySelector('[data-park-nav]');
+        if (nav) nav.addEventListener('click', () =>
+            track('map_parking_nav_click', { or_id: pin.id, lot: lot.name, available: lot.available }));
+        track('map_parking_shown', { or_id: pin.id, lots: lots.length, nearest_available: lot.available });
+    }).catch(err => {
+        if (err && err.name === 'AbortError') return;
+        el.hidden = true;
+    });
 }
 
 // ---- 聚光燈：幫我決定 ----

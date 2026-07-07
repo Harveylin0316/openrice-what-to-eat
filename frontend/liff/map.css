@@ -839,6 +839,40 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   color: var(--lm-text-body);
   border: 1px solid var(--lm-border);
 }
+/* 附近停車一行（開車族決策資訊）：低調資訊列 + 右側導航連結 */
+.map-minicard__parking {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 2px;
+  padding: 7px 10px;
+  background: var(--lm-bg);
+  border-radius: var(--lm-radius-sm);
+  font-size: 13px;
+  color: var(--lm-text-body);
+  line-height: 1.35;
+}
+.map-parking__icon { flex: 0 0 auto; font-size: 14px; }
+.map-parking__text { flex: 1 1 auto; min-width: 0; }
+.map-parking__loading { color: var(--lm-text-muted); }
+.map-parking__avail { font-weight: 700; white-space: nowrap; }
+.map-parking__avail--ok { color: #2E9E6B; }      /* 充足：綠 */
+.map-parking__avail--low { color: #D08700; }     /* 緊張：琥珀 */
+.map-parking__avail--full { color: var(--lm-accent-press); } /* 額滿：紅 */
+.map-parking__avail--unknown { color: var(--lm-text-muted); font-weight: 500; }
+.map-parking__nav {
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--lm-border);
+  background: #fff;
+  color: var(--lm-accent-press);
+  font-weight: 600;
+  font-size: 12px;
+  text-decoration: none;
+}
+.map-parking__nav:active { background: var(--lm-bg); }
+
 /* 迷你卡動作列：訂位主鈕吃滿寬，導航/收藏/分享為方形 icon 鈕 */
 .map-minicard__actions .map-btn--primary { flex: 1 1 auto; }
 .map-btn--icon {
