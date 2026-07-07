@@ -286,6 +286,16 @@ function navigationUrl(lat, lng, name) {
 
 let leafletReady = null;
 
+// 逾時保護：手機/LINE 內嵌瀏覽器在爛網路下，請求可能「不回應也不報錯」永遠 hang，
+// 注入的 <script>/<link> 的 onerror 也不會觸發 → await 卡死。用 race 強制在 N 秒後失敗，
+// 讓 initMapPage 的 catch 能顯示「地圖載入失敗・重新載入」而不是無限空白。
+function withTimeout(promise, ms, label) {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} 逾時（${ms}ms）`)), ms)),
+    ]);
+}
+
 function loadScript(url) {
     return new Promise((resolve, reject) => {
         const s = document.createElement('script');
@@ -311,15 +321,18 @@ function loadLeaflet() {
     if (leafletReady) return leafletReady;
     const base = new URL('../vendor/leaflet/', import.meta.url);
     leafletReady = (async () => {
-        await Promise.all([
+        await withTimeout(Promise.all([
             loadCss(new URL('leaflet.css', base).href),
             loadCss(new URL('MarkerCluster.css', base).href),
             loadCss(new URL('MarkerCluster.Default.css', base).href),
-        ]);
-        await loadScript(new URL('leaflet.js', base).href);
-        await loadScript(new URL('leaflet.markercluster.js', base).href);
+        ]), 12000, 'Leaflet 樣式');
+        await withTimeout(loadScript(new URL('leaflet.js', base).href), 12000, 'Leaflet');
+        await withTimeout(loadScript(new URL('leaflet.markercluster.js', base).href), 12000, 'MarkerCluster');
         return window.L;
-    })();
+    })().catch(err => {
+        leafletReady = null; // 別把「卡住/失敗的 promise」快取起來 → 重進地圖能重試
+        throw err;
+    });
     return leafletReady;
 }
 
@@ -1854,14 +1867,14 @@ export async function initMapPage() {
         // Leaflet 與 pin 資料平行載入（外部 POI 為選配，失敗不擋）
         const pinsUrl = new URL('../data/map_pins.json', import.meta.url);
         const extUrl = new URL('../data/external_pois.json', import.meta.url);
-        const [L, pinsRes, extRes] = await Promise.all([
+        const [L, pinsRes, extRes] = await withTimeout(Promise.all([
             loadLeaflet(),
             fetch(pinsUrl).then(r => {
                 if (!r.ok) throw new Error(`pin 資料載入失敗: ${r.status}`);
                 return r.json();
             }),
             fetch(extUrl).then(r => (r.ok ? r.json() : null)).catch(() => null),
-        ]);
+        ]), 15000, '地圖資料');
         extPois = (extRes && extRes.pois) || [];
         allPins = pinsRes.pins || [];
         allPlaces = pinsRes.places || [];

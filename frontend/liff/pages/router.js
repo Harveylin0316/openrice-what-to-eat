@@ -3,21 +3,13 @@
 // 支援子目錄路由：/liff/home, /liff/favorites 等
 // 同時向後兼容查詢參數：/liff?page=home
 
-import { initHomePage } from './home.js';
-import { initLotteryPage } from './lottery.js';
-import { initMapPage } from './map.js';
-import { initLiffFeatures } from './components/liff-features.js';
-
-// 頁面路由映射
-// 'map'（生活地圖）是新的預設首頁；'home' 保留為傳統表單推薦頁（/liff/home）
+// 動態載入各頁（不再靜態 import）：任一頁或其相依（例如 app.js）壞掉/載入失敗，
+// 都只影響那一頁，不會拖垮整個模組圖 → 地圖頁能獨立載入，開機更穩、也順便 lazy-load。
+// map 頁本身不相依 app.js，所以就算 app.js 被 webview 快取住舊版/壞掉，地圖照常開。
 const routes = {
-    'map': initMapPage,
-    'home': initHomePage,
-    'lottery': initLotteryPage,
-    // 未來可以添加更多頁面：
-    // 'favorites': initFavoritesPage,
-    // 'history': initHistoryPage,
-    // 'settings': initSettingsPage,
+    'map': () => import('./map.js').then(m => m.initMapPage),
+    'home': () => import('./home.js').then(m => m.initHomePage),
+    'lottery': () => import('./lottery.js').then(m => m.initLotteryPage),
 };
 
 // 預設頁面（生活地圖）
@@ -68,8 +60,11 @@ export function initRouter() {
     console.log('Pathname:', window.location.pathname);
     console.log('Search:', window.location.search);
     
-    // 初始化 LINE 特定功能（分享、關閉等）
-    initLiffFeatures();
+    // 初始化 LINE 特定功能（分享、關閉等）——動態載入且不阻塞：
+    // 它相依 app.js，萬一壞掉也不能擋住地圖開機。
+    import('./components/liff-features.js')
+        .then(m => { try { m.initLiffFeatures(); } catch (e) { console.warn('initLiffFeatures 失敗', e); } })
+        .catch(e => console.warn('liff-features 載入失敗（不影響地圖）', e));
 
     // 回地圖浮動鈕（非地圖頁顯示，樣式由 map.css 的 body.is-map-page 控制）
     const backToMapBtn = document.getElementById('backToMapBtn');
@@ -115,8 +110,9 @@ async function loadPage(pageName) {
     document.documentElement.removeAttribute('data-boot');
 
     try {
-        // 調用對應頁面的初始化函數
-        const initFunction = routes[pageName];
+        // 動態載入頁面模組 → 取得其初始化函數 → 執行
+        const loader = routes[pageName];
+        const initFunction = await loader();
         if (typeof initFunction === 'function') {
             await initFunction();
             currentPage = pageName;

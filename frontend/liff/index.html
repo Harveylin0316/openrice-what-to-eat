@@ -303,21 +303,33 @@
     <!-- 回地圖浮動鈕：僅在非地圖頁顯示（map.css 控制），router 接線 -->
     <button type="button" class="back-to-map-btn" id="backToMapBtn">🗺️ 回好康地圖</button>
 
-    <!-- 保險出口：萬一模組/LIFF 載入整個卡住(舊版無限等待)，12 秒後給重載按鈕，
-         不讓用戶乾瞪「正在連線 LINE」。用最相容的 classic script，不依賴模組載入。 -->
+    <!-- ★ 開機權威來源：內聯模組。index.html 每次都向伺服器驗證（不快取），所以這段
+         永遠是最新的，不受 app.js 被 webview 快取住舊版的影響——這正是根治「卡在正在
+         連線 LINE」的關鍵：地圖不依賴 LINE，無條件先開，只 import 最小相依（router）。 -->
+    <script type="module">
+      import { initRouter } from './pages/router.js';
+      if (!window.__rrBooted) {
+        window.__rrBooted = true;
+        var __l = document.getElementById('liffLoading');
+        if (__l) __l.style.display = 'none';
+        try { initRouter(); } catch (e) { console.error('initRouter 失敗', e); }
+      }
+    </script>
+    <!-- 保險出口（classic，最相容，不依賴任何模組）：連內聯模組都沒跑起來（例如整個
+         模組圖載入失敗），10 秒後給重載鈕，不讓用戶乾瞪載入畫面。 -->
     <script>
       (function () {
         setTimeout(function () {
           var el = document.getElementById('liffLoading');
           if (el && el.style.display !== 'none' && el.offsetParent !== null) {
             el.innerHTML =
-              '<p style="margin:0 0 12px;font-size:15px;color:#4E3B2D;">連線久了點，重新載入試試 🙏</p>' +
+              '<p style="margin:0 0 12px;font-size:15px;color:#4E3B2D;">載入遇到問題，重新整理試試 🙏</p>' +
               '<button onclick="location.reload()" style="padding:10px 22px;border:none;border-radius:10px;background:#E44E25;color:#fff;font-size:15px;font-weight:600;">重新載入</button>';
           }
-        }, 12000);
+        }, 10000);
       })();
     </script>
-    <!-- ?v 一次性打破舊版快取；長期靠 netlify.toml 的 must-revalidate 讓 JS 每次驗證 -->
+    <!-- app.js 只負責 LINE 背景初始化（拿 profile / 分享用），與地圖開機無關 -->
     <script type="module" src="app.js"></script>
 </body>
 </html>

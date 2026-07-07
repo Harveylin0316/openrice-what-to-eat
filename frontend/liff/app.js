@@ -115,37 +115,24 @@ export function getLiffProfile() {
     return liffProfile;
 }
 
-// 頁面載入 → 開機
-function boot() {
-    // 防重複開機：app.js 若被載入成兩個模組實例（例如帶 ?v 查詢字串 + 其他頁 import '../app.js'）
-    // 會註冊兩次 → initRouter 跑兩次 → 地圖重複初始化。用全域旗標確保只開機一次。
-    if (window.__rrBooted) return;
-    window.__rrBooted = true;
-
-    // 關鍵：地圖不依賴 LINE → 先無條件把 App 開起來，畫面一定進得去。
-    // 徹底根治「卡在正在連線 LINE」——過去只要 LIFF SDK 沒載到或 init 卡住就整個卡死。
-    try {
-        if (liffLoading) liffLoading.style.display = 'none';
-        initRouter();
-    } catch (e) {
-        console.error('initRouter 失敗:', e);
-        showError('載入失敗，請重新整理');
-    }
-
-    // 之後才在背景初始化 LIFF（拿 profile 供追蹤/分享用），成敗都不影響地圖已顯示
+// 地圖開機已由 index.html 的內聯模組負責（那段永遠隨 index.html 更新，不受 app.js
+// 被 webview 快取住的影響）。app.js 這裡只補「LINE 背景初始化」——拿 profile / 供分享用，
+// 與地圖是否顯示完全無關。用獨立旗標 __liffStarted（不與開機旗標 __rrBooted 綁一起，
+// 否則內聯開機設了 __rrBooted 會把這段也擋掉）。
+function startLiffBackground() {
+    if (window.__liffStarted) return;
+    window.__liffStarted = true;
     const params = new URLSearchParams(window.location.search);
     if (params.get('dev') === '1') {
         setUserContext({ is_in_line: false, os: 'dev', language: navigator.language });
         track('app_open', { dev: true });
-    } else {
-        initLiffBackground();
+        return;
     }
+    initLiffBackground();
 }
 
-// DOMContentLoaded 可能在此模組執行前就已觸發（模組是 deferred）→ 用 readyState 保險，
-// 兩種情況都能開機、且靠 __rrBooted 不會重複。
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
+    document.addEventListener('DOMContentLoaded', startLiffBackground);
 } else {
-    boot();
+    startLiffBackground();
 }
