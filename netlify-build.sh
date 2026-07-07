@@ -17,6 +17,10 @@ fi
 # 未合作餐廳 POI：使用已提交的快照 frontend/liff/data/external_pois.json
 # （來源：openrice-closure-checker 的 openrice.db，台北市全區；
 #   更新方式：python3 export_external_pois.py --db <checker的openrice.db> 後 commit）
+#
+# 合作店對照層：已提交的快照 frontend/liff/data/partner_overlay.json
+# （來源同上 checker db；generate_map_pins.py 會讀它做「歇業下架 + booking 加法升級」，
+#   缺檔時自動退回純主檔。更新方式：python3 export_checker_overlay.py 後 commit）
 
 # 檢查數據庫文件是否存在
 if [ -f "restaurants_database.json" ]; then

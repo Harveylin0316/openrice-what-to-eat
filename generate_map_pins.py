@@ -20,6 +20,9 @@ from datetime import datetime, timezone
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SOURCE = os.path.join(BASE_DIR, 'restaurants_database.json')
 OUTPUT = os.path.join(BASE_DIR, 'frontend', 'liff', 'data', 'map_pins.json')
+# 對照層（來自 closure-checker，見 export_checker_overlay.py）：歇業下架 + booking 加法升級。
+# 選配：缺檔時退回純主檔行為（Netlify build 也吃這份 committed 快照）。
+OVERLAY = os.path.join(BASE_DIR, 'frontend', 'liff', 'data', 'partner_overlay.json')
 
 # 與 netlify/functions/restaurants.js 的 applyCityAllowlist 保持一致：
 # API（含「幫我決定」推薦引擎）只服務北北基，地圖 pin 必須套同一個白名單，
@@ -40,18 +43,19 @@ TIER_CASHBACK = 'cashback'
 TIER_NONE = 'none'
 
 
-def has_menu(r):
-    return bool(r.get('has_booking_menu') or r.get('booking_menus'))
+def has_menu(r, ov=None):
+    return bool(r.get('has_booking_menu') or r.get('booking_menus') or (ov and ov.get('menu')))
 
 
-def has_offer(r):
-    return bool(r.get('has_booking_offer') or r.get('booking_offers'))
+def has_offer(r, ov=None):
+    return bool(r.get('has_booking_offer') or r.get('booking_offers') or (ov and ov.get('offer')))
 
 
-def derive_deal_tier(r):
-    if has_offer(r):
+def derive_deal_tier(r, ov=None):
+    # ov（對照層）只做加法升級：checker 說有優惠就升級，缺漏不降級（等重跑 crawler 修）
+    if has_offer(r, ov):
         return TIER_OFFER
-    if has_menu(r):
+    if has_menu(r, ov):
         return TIER_MENU
     if r.get('bookable'):
         return TIER_CASHBACK
@@ -101,14 +105,15 @@ def compact_hours(opening_hours):
     return out
 
 
-def build_pin(r):
+def build_pin(r, ov=None):
     coords = r.get('coordinates') or {}
     lat, lng = coords.get('lat'), coords.get('lng')
     if lat is None or lng is None:
         return None
 
-    tier = derive_deal_tier(r)
-    offers = r.get('booking_offers') or []
+    tier = derive_deal_tier(r, ov)
+    # 優惠明細：主檔 + 對照層去重（迷你卡最多 3 條）
+    offers = list(dict.fromkeys((r.get('booking_offers') or []) + ((ov or {}).get('offers') or [])))
 
     pin = {
         'id': r['or_id'],
@@ -123,11 +128,12 @@ def build_pin(r):
     if r.get('is_paid_account'):
         pin['sp'] = 1  # 贊助（廣告位）→ 星星釘
     # 優惠旗標（卡片 badge 用；pin 顏色只取一種，但卡片全秀）
-    if has_menu(r):
+    if has_menu(r, ov):
         pin['hm'] = 1
-        if r.get('booking_menu_count'):
-            pin['mc'] = r['booking_menu_count']
-    if has_offer(r):
+        mc = r.get('booking_menu_count') or (ov or {}).get('menu')
+        if mc:
+            pin['mc'] = mc
+    if has_offer(r, ov):
         pin['ho'] = 1
     if r.get('rating'):
         pin['r'] = r['rating']
@@ -154,14 +160,30 @@ def build_pin(r):
     return pin
 
 
+def load_overlay():
+    """對照層（選配）：{closed:set, deals:{or_id:overlay}}。缺檔則空，退回純主檔行為。"""
+    try:
+        with open(OVERLAY, encoding='utf-8') as f:
+            ov = json.load(f)
+        deals = {int(k): v for k, v in (ov.get('deals') or {}).items()}
+        closed = set(ov.get('closed') or [])
+        print(f"ℹ️  對照層 partner_overlay.json：下架 {len(closed)}、優惠升級 {len(deals)}（{ov.get('generated_at','?')}）")
+        return {'closed': closed, 'deals': deals}
+    except FileNotFoundError:
+        print('ℹ️  無 partner_overlay.json，退回純主檔（restaurants_database.json）')
+        return {'closed': set(), 'deals': {}}
+
+
 def main():
     with open(SOURCE, encoding='utf-8') as f:
         data = json.load(f)
     restaurants = data if isinstance(data, list) else data.get('restaurants', [])
 
+    overlay = load_overlay()
+
     pins = []
     pin_tags = []  # 與 pins 對齊的原始品類 tags（建 cats 索引用）
-    skipped_disabled = skipped_nocoords = skipped_city = 0
+    skipped_disabled = skipped_nocoords = skipped_city = skipped_closed = 0
     for r in restaurants:
         if not r.get('enabled', True):
             skipped_disabled += 1
@@ -169,7 +191,10 @@ def main():
         if r.get('city') not in CITY_ALLOWLIST:
             skipped_city += 1
             continue
-        pin = build_pin(r)
+        if r.get('or_id') in overlay['closed']:
+            skipped_closed += 1  # Google 已確認永久歇業/搬遷 → 下架
+            continue
+        pin = build_pin(r, overlay['deals'].get(r.get('or_id')))
         if pin is None:
             skipped_nocoords += 1
             continue
@@ -239,7 +264,8 @@ def main():
     size_kb = os.path.getsize(OUTPUT) / 1024
     print(f"✅ map_pins.json：{len(pins)} pins + {len(places)} places + {len(cats)} cats（{size_kb:.0f} KB）")
     print(f"   tiers: {tier_counts}")
-    print(f"   skipped: disabled={skipped_disabled}, no-coords={skipped_nocoords}, outside-allowlist={skipped_city}")
+    print(f"   skipped: disabled={skipped_disabled}, no-coords={skipped_nocoords}, "
+          f"outside-allowlist={skipped_city}, closed={skipped_closed}")
     return 0
 
 
