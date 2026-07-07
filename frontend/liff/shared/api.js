@@ -39,15 +39,11 @@ export async function loadBookingOfferRestaurants() {
  * @returns {Promise<Array<{name,available,total,walkMin,dist,lat,lng}>>}
  */
 export async function fetchNearbyParking(lat, lng, signal) {
-    try {
-        const res = await fetch(`${API_BASE_URL}/parking/nearby?lat=${lat}&lng=${lng}`, { signal });
-        if (!res.ok) return [];
-        const data = await res.json();
-        return data.success ? (data.lots || []) : [];
-    } catch (err) {
-        if (err && err.name === 'AbortError') throw err; // 讓呼叫端知道是被取消
-        return [];
-    }
+    // 錯誤往上丟（含 HTTP 狀態），讓呼叫端能顯示原因診斷；只有「成功但無資料」回空陣列。
+    const res = await fetch(`${API_BASE_URL}/parking/nearby?lat=${lat}&lng=${lng}`, { signal });
+    if (!res.ok) { const e = new Error('HTTP ' + res.status); e.status = res.status; throw e; }
+    const data = await res.json();
+    return data.success ? (data.lots || []) : [];
 }
 
 /**

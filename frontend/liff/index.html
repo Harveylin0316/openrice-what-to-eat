@@ -309,7 +309,7 @@
     <script type="module">
       // __V：關鍵路徑破快取版本。LINE webview 對 must-revalidate 不可靠 → 用 ?v 強制抓新版
       // router/map（新 URL＝一定重抓）。每次改到開機/router/map 的關鍵修復就 bump 這個值。
-      window.__V = 'r3';
+      window.__V = 'r4';
       import('./pages/router.js?v=' + window.__V).then(function (m) {
         if (window.__rrBooted) return;
         window.__rrBooted = true;

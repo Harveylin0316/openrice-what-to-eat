@@ -1078,36 +1078,47 @@ async function fillParking(pin) {
         ({ fetchNearbyParking } = await import('../shared/api.js' + apiV));
     } catch (e) { /* ignore */ }
     if (typeof fetchNearbyParking !== 'function') { el.hidden = true; return; }
-    const parkMsg = (t) => { el.innerHTML = `<span class="map-parking__icon" aria-hidden="true">🅿️</span><span class="map-parking__text map-parking__loading">${t}</span>`; };
-    fetchNearbyParking(pin.lat, pin.lng, parkingAbort.signal).then(lots => {
-        if (!lots || !lots.length) {
-            // 台北市查無 → 給訊息（不默默消失，才不會像「沒反應」）；非台北市 → 隱藏
-            if (inTaipei) parkMsg('附近查無即時車位'); else el.hidden = true;
-            return;
-        }
-        // 優先挑「有即時車位數」的最近場；都沒有再退回最近場
-        const lot = lots.find(l => l.available != null) || lots[0];
-        let availHtml;
-        if (lot.available == null) {
-            availHtml = '<span class="map-parking__avail map-parking__avail--unknown">車位即時不明</span>';
-        } else if (lot.available <= 0) {
-            availHtml = '<span class="map-parking__avail map-parking__avail--full">目前額滿</span>';
-        } else {
-            const level = lot.available < 15 ? 'low' : 'ok';
-            availHtml = `<span class="map-parking__avail map-parking__avail--${level}">剩 ${lot.available} 位</span>`;
-        }
-        el.innerHTML =
-            '<span class="map-parking__icon" aria-hidden="true">🅿️</span>' +
-            `<span class="map-parking__text">${escapeHtml(lot.name)}・步行 ${lot.walkMin} 分・${availHtml}</span>` +
-            `<a class="map-parking__nav" href="${navigationUrl(lot.lat, lot.lng, lot.name)}" target="_blank" rel="noopener" data-park-nav>導航</a>`;
-        const nav = el.querySelector('[data-park-nav]');
-        if (nav) nav.addEventListener('click', () =>
-            track('map_parking_nav_click', { or_id: pin.id, lot: lot.name, available: lot.available }));
-        track('map_parking_shown', { or_id: pin.id, lots: lots.length, nearest_available: lot.available });
-    }).catch(err => {
-        if (err && err.name === 'AbortError') return;
-        if (inTaipei) parkMsg('停車資訊暫時無法取得'); else el.hidden = true;
-    });
+    const parkMsg = (t) => { el.innerHTML = `<span class="map-parking__icon" aria-hidden="true">🅿️</span><span class="map-parking__text map-parking__loading">${escapeHtml(t)}</span>`; };
+
+    // 前端逾時：後端函式冷啟/台北 API 慢時，別讓「查附近停車…」一直轉 → 8 秒沒回就給訊息。
+    // 錯誤訊息帶原因（HTTP 狀態或逾時），使用者截圖即可診斷後端。
+    let lots;
+    try {
+        lots = await withTimeout(fetchNearbyParking(pin.lat, pin.lng, parkingAbort.signal), 8000, '停車查詢');
+    } catch (err) {
+        if (err && err.name === 'AbortError') return; // 卡片關了/換店
+        const msg = (err && err.message) || '';
+        const reason = err && err.status ? `HTTP ${err.status}`
+            : /逾時/.test(msg) ? '逾時'
+            : (msg ? msg.slice(0, 20) : '未知');
+        if (inTaipei) parkMsg(`停車暫時無法取得（${reason}）`); else el.hidden = true;
+        return;
+    }
+
+    if (!lots || !lots.length) {
+        // 台北市查無 → 給訊息（不默默消失，才不會像「沒反應」）；非台北市 → 隱藏
+        if (inTaipei) parkMsg('附近查無即時車位'); else el.hidden = true;
+        return;
+    }
+    // 優先挑「有即時車位數」的最近場；都沒有再退回最近場
+    const lot = lots.find(l => l.available != null) || lots[0];
+    let availHtml;
+    if (lot.available == null) {
+        availHtml = '<span class="map-parking__avail map-parking__avail--unknown">車位即時不明</span>';
+    } else if (lot.available <= 0) {
+        availHtml = '<span class="map-parking__avail map-parking__avail--full">目前額滿</span>';
+    } else {
+        const level = lot.available < 15 ? 'low' : 'ok';
+        availHtml = `<span class="map-parking__avail map-parking__avail--${level}">剩 ${lot.available} 位</span>`;
+    }
+    el.innerHTML =
+        '<span class="map-parking__icon" aria-hidden="true">🅿️</span>' +
+        `<span class="map-parking__text">${escapeHtml(lot.name)}・步行 ${lot.walkMin} 分・${availHtml}</span>` +
+        `<a class="map-parking__nav" href="${navigationUrl(lot.lat, lot.lng, lot.name)}" target="_blank" rel="noopener" data-park-nav>導航</a>`;
+    const nav = el.querySelector('[data-park-nav]');
+    if (nav) nav.addEventListener('click', () =>
+        track('map_parking_nav_click', { or_id: pin.id, lot: lot.name, available: lot.available }));
+    track('map_parking_shown', { or_id: pin.id, lots: lots.length, nearest_available: lot.available });
 }
 
 // ---- 聚光燈：幫我決定 ----
