@@ -47,3 +47,6 @@ _rebuild/*.log
 
 # 廣告影片原檔備份（11MB+，不上 git）
 _rebuild/backups/videos/
+
+# nightly workflow：checker db 的暫時 checkout
+_checker/

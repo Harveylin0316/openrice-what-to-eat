@@ -1,0 +1,88 @@
+name: nightly-map-refresh
+
+# 每晚凌晨自動把地圖資料刷到最新並部署。
+#
+# 分工（因 OpenRice WAF 擋機房 IP，爬蟲只能在住宅 IP 跑）：
+#   1) 爬新資料：你本機/24hr 電腦跑 openrice-closure-checker 的 daily_closure_check.py
+#      → commit 最新 data/openrice.db 到 closure-checker repo（住宅 IP，這步在你那邊）
+#   2) 變成地圖 + 部署（本 workflow，純 SQLite→JSON，雲端跑得動）：
+#      抓 checker 最新 db → 重生 map_pins / partner_overlay / external_pois → commit → Netlify 自動部署
+#
+# ⚙️ 一次性設定：到本 repo Settings → Secrets and variables → Actions 新增
+#   CHECKER_TOKEN = 一顆對 harveylin0316/openrice-closure-checker 有 Contents:Read 的
+#   fine-grained PAT（跨 repo 讀 db 用；同帳號 classic PAT repo scope 亦可）。
+#
+# 觸發：每日排程 + 手動 + repository_dispatch(checker-updated)
+#   想「checker 一 commit 就刷新」→ 在你本機腳本 commit db 後打：
+#   curl -X POST -H "Authorization: Bearer <PAT>" -H "Accept: application/vnd.github+json" \
+#     https://api.github.com/repos/harveylin0316/openrice-what-to-eat/dispatches \
+#     -d '{"event_type":"checker-updated"}'
+
+on:
+  schedule:
+    - cron: '0 21 * * *'   # 21:00 UTC = 05:00 台北（凌晨）。改時間改這裡。
+  workflow_dispatch: {}
+  repository_dispatch:
+    types: [checker-updated]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nightly-map-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout app repo (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Fetch latest checker DB
+        uses: actions/checkout@v4
+        with:
+          repository: harveylin0316/openrice-closure-checker
+          token: ${{ secrets.CHECKER_TOKEN }}
+          path: _checker
+          sparse-checkout: data/openrice.db
+          sparse-checkout-cone-mode: false
+
+      - name: Verify DB present
+        run: |
+          if [ ! -f _checker/data/openrice.db ]; then
+            echo "::error::抓不到 checker 的 openrice.db（檢查 CHECKER_TOKEN 權限與 db 是否已 commit）"
+            exit 1
+          fi
+          ls -lh _checker/data/openrice.db
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Regenerate map data from fresh DB
+        run: |
+          DB=_checker/data/openrice.db
+          python3 export_checker_overlay.py --db "$DB"
+          python3 export_external_pois.py   --db "$DB"
+          python3 generate_map_pins.py
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name  "map-refresh-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/liff/data/map_pins.json \
+                  frontend/liff/data/partner_overlay.json \
+                  frontend/liff/data/external_pois.json
+          if git diff --cached --quiet; then
+            echo "資料無變化，跳過 commit"
+          else
+            STAMP=$(date -u +%Y-%m-%d)
+            git commit -m "資料每日刷新（checker $STAMP）：座標/名稱/評分/照片/優惠 + 歇業下架"
+            git push origin main
+            echo "✅ 已推送，Netlify 自動部署"
+          fi

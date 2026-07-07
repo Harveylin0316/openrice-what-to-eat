@@ -106,18 +106,21 @@ def compact_hours(opening_hours):
 
 
 def build_pin(r, ov=None):
+    ov = ov or {}
     coords = r.get('coordinates') or {}
-    lat, lng = coords.get('lat'), coords.get('lng')
+    # 座標：對照層(checker 最新)優先，退回主檔
+    lat = ov.get('lat', coords.get('lat'))
+    lng = ov.get('lng', coords.get('lng'))
     if lat is None or lng is None:
         return None
 
     tier = derive_deal_tier(r, ov)
     # 優惠明細：主檔 + 對照層去重（迷你卡最多 3 條）
-    offers = list(dict.fromkeys((r.get('booking_offers') or []) + ((ov or {}).get('offers') or [])))
+    offers = list(dict.fromkeys((r.get('booking_offers') or []) + (ov.get('offers') or [])))
 
     pin = {
         'id': r['or_id'],
-        'n': r.get('name', ''),
+        'n': ov.get('n') or r.get('name', ''),  # 店名：checker 最新優先
         'lat': round(float(lat), 6),
         'lng': round(float(lng), 6),
         't': tier,
@@ -135,14 +138,18 @@ def build_pin(r, ov=None):
             pin['mc'] = mc
     if has_offer(r, ov):
         pin['ho'] = 1
-    if r.get('rating'):
-        pin['r'] = r['rating']
+    rating = ov.get('r') or r.get('rating')  # 評分：checker 最新優先
+    if rating:
+        pin['r'] = rating
     if r.get('budget'):
         pin['bud'] = r['budget']
         bc = map_budget_to_category(r['budget'])
         if bc:
             pin['bc'] = bc  # 前端預算分類（bottom sheet 篩選用）
-    if r.get('door_photo_url'):
+    # 門面照：checker 最新優先，退回主檔
+    if ov.get('img'):
+        pin['img'] = ov['img']
+    elif r.get('door_photo_url'):
         pin['img'] = r['door_photo_url']
     elif r.get('images'):
         pin['img'] = r['images'][0]
@@ -161,17 +168,18 @@ def build_pin(r, ov=None):
 
 
 def load_overlay():
-    """對照層（選配）：{closed:set, deals:{or_id:overlay}}。缺檔則空，退回純主檔行為。"""
+    """對照層（選配）：{closed:set, partners:{or_id:最新欄位+優惠}}。缺檔則空，退回純主檔。"""
     try:
         with open(OVERLAY, encoding='utf-8') as f:
             ov = json.load(f)
-        deals = {int(k): v for k, v in (ov.get('deals') or {}).items()}
+        partners = {int(k): v for k, v in (ov.get('partners') or {}).items()}
         closed = set(ov.get('closed') or [])
-        print(f"ℹ️  對照層 partner_overlay.json：下架 {len(closed)}、優惠升級 {len(deals)}（{ov.get('generated_at','?')}）")
-        return {'closed': closed, 'deals': deals}
+        print(f"ℹ️  對照層 partner_overlay.json：最新欄位 {len(partners)} 間、"
+              f"下架 {len(closed)} 間（{ov.get('generated_at','?')}）")
+        return {'closed': closed, 'partners': partners}
     except FileNotFoundError:
         print('ℹ️  無 partner_overlay.json，退回純主檔（restaurants_database.json）')
-        return {'closed': set(), 'deals': {}}
+        return {'closed': set(), 'partners': {}}
 
 
 def main():
@@ -194,7 +202,7 @@ def main():
         if r.get('or_id') in overlay['closed']:
             skipped_closed += 1  # Google 已確認永久歇業/搬遷 → 下架
             continue
-        pin = build_pin(r, overlay['deals'].get(r.get('or_id')))
+        pin = build_pin(r, overlay['partners'].get(r.get('or_id')))
         if pin is None:
             skipped_nocoords += 1
             continue
