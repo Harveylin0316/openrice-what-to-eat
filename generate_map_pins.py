@@ -26,20 +26,35 @@ OUTPUT = os.path.join(BASE_DIR, 'frontend', 'liff', 'data', 'map_pins.json')
 # 否則地圖上會出現推薦引擎永遠抽不到的店。
 CITY_ALLOWLIST = {'台北市', '新北市', '基隆市'}
 
-# 好康層級（由高至低）
-TIER_SPONSORED = 'sponsored'
-TIER_BOOKING_OFFER = 'booking_offer'
-TIER_COUPON = 'coupon'
+# 優惠層級（決定 pin 顏色）：三種 Owner 實際優惠，強度 套餐=訂位 > 回饋現金
+#   menu     套餐優惠（booking_menus，有實際套餐折扣價）
+#   offer    訂位優惠（booking_offers，如壽星優惠、訂套餐招待）
+#   cashback 訂位出席回饋現金（所有可訂位的店的基本盤：出席每人回饋 3 元）
+#   none     不可訂位（拿不到回饋）
+# 贊助（is_paid_account）是「廣告位」，與優惠正交 → 另用 sp 旗標畫星星釘，不佔顏色層。
+# tie 規則：同時有套餐+訂位 → pin 顯示「訂位優惠」色（它稀有、才 14 間，讓它全部可見；
+#          套餐仍有 36 間紅點），卡片兩個 badge 都秀。要改成套餐優先，翻 has_offer/has_menu 順序即可。
+TIER_MENU = 'menu'
+TIER_OFFER = 'offer'
+TIER_CASHBACK = 'cashback'
 TIER_NONE = 'none'
 
 
+def has_menu(r):
+    return bool(r.get('has_booking_menu') or r.get('booking_menus'))
+
+
+def has_offer(r):
+    return bool(r.get('has_booking_offer') or r.get('booking_offers'))
+
+
 def derive_deal_tier(r):
-    if r.get('is_paid_account'):
-        return TIER_SPONSORED
-    if r.get('has_booking_offer') or r.get('booking_offers'):
-        return TIER_BOOKING_OFFER
-    if 'Coupon' in (r.get('services') or []):
-        return TIER_COUPON
+    if has_offer(r):
+        return TIER_OFFER
+    if has_menu(r):
+        return TIER_MENU
+    if r.get('bookable'):
+        return TIER_CASHBACK
     return TIER_NONE
 
 
@@ -105,6 +120,15 @@ def build_pin(r):
         'b': bool(r.get('bookable')),
         'd': f"{r.get('city') or r.get('region') or ''}{('·' + r['district']) if r.get('district') else ''}",
     }
+    if r.get('is_paid_account'):
+        pin['sp'] = 1  # 贊助（廣告位）→ 星星釘
+    # 優惠旗標（卡片 badge 用；pin 顏色只取一種，但卡片全秀）
+    if has_menu(r):
+        pin['hm'] = 1
+        if r.get('booking_menu_count'):
+            pin['mc'] = r['booking_menu_count']
+    if has_offer(r):
+        pin['ho'] = 1
     if r.get('rating'):
         pin['r'] = r['rating']
     if r.get('budget'):

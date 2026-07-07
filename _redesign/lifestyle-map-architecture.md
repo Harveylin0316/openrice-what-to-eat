@@ -88,17 +88,25 @@
 }
 ```
 
-### 5.2 deal_tier 推導規則（好康強度，決定 pin 樣式與排序）
+### 5.2 deal_tier 推導規則（P11 改版，對應 Owner 實際三種優惠）
+
+pin 顏色只取一種，優先序 & tie 規則如下（強度 套餐=訂位 > 回饋現金）：
 
 ```
-sponsored      ← is_paid_account === true          （最高，可販售）
-booking_offer  ← 有訂位獨家優惠（booking offer 資料）
-coupon         ← services 含 "Coupon"
-none           ← 其他
+offer     ← has_booking_offer（訂位優惠，14 間）   金黃 #E5A000
+menu      ← has_booking_menu（套餐優惠，含實際套餐折扣價，36 間） 紅橘 #E44E25
+cashback  ← bookable（訂位出席回饋現金：出席每人回饋 3 元，所有可訂位店 464 間） 淡青 #68A9A0
+none      ← 不可訂位（無回饋，53 間）             灰 #B4AFA8
 ```
 
-> **好康誠實原則**：目前只有「有 Coupon」flag，沒有券的實際內容/期限。
-> 好康層只標「有優惠」，不假裝有明確折扣 —— 信任崩一次就沒了。
+- **tie（套餐+訂位都有，12 間）→ pin 顯示訂位色**（讓稀有的 14 間訂位全部可見），
+  卡片/清單以 `hm`/`ho` 旗標把「套餐優惠 + 訂位優惠」兩個 badge 都秀。要改套餐優先翻順序即可。
+- **贊助**（is_paid_account）與優惠正交 → `pin.sp` 旗標畫星星釘，不佔顏色層。
+- **「加碼優惠」篩選** = menu ∪ offer（回饋現金是基本盤、人人有，不算加碼）；
+  統計 pill = 「畫面內 N 間 · M 間加碼優惠」。
+
+> **誠實原則**：套餐優惠有真實套餐款數、訂位優惠有真實文字、回饋現金是 OpenRice 真實機制；
+> 卡片只陳述資料庫有的事實，不虛構折扣。原 OpenRice「Coupon」flag（無內容）已併入回饋現金基本盤。
 
 ### 5.3 payload 預算（實測）
 
