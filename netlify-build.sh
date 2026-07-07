@@ -14,6 +14,17 @@ if command -v python3 >/dev/null 2>&1 && [ -f "generate_map_pins.py" ]; then
   fi
 fi
 
+# 預烤停車場靜態資料（名稱/座標）→ parking function 免在 runtime 抓 2.4MB desc（省 ~3.4s/次）。
+# best-effort：抓不到時保留已提交的 placeholder / 舊檔，function 自動 fallback 成即時抓取。
+if command -v node >/dev/null 2>&1 && [ -f "netlify/functions/gen-parking-lots.mjs" ]; then
+  echo "生成停車場靜態資料..."
+  if node netlify/functions/gen-parking-lots.mjs; then
+    echo "✅ parking-lots.json 生成成功"
+  else
+    echo "⚠️ parking-lots.json 生成失敗，parking function 將於 runtime 即時抓取"
+  fi
+fi
+
 # 未合作餐廳 POI：使用已提交的快照 frontend/liff/data/external_pois.json
 # （來源：openrice-closure-checker 的 openrice.db，台北市全區；
 #   更新方式：python3 export_external_pois.py --db <checker的openrice.db> 後 commit）

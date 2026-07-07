@@ -60,9 +60,25 @@ async function fetchJson(url, ms, label) {
 let descCache = { at: 0, lots: null };
 let availCache = { at: 0, map: null };
 
+// 建置時預烤的靜態停車場資料（名稱/座標/總車位）。有內容就用它 → 免在 runtime 抓 2.4MB
+// desc（省 ~3.4s/次，尤其 cold start）。缺檔/空檔 → fallback 成即時抓取（正確性不受影響）。
+// require 靜態解析：已提交 placeholder 保證檔案永遠存在，bundler 一定打包、絕不 build 失敗。
+let bakedLots; // undefined=未載入, null=無, array=可用
+function getBakedLots() {
+  if (bakedLots !== undefined) return bakedLots;
+  try {
+    const j = require('./parking-lots.json');
+    bakedLots = (j && Array.isArray(j.lots) && j.lots.length) ? j.lots : null;
+  } catch (e) { bakedLots = null; }
+  return bakedLots;
+}
+
 async function getLots() {
   if (descCache.lots && Date.now() - descCache.at < DESC_TTL) return descCache.lots;
-  // 台北 alldesc.json 較大（跨太平洋抓 Azure blob），給到 8s
+  // 優先用預烤靜態檔（座標/名稱幾乎不變，用它即可，免 runtime 下載）
+  const baked = getBakedLots();
+  if (baked) { descCache = { at: Date.now(), lots: baked }; return baked; }
+  // fallback：台北 alldesc.json 較大（跨太平洋抓 Azure blob），給到 8s
   const json = await fetchJson(DESC_URL, 8000, 'desc');
   const parks = (json.data && json.data.park) || [];
   const lots = [];
