@@ -85,8 +85,8 @@ body.is-map-page { overflow: hidden; }
   color: var(--lm-text-body);
   font-size: 11px;
   font-weight: 500;
-  padding: 2px 6px;
-  pointer-events: none;
+  padding: 3px 7px;
+  cursor: pointer; /* 標籤可點帶出餐廳資訊（tooltip interactive:true） */
   white-space: nowrap;
   max-width: 140px;
   overflow: hidden;
@@ -94,6 +94,9 @@ body.is-map-page { overflow: hidden; }
 }
 .map-pin-label--deal { color: var(--lm-accent-press); font-weight: 600; }
 .map-canvas.show-labels .map-pin-label { display: block; }
+/* leaflet.css 動態載入在後、其 .leaflet-tooltip{pointer-events:none} 會蓋掉，
+ * 用 .map-canvas 前綴提高特異性，讓標籤可點 */
+.map-canvas .map-pin-label { pointer-events: auto; }
 
 /* 贊助店圖釘：醒目星星釘，任何 zoom 都顯示（永不聚合），店名常駐 */
 .map-sponsor-pin {
@@ -302,7 +305,7 @@ body.is-map-page { overflow: hidden; }
 .map-locate-btn {
   position: absolute;
   right: 16px;
-  bottom: calc(88px + var(--lm-safe-bottom));
+  bottom: calc(134px + var(--lm-safe-bottom)); /* 疊在骰子 FAB(64+58) 上方 */
   z-index: 500;
   width: 48px;
   height: 48px;
@@ -378,8 +381,8 @@ body.is-map-page { overflow: hidden; }
   gap: 4px;
   width: 100%;
   min-height: 52px;
-  /* 右側讓出 FAB 實際佔位（約 126px 寬 + 12px 邊距 + 餘裕），文字先 ellipsis 不鑽到 FAB 下面 */
-  padding: 8px 152px 8px 16px;
+  /* 骰子 FAB 已抬到把手列上方、不再與把手同水平，摘要可用全寬 */
+  padding: 8px 16px;
   border: none;
   background: none;
   cursor: pointer;
@@ -542,7 +545,7 @@ body.is-map-page { overflow: hidden; }
     transform: translateX(-50%);
     width: min(480px, calc(100% - 24px));
   }
-  .map-root .map-fab { right: calc(50% - 240px + 12px); }
+  .map-root .map-fab,
   .map-root .map-locate-btn { right: calc(50% - 240px + 16px); }
 }
 
@@ -605,29 +608,42 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 
 /* ---- 幫我決定 FAB ---- */
 
+/* 幫我決定：右下角圓形骰子鈕，抬到收合把手列(52px)上方，不擋清單摘要 */
 .map-fab {
   position: absolute;
-  right: 12px;
-  bottom: calc(6px + var(--lm-safe-bottom)); /* 與收合的 sheet 把手列同水平 */
-  z-index: 660; /* 高於 sheet（650），把手已為它留出右側空間 */
-  min-height: 52px;
-  padding: 0 20px;
+  right: 16px;
+  bottom: calc(64px + var(--lm-safe-bottom));
+  z-index: 660;
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   border: none;
-  border-radius: 999px;
+  border-radius: 50%;
   background: var(--lm-accent);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
   box-shadow: var(--lm-shadow-lg);
   cursor: pointer;
 }
-.map-fab:active { background: var(--lm-accent-press); transform: scale(0.97); }
+.map-fab__dice { font-size: 27px; line-height: 1; }
+.map-fab:active { background: var(--lm-accent-press); transform: scale(0.94); }
 .map-fab__count {
-  margin-left: 6px;
-  padding: 1px 7px;
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.25);
-  font-size: 12px;
+  background: var(--lm-surface);
+  color: var(--lm-accent);
+  border: 2px solid var(--lm-accent);
+  font-size: 11px;
   font-weight: 700;
 }
 .map-fab:focus-visible { outline: none; box-shadow: var(--lm-shadow-lg), 0 0 0 3px rgba(228, 78, 37, 0.4); }

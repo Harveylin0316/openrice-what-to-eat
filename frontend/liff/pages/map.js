@@ -84,7 +84,7 @@ function consumeDice(n = 1) {
 
 function updateFabBadge() {
     const el = document.getElementById('fabDiceCount');
-    if (el) el.textContent = `×${diceRemaining()}`;
+    if (el) el.textContent = diceRemaining();
 }
 
 const DEFAULT_CENTER = [25.0478, 121.5170]; // 台北車站（無定位時的起點）
@@ -226,7 +226,10 @@ function ensureMapRoot() {
         </button>
         <div class="map-toast" id="mapToast" role="status" aria-live="polite" hidden></div>
         <div id="liffMap" class="map-canvas" role="application" aria-label="餐廳好康地圖"></div>
-        <button type="button" class="map-fab" id="mapDecideBtn">🎲 幫我決定<span class="map-fab__count" id="fabDiceCount"></span></button>
+        <button type="button" class="map-fab" id="mapDecideBtn" aria-label="幫我決定，隨機推薦一間">
+            <span class="map-fab__dice" aria-hidden="true">🎲</span>
+            <span class="map-fab__count" id="fabDiceCount" aria-hidden="true"></span>
+        </button>
 
         <div class="map-sheet" id="mapSheet">
             <button type="button" class="map-sheet__handle" id="sheetHandle"
@@ -279,6 +282,22 @@ function pinPassesFilters(pin, now) {
     return true;
 }
 
+// 讓常駐店名標籤本身可點（Leaflet 的 interactive tooltip 不會把 click
+// 轉發到 circleMarker，所以在 tooltipopen 時直接綁 DOM click 到標籤元素）
+function makeLabelClickable(marker, pin, trackProps) {
+    marker.on('tooltipopen', (e) => {
+        const el = e.tooltip && e.tooltip.getElement();
+        if (el && !el.dataset.clickBound) {
+            el.dataset.clickBound = '1';
+            el.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                track('map_pin_click', trackProps);
+                showMiniCard(pin);
+            });
+        }
+    });
+}
+
 function buildMarker(L, pin) {
     const t = TIER[pin.t] || TIER.none;
     const marker = L.circleMarker([pin.lat, pin.lng], {
@@ -291,14 +310,17 @@ function buildMarker(L, pin) {
     // 高 zoom（cluster 散開後）顯示店名標籤：掃視地圖不用逐顆點
     marker.bindTooltip(pin.n, {
         permanent: true,
+        interactive: true, // 標籤本身可點（否則點文字會穿透到地圖）
         direction: 'right',
         offset: [8, 0],
         className: `map-pin-label${pin.t !== 'none' ? ' map-pin-label--deal' : ''}`,
     });
+    const trackProps = { or_id: pin.id, name: pin.n, tier: pin.t };
     marker.on('click', () => {
-        track('map_pin_click', { or_id: pin.id, name: pin.n, tier: pin.t });
+        track('map_pin_click', trackProps);
         showMiniCard(pin);
     });
+    makeLabelClickable(marker, pin, trackProps);
     return marker;
 }
 
@@ -323,14 +345,17 @@ function buildStarMarker(L, pin) {
     });
     marker.bindTooltip(`今日之星 · ${pin.n}`, {
         permanent: true,
+        interactive: true,
         direction: 'right',
         offset: [14, -24],
         className: 'map-pin-label map-pin-label--star',
     });
+    const trackProps = { or_id: pin.id, name: pin.n, star: true };
     marker.on('click', () => {
         track('map_star_pin_click', { or_id: pin.id, name: pin.n });
         showMiniCard(pin);
     });
+    makeLabelClickable(marker, pin, trackProps);
     return marker;
 }
 
@@ -348,14 +373,17 @@ function buildSponsorMarker(L, pin) {
     });
     marker.bindTooltip(pin.n, {
         permanent: true,
+        interactive: true,
         direction: 'right',
         offset: [14, -24],
         className: 'map-pin-label map-pin-label--sponsor',
     });
+    const trackProps = { or_id: pin.id, name: pin.n, tier: pin.t, sponsor_pin: true };
     marker.on('click', () => {
-        track('map_pin_click', { or_id: pin.id, name: pin.n, tier: pin.t, sponsor_pin: true });
+        track('map_pin_click', trackProps);
         showMiniCard(pin);
     });
+    makeLabelClickable(marker, pin, trackProps);
     return marker;
 }
 
