@@ -344,7 +344,8 @@ body.is-map-page { overflow: hidden; }
   position: absolute;
   left: 12px;
   right: 12px;
-  bottom: calc(60px + var(--lm-safe-bottom));
+  /* 抬到骰子 FAB（bottom 64 + 高 58 ≈ 122px）之上，避免提示訊息蓋住骰子鈕 */
+  bottom: calc(132px + var(--lm-safe-bottom));
   z-index: 670;
   margin-inline: auto;
   max-width: 456px;

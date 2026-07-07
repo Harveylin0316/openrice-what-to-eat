@@ -10,8 +10,9 @@
     <link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
     <link rel="preload" as="style" href="style.css">
     <link rel="stylesheet" href="style.css">
-    <!-- 生活地圖頁樣式（Leaflet 本體由 map.js 動態載入） -->
-    <link rel="stylesheet" href="map.css">
+    <!-- 生活地圖頁樣式（Leaflet 本體由 map.js 動態載入）。?v 破 webview 快取：
+         改到 map.css 時，跟下方 __V 一起 bump，讓新樣式確實下發到用戶（不吃舊快取）。 -->
+    <link rel="stylesheet" href="map.css?v=r5">
     <!-- 首繪前判定目標頁：地圖為預設首頁時，隱藏舊版外殼避免「今天吃什麼」閃現
          （router 載入完成後會移除 data-boot 接手控制） -->
     <script>
@@ -309,7 +310,7 @@
     <script type="module">
       // __V：關鍵路徑破快取版本。LINE webview 對 must-revalidate 不可靠 → 用 ?v 強制抓新版
       // router/map（新 URL＝一定重抓）。每次改到開機/router/map 的關鍵修復就 bump 這個值。
-      window.__V = 'r4';
+      window.__V = 'r5';
       import('./pages/router.js?v=' + window.__V).then(function (m) {
         if (window.__rrBooted) return;
         window.__rrBooted = true;
