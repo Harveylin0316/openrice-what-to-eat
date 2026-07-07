@@ -1,7 +1,7 @@
 // LINE LIFF App - 主入口文件
 // 負責 LIFF 初始化和路由管理
 
-import { initRouter } from './pages/router.js';
+// 註：不再 import router（地圖開機已由 index.html 內聯負責）；app.js 只做背景 LIFF。
 import { track, setUserContext } from './shared/tracker.js';
 
 // LINE LIFF ID（需要在 LINE Developers Console 獲取）

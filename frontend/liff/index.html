@@ -307,13 +307,23 @@
          永遠是最新的，不受 app.js 被 webview 快取住舊版的影響——這正是根治「卡在正在
          連線 LINE」的關鍵：地圖不依賴 LINE，無條件先開，只 import 最小相依（router）。 -->
     <script type="module">
-      import { initRouter } from './pages/router.js';
-      if (!window.__rrBooted) {
+      // __V：關鍵路徑破快取版本。LINE webview 對 must-revalidate 不可靠 → 用 ?v 強制抓新版
+      // router/map（新 URL＝一定重抓）。每次改到開機/router/map 的關鍵修復就 bump 這個值。
+      window.__V = 'r2';
+      import('./pages/router.js?v=' + window.__V).then(function (m) {
+        if (window.__rrBooted) return;
         window.__rrBooted = true;
-        var __l = document.getElementById('liffLoading');
-        if (__l) __l.style.display = 'none';
-        try { initRouter(); } catch (e) { console.error('initRouter 失敗', e); }
-      }
+        var el = document.getElementById('liffLoading');
+        if (el) el.style.display = 'none';
+        try { m.initRouter(); } catch (e) {
+          console.error('initRouter 失敗', e);
+          if (el) { el.style.display = ''; el.innerHTML = '<p style="padding:16px;color:#4E3B2D">初始化失敗：' + (e && e.message || e) + '</p><button onclick="location.reload()" style="padding:10px 22px;border:none;border-radius:10px;background:#E44E25;color:#fff;font-weight:600">重新載入</button>'; }
+        }
+      }).catch(function (e) {
+        // 連 router 都載不到 → 顯示原因讓用戶回報（不再默默卡住）
+        var el = document.getElementById('liffLoading');
+        if (el) el.innerHTML = '<p style="padding:16px;color:#4E3B2D">載入失敗：' + (e && e.message || e) + '</p><button onclick="location.reload()" style="padding:10px 22px;border:none;border-radius:10px;background:#E44E25;color:#fff;font-weight:600">重新載入</button>';
+      });
     </script>
     <!-- 保險出口（classic，最相容，不依賴任何模組）：連內聯模組都沒跑起來（例如整個
          模組圖載入失敗），10 秒後給重載鈕，不讓用戶乾瞪載入畫面。 -->

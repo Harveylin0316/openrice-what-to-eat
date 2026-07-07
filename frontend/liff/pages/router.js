@@ -6,10 +6,12 @@
 // 動態載入各頁（不再靜態 import）：任一頁或其相依（例如 app.js）壞掉/載入失敗，
 // 都只影響那一頁，不會拖垮整個模組圖 → 地圖頁能獨立載入，開機更穩、也順便 lazy-load。
 // map 頁本身不相依 app.js，所以就算 app.js 被 webview 快取住舊版/壞掉，地圖照常開。
+// 沿用 index.html 內聯開機設的破快取版本 → 各頁也用 ?v 抓新版（新 URL＝一定重抓）
+const V = (typeof window !== 'undefined' && window.__V) ? ('?v=' + window.__V) : '';
 const routes = {
-    'map': () => import('./map.js').then(m => m.initMapPage),
-    'home': () => import('./home.js').then(m => m.initHomePage),
-    'lottery': () => import('./lottery.js').then(m => m.initLotteryPage),
+    'map': () => import('./map.js' + V).then(m => m.initMapPage),
+    'home': () => import('./home.js' + V).then(m => m.initHomePage),
+    'lottery': () => import('./lottery.js' + V).then(m => m.initLotteryPage),
 };
 
 // 預設頁面（生活地圖）
@@ -62,7 +64,7 @@ export function initRouter() {
     
     // 初始化 LINE 特定功能（分享、關閉等）——動態載入且不阻塞：
     // 它相依 app.js，萬一壞掉也不能擋住地圖開機。
-    import('./components/liff-features.js')
+    import('./components/liff-features.js' + V)
         .then(m => { try { m.initLiffFeatures(); } catch (e) { console.warn('initLiffFeatures 失敗', e); } })
         .catch(e => console.warn('liff-features 載入失敗（不影響地圖）', e));
 

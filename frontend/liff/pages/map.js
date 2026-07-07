@@ -2,7 +2,9 @@
 // 三種姿態：逛（地圖探索）、省（只看好康）、決（🎲 幫我決定 → 聚光燈單卡）
 // 依 _redesign/lifestyle-map-architecture.md
 
-import { fetchRecommendations, loadSponsoredRestaurants, fetchNearbyParking } from '../shared/api.js';
+// 注意：只靜態 import「一直都存在」的舊有 exports。新加的 fetchNearbyParking 改「動態載入」，
+// 否則萬一 webview 快取到舊版 api.js（沒有這個 export），整個 map.js 會 link 失敗 → 地圖載不出來。
+import { fetchRecommendations, loadSponsoredRestaurants } from '../shared/api.js';
 import {
     calculateDistance,
     formatDistance,
@@ -1060,13 +1062,19 @@ function closeMiniCard() {
 // 開車族的決策點：正在看這間店時，直接告訴他「最近停車場・步行幾分・剩幾位」。
 let parkingAbort = null;
 
-function fillParking(pin) {
+async function fillParking(pin) {
     const el = document.getElementById('miniCardParking');
     if (!el) return;
     if (parkingAbort) parkingAbort.abort();
     parkingAbort = new AbortController();
     el.hidden = false;
     el.innerHTML = '<span class="map-parking__loading">🅿️ 查附近停車…</span>';
+    // 動態載入，容忍舊版 api.js（沒這個 export 就直接不顯示停車列，不影響卡片其他部分）
+    let fetchNearbyParking;
+    try {
+        ({ fetchNearbyParking } = await import('../shared/api.js'));
+    } catch (e) { /* ignore */ }
+    if (typeof fetchNearbyParking !== 'function') { el.hidden = true; return; }
     fetchNearbyParking(pin.lat, pin.lng, parkingAbort.signal).then(lots => {
         if (!lots || !lots.length) { el.hidden = true; return; } // 非台北/太遠/API 掛 → 誠實不顯示
         // 優先挑「有即時車位數」的最近場；都沒有再退回最近場
