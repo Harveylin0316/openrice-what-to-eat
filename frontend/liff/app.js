@@ -30,6 +30,8 @@ function getLiffId() {
 }
 
 const LIFF_ID = getLiffId();
+// 供地圖分享功能組深連結用（好友點開直接進該店）：dev 模式也會設定
+window.__LIFF_ID = LIFF_ID;
 
 // LINE LIFF 實例
 let liff = null;
