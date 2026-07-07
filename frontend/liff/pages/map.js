@@ -104,6 +104,8 @@ let map = null;
 let clusterGroup = null;
 let allPins = [];               // map_pins.json 的原始資料
 let allPlaces = [];             // 搜尋用地點索引（行政區/地標，含質心座標）
+let allCats = [];               // 品類詞彙表（火鍋店/燒肉店/居酒屋…，pin.ct 為索引）
+let catFilter = null;           // 品類篩選 {label, set:Set<catIdx>}，搜尋或快捷 chip 設定
 let pinMarkers = new Map();     // pin.id -> L.CircleMarker（一般 pin，走 cluster）
 let sponsorMarkers = new Map(); // pin.id -> L.Marker（贊助店專屬圖釘，永不聚合）
 let starPin = null;             // 今日之星（日期種子每日輪換，金冠圖釘）
@@ -123,7 +125,7 @@ function dealBadgesHtml(pin) {
     let html = '';
     if (pin.hm) html += '<span class="map-badge map-badge--menu">套餐優惠</span>';
     if (pin.ho) html += '<span class="map-badge map-badge--offer">訂位優惠</span>';
-    if (pin.b && !pin.hm && !pin.ho) html += '<span class="map-badge map-badge--cashback">出席回饋 $3</span>';
+    if (pin.b) html += '<span class="map-badge map-badge--cashback">出席回饋 $3</span>'; // 基本盤，與加碼優惠並存
     return html;
 }
 
@@ -237,6 +239,11 @@ function ensureMapRoot() {
             <button type="button" class="map-chip" id="chipDeals" aria-pressed="false">🔥 加碼優惠</button>
             <button type="button" class="map-chip" id="chipOpen" aria-pressed="false">🕐 現在有開</button>
             <button type="button" class="map-chip" id="chipBookable" aria-pressed="false">📅 可訂位</button>
+            <button type="button" class="map-chip map-chip--cat" data-cat="火鍋" aria-pressed="false">🍲 火鍋</button>
+            <button type="button" class="map-chip map-chip--cat" data-cat="燒肉" aria-pressed="false">🥩 燒肉</button>
+            <button type="button" class="map-chip map-chip--cat" data-cat="吃到飽" aria-pressed="false">🍱 吃到飽</button>
+            <button type="button" class="map-chip map-chip--cat" data-cat="餐酒館" aria-pressed="false">🍷 餐酒館</button>
+            <button type="button" class="map-chip map-chip--cat" data-cat="咖啡" aria-pressed="false">☕ 咖啡廳</button>
         </div>
         <button type="button" class="map-locate-btn" id="chipLocate" aria-label="定位到我的位置">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -293,6 +300,8 @@ function ensureMapRoot() {
 function pinPassesFilters(pin, now) {
     // 「加碼優惠」篩選：只留套餐/訂位（回饋現金是基本盤，人人有，不算加碼）
     if (activeFilters.deals && pin.t !== 'menu' && pin.t !== 'offer') return false;
+    // 品類篩選（搜尋「火鍋」或快捷 chip）：pin 品類與命中集合有交集才留
+    if (catFilter && !(pin.ct || []).some(i => catFilter.set.has(i))) return false;
     if (activeFilters.bookable && !pin.b) return false;
     // 預算：無預算資料的店不被篩掉（與後端 matchesBudget 規則一致）
     if (activeFilters.budget && pin.bc && pin.bc !== activeFilters.budget) return false;
@@ -609,6 +618,20 @@ function tierBadgeHtml(tier) {
     return `<span class="map-badge map-badge--${tier}">${t.label}</span>`;
 }
 
+// 選中店家高亮圈（Google Maps 慣例：卡片開著時，地圖上看得出對應哪個點）
+let selectedRing = null;
+function setSelectedRing(lat, lng) {
+    clearSelectedRing();
+    if (!map || !window.L) return;
+    selectedRing = window.L.circleMarker([lat, lng], {
+        radius: 16, color: '#E44E25', weight: 3, fill: false, opacity: 0.9,
+        interactive: false,
+    }).addTo(map);
+}
+function clearSelectedRing() {
+    if (selectedRing && map) { map.removeLayer(selectedRing); selectedRing = null; }
+}
+
 // 迷你卡/聚光燈任一開啟時，FAB 與定位鈕讓位（換一個/關閉就在卡上）
 function updateCardOpenState() {
     const spotlight = document.getElementById('mapSpotlight');
@@ -622,6 +645,7 @@ function showMiniCard(pin) {
     const card = document.getElementById('mapMiniCard');
     const body = document.getElementById('miniCardBody');
     if (!card || !body) return;
+    setSelectedRing(pin.lat, pin.lng);
 
     const hours = expandHours(pin.h);
     const opening = hours ? getOpeningStatus(hours) : null;
@@ -668,6 +692,7 @@ function showMiniCard(pin) {
 function closeMiniCard() {
     const card = document.getElementById('mapMiniCard');
     if (card) card.hidden = true;
+    clearSelectedRing();
     updateCardOpenState();
 }
 
@@ -925,7 +950,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
     let dealBadges = '';
     if (hm) dealBadges += '<span class="map-badge map-badge--menu">套餐優惠</span>';
     if (ho) dealBadges += '<span class="map-badge map-badge--offer">訂位優惠</span>';
-    if (bookable && !hm && !ho) dealBadges += '<span class="map-badge map-badge--cashback">出席回饋 $3</span>';
+    if (bookable) dealBadges += '<span class="map-badge map-badge--cashback">出席回饋 $3</span>'; // 基本盤，與加碼優惠並存
     const detailLines = dealDetailLines({ hm, mc, offers, bookable });
 
     body.innerHTML = `
@@ -1046,21 +1071,60 @@ function showUserMarker() {
 
 // ---- 搜尋（像 Google Maps：輸入地區/捷運站/餐廳 → 跳轉） ----
 
+// 品類 substring 命中：query「火鍋」→ {set: 火鍋店/麻辣鍋/火鍋吃到飽…的索引, count: 聯集店數}
+function catHitForQuery(q) {
+    const set = new Set();
+    allCats.forEach((c, i) => { if (c.toLowerCase().includes(q)) set.add(i); });
+    if (!set.size) return null;
+    let count = 0;
+    for (const pin of allPins) {
+        if ((pin.ct || []).some(i => set.has(i))) count++;
+    }
+    return count ? { set, count } : null;
+}
+
 function searchMatches(query) {
     const q = query.trim().toLowerCase();
     if (!q) return [];
+    // 品類（Google 式：搜「火鍋」「吃到飽」→ 一列彙總，選了就是地圖篩選）
+    const catHit = catHitForQuery(q);
+    const catRows = catHit
+        ? [{ kind: 'category', name: query.trim(), sub: `${catHit.count} 間餐廳`, set: catHit.set }]
+        : [];
     const placeHits = allPlaces
         .filter(p => p.n.toLowerCase().includes(q))
-        .slice(0, 5)
+        .slice(0, 4)
         .map(p => ({ kind: p.t, name: p.n, sub: p.t === 'district' ? p.d : `${p.c} 間餐廳`, lat: p.lat, lng: p.lng }));
     const pinHits = allPins
         .filter(p => p.n.toLowerCase().includes(q))
-        .slice(0, Math.max(3, 8 - placeHits.length))
+        .slice(0, Math.max(3, 8 - placeHits.length - catRows.length))
         .map(p => ({ kind: 'restaurant', name: p.n, sub: p.d, pin: p }));
-    return [...placeHits, ...pinHits];
+    return [...catRows, ...placeHits, ...pinHits];
 }
 
-const SEARCH_ICON = { district: '🏙️', landmark: '📍', restaurant: '🍽️' };
+const SEARCH_ICON = { category: '🍴', district: '🏙️', landmark: '📍', restaurant: '🍽️', recent: '🕘' };
+
+// ---- 最近搜尋（Google 式：聚焦空白搜尋框時出現）----
+const RECENT_KEY = 'rr_map_recent';
+function getRecent() {
+    try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]').slice(0, 5); } catch (e) { return []; }
+}
+function pushRecent(q) {
+    try {
+        const list = [q, ...getRecent().filter(x => x !== q)].slice(0, 5);
+        localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+    } catch (e) { /* ignore */ }
+}
+
+// 套用/清除品類篩選（搜尋與快捷 chips 共用；chips 依 label 同步 active 態）
+function setCatFilter(label, set) {
+    catFilter = set && set.size ? { label, set } : null;
+    document.querySelectorAll('.map-chip--cat').forEach(chip => {
+        chip.classList.toggle('is-active', !!catFilter && chip.dataset.cat === catFilter.label);
+        chip.setAttribute('aria-pressed', String(!!catFilter && chip.dataset.cat === catFilter.label));
+    });
+    applyFilters();
+}
 
 function renderSearchResults(matches, query = '') {
     const list = document.getElementById('mapSearchResults');
@@ -1093,6 +1157,7 @@ function closeSearch({ clear = false } = {}) {
     if (clear && input) {
         input.value = '';
         document.getElementById('mapSearchClear').hidden = true;
+        if (catFilter) setCatFilter(null, null); // 清搜尋 = 一併解除品類篩選
     }
     if (list) { list.hidden = true; list.innerHTML = ''; }
     if (input) input.blur();
@@ -1100,10 +1165,31 @@ function closeSearch({ clear = false } = {}) {
 
 function selectSearchResult(m) {
     track('map_search_select', { kind: m.kind, name: m.name });
+    if (m.kind === 'recent') { // 最近搜尋：回填文字重新搜
+        const input = document.getElementById('mapSearchInput');
+        input.value = m.name;
+        document.getElementById('mapSearchClear').hidden = false;
+        renderSearchResults(searchMatches(m.name), m.name);
+        return;
+    }
+    pushRecent(m.name);
     closeSearch();
     savedSheetView = null;
     programmaticMove = true;
-    if (m.kind === 'restaurant') {
+    if (m.kind === 'category') {
+        // 品類 → 地圖篩選（Google 式）：只留命中店家 + 視野框住結果
+        setCatFilter(m.name, m.set);
+        const pts = allPins.filter(p => (p.ct || []).some(i => m.set.has(i)))
+            .map(p => [p.lat, p.lng]);
+        if (pts.length) {
+            map.fitBounds(pts, { padding: [48, 48], maxZoom: 16 });
+        }
+        // 保留搜尋字在框內（清除 ✕ = 解除篩選）
+        const input = document.getElementById('mapSearchInput');
+        input.value = m.name;
+        document.getElementById('mapSearchClear').hidden = false;
+        showPillMessage(`已篩出「${m.name}」相關 ${m.sub}，按 ✕ 解除`, 4000);
+    } else if (m.kind === 'restaurant') {
         map.flyTo([m.pin.lat, m.pin.lng], 17, { duration: 0.8 });
         showMiniCard(m.pin);
     } else {
@@ -1135,6 +1221,13 @@ function wireSearch() {
         }
     });
     clearBtn.addEventListener('click', () => { closeSearch({ clear: true }); input.focus(); });
+
+    // Google 式：聚焦空白搜尋框 → 顯示最近搜尋
+    input.addEventListener('focus', () => {
+        if (input.value.trim()) return;
+        const recent = getRecent().map(q => ({ kind: 'recent', name: q, sub: '' }));
+        if (recent.length) renderSearchResults(recent);
+    });
 }
 
 // ---- 事件接線 ----
@@ -1162,6 +1255,26 @@ function wireControls() {
     }
 
     document.getElementById('chipLocate').addEventListener('click', () => locateUser({ silent: false }));
+
+    // 品類快捷 chips（Google Maps 的「餐廳/咖啡」列）：單選切換，與搜尋共用 catFilter
+    document.querySelectorAll('.map-chip--cat').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const label = chip.dataset.cat;
+            if (catFilter && catFilter.label === label) {
+                setCatFilter(null, null); // 再點一次解除
+                track('map_cat_chip', { cat: label, active: false });
+                return;
+            }
+            const hit = catHitForQuery(label.toLowerCase());
+            if (!hit) return;
+            // 快捷 chip 與搜尋字互斥：清掉輸入框避免兩個來源打架
+            const input = document.getElementById('mapSearchInput');
+            input.value = '';
+            document.getElementById('mapSearchClear').hidden = true;
+            setCatFilter(label, hit.set);
+            track('map_cat_chip', { cat: label, active: true, count: hit.count });
+        });
+    });
 
     // 抽獎模組已下架（Owner 2026-07-06）：/liff/lottery 路由保留供直接連結，
     // 地圖上不再有入口
@@ -1243,6 +1356,7 @@ export async function initMapPage() {
         ]);
         allPins = pinsRes.pins || [];
         allPlaces = pinsRes.places || [];
+        allCats = pinsRes.cats || [];
 
         map = L.map('liffMap', {
             preferCanvas: true,

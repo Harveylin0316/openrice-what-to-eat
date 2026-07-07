@@ -160,6 +160,7 @@ def main():
     restaurants = data if isinstance(data, list) else data.get('restaurants', [])
 
     pins = []
+    pin_tags = []  # 與 pins 對齊的原始品類 tags（建 cats 索引用）
     skipped_disabled = skipped_nocoords = skipped_city = 0
     for r in restaurants:
         if not r.get('enabled', True):
@@ -173,6 +174,21 @@ def main():
             skipped_nocoords += 1
             continue
         pins.append(pin)
+        pin_tags.append(set(t for t in (r.get('cuisine_style') or []) + (r.get('type') or [])
+                            if t and t != '一般'))
+
+    # 品類搜尋索引：詞彙表（出現 ≥3 次的原始 tag，Google 式 substring 搜尋用）
+    # + 每 pin 的品類索引 ct。搜「火鍋」→ 命中 火鍋店/麻辣鍋/火鍋吃到飽… 的聯集。
+    from collections import Counter
+    tag_counts = Counter()
+    for tags in pin_tags:
+        tag_counts.update(tags)
+    cats = [t for t, n in tag_counts.most_common() if n >= 3]
+    cat_index = {t: i for i, t in enumerate(cats)}
+    for pin, tags in zip(pins, pin_tags):
+        ct = sorted(cat_index[t] for t in tags if t in cat_index)
+        if ct:
+            pin['ct'] = ct
 
     tier_counts = {}
     for p in pins:
@@ -215,12 +231,13 @@ def main():
         'count': len(pins),
         'pins': pins,
         'places': places,
+        'cats': cats,
     }
     with open(OUTPUT, 'w', encoding='utf-8') as f:
         json.dump(payload, f, ensure_ascii=False, separators=(',', ':'))
 
     size_kb = os.path.getsize(OUTPUT) / 1024
-    print(f"✅ map_pins.json：{len(pins)} pins + {len(places)} places（{size_kb:.0f} KB）")
+    print(f"✅ map_pins.json：{len(pins)} pins + {len(places)} places + {len(cats)} cats（{size_kb:.0f} KB）")
     print(f"   tiers: {tier_counts}")
     print(f"   skipped: disabled={skipped_disabled}, no-coords={skipped_nocoords}, outside-allowlist={skipped_city}")
     return 0
