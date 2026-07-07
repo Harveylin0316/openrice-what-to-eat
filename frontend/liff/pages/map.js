@@ -22,7 +22,7 @@ import { track } from '../shared/tracker.js';
 const TIER = {
     menu:     { color: '#E44E25', label: '套餐優惠', radius: 11 },  // OR 紅橘
     offer:    { color: '#E5A000', label: '訂位優惠', radius: 11 },  // OR 金黃
-    cashback: { color: '#68A9A0', label: '回饋現金', radius: 7 },   // 淡青（基本盤）
+    cashback: { color: '#68A9A0', label: '出席回饋', radius: 7 },   // 淡青（基本盤）
     none:     { color: '#B4AFA8', label: '',       radius: 6 },
 };
 
@@ -123,16 +123,16 @@ function dealBadgesHtml(pin) {
     let html = '';
     if (pin.hm) html += '<span class="map-badge map-badge--menu">套餐優惠</span>';
     if (pin.ho) html += '<span class="map-badge map-badge--offer">訂位優惠</span>';
-    if (pin.b && !pin.hm && !pin.ho) html += '<span class="map-badge map-badge--cashback">回饋現金</span>';
+    if (pin.b && !pin.hm && !pin.ho) html += '<span class="map-badge map-badge--cashback">出席回饋 $3</span>';
     return html;
 }
 
 // 優惠明細行（迷你卡/聚光燈共用）：套餐款數 + 訂位優惠文字 + 回饋現金基本盤
 function dealDetailLines({ hm, mc, offers, bookable }) {
     const lines = [];
-    if (hm) lines.push(`🍽️ ${mc ? mc + ' 款' : ''}預訂套餐優惠`);
+    if (hm) lines.push(`🍽️ ${mc ? mc + ' 款' : ''}優惠套餐，訂位即享`);
     for (const o of (offers || []).slice(0, 3)) lines.push(`🎁 ${escapeHtml(o)}`);
-    if (bookable) lines.push('💵 訂位出席，每人回饋 3 元');
+    if (bookable) lines.push('💵 線上訂位＋出席，每人回饋 $3');
     return lines;
 }
 let sponsoredRestaurants = [];
@@ -228,14 +228,14 @@ function ensureMapRoot() {
     root.innerHTML = `
         <div class="map-search" role="search">
             <input type="search" id="mapSearchInput" class="map-search__input"
-                   placeholder="搜尋地區、捷運站、餐廳…" autocomplete="off"
+                   placeholder="想吃哪一帶？搜地區、捷運站、店名" autocomplete="off"
                    aria-label="搜尋地區、捷運站或餐廳" enterkeyhint="search">
             <button type="button" class="map-search__clear" id="mapSearchClear" aria-label="清除搜尋" hidden>✕</button>
             <ul class="map-search__results" id="mapSearchResults" hidden></ul>
         </div>
         <div class="map-chips" role="toolbar" aria-label="地圖篩選">
             <button type="button" class="map-chip" id="chipDeals" aria-pressed="false">🔥 加碼優惠</button>
-            <button type="button" class="map-chip" id="chipOpen" aria-pressed="false">🕐 營業中</button>
+            <button type="button" class="map-chip" id="chipOpen" aria-pressed="false">🕐 現在有開</button>
             <button type="button" class="map-chip" id="chipBookable" aria-pressed="false">📅 可訂位</button>
         </div>
         <button type="button" class="map-locate-btn" id="chipLocate" aria-label="定位到我的位置">
@@ -262,7 +262,7 @@ function ensureMapRoot() {
                 <div class="map-sheet__legend" aria-label="圖例">
                     <span><i class="map-dot" style="background:#E44E25"></i>套餐優惠</span>
                     <span><i class="map-dot" style="background:#E5A000"></i>訂位優惠</span>
-                    <span><i class="map-dot" style="background:#68A9A0"></i>回饋現金</span>
+                    <span><i class="map-dot" style="background:#68A9A0"></i>出席回饋</span>
                     <span><i class="map-dot" style="background:#B4AFA8"></i>一般</span>
                 </div>
                 <div class="map-sheet__budget" id="sheetBudget" role="group" aria-label="預算篩選"></div>
@@ -279,7 +279,7 @@ function ensureMapRoot() {
             <button type="button" class="map-card-close" id="spotlightClose" aria-label="關閉">✕</button>
             <div class="map-spotlight__body" id="spotlightBody"></div>
             <div class="map-spotlight__actions">
-                <button type="button" class="map-btn map-btn--ghost" id="spotlightRedraw">🎲 換一個</button>
+                <button type="button" class="map-btn map-btn--ghost" id="spotlightRedraw">🎲 再抽一家</button>
                 <span id="spotlightActionLinks"></span>
             </div>
         </div>
@@ -450,8 +450,8 @@ function updateCountPill() {
     if (inView === 0) {
         const filtered = activeFilters.deals || activeFilters.open || activeFilters.bookable || activeFilters.budget;
         pill.textContent = filtered
-            ? '沒有符合篩選的店家，試試放寬篩選'
-            : '這一帶還沒有店家，拖動地圖看看別區';
+            ? '篩選有點嚴格，鬆開一個條件再看看'
+            : '這一帶還沒有合作店家，滑去鬧區看看';
     } else {
         // 窄屏用短版，避免被 FAB 保留區截斷
         pill.textContent = window.matchMedia('(max-width: 360px)').matches
@@ -537,7 +537,7 @@ function renderSheetList() {
     const shown = rows.slice(0, SHEET_MAX_ROWS);
 
     if (!shown.length) {
-        list.innerHTML = '<li class="map-sheet__empty">這個範圍沒有符合的店，拖動地圖或放寬篩選</li>';
+        list.innerHTML = '<li class="map-sheet__empty">這附近沒有符合的店，滑動地圖或放寬條件</li>';
         return;
     }
 
@@ -648,7 +648,7 @@ function showMiniCard(pin) {
             ${detailLines.length ? `<ul class="map-minicard__offers">${detailLines.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}
             ${isStar ? '<p class="map-minicard__star-note">每天換一間，明天就不是它了</p>' : ''}
             <div class="map-minicard__actions">
-                ${pin.url ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(pin.url)}" target="_blank" rel="noopener">${pin.b ? '線上訂位' : '查看餐廳'}</a>` : ''}
+                ${pin.url ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(pin.url)}" target="_blank" rel="noopener">${pin.b ? '立即訂位' : '看餐廳頁'}</a>` : ''}
                 <a class="map-btn map-btn--ghost" data-track="navigation" href="${navigationUrl(pin.lat, pin.lng, pin.n)}" target="_blank" rel="noopener">🧭 導航</a>
             </div>
         </div>
@@ -792,9 +792,9 @@ async function drawSpotlight() {
     // 額度用完：鎖老虎機、不鎖工具（清單/搜尋/迷你卡照常）
     if (diceRemaining() <= 0) {
         const streakDays = getStreak().days;
-        body.innerHTML = `<p class="map-spotlight__loading">🎲 今日 ${diceQuota()} 次抽選用完啦！<br>
-            明天 0 點重置${streakDays < STREAK_BONUS_DAYS ? '，連續來 3 天每日還會 +2 次 🔥' : ''}</p>`;
-        links.innerHTML = '<button type="button" class="map-btn map-btn--primary" id="quotaBrowseBtn">先逛逛好康清單</button>';
+        body.innerHTML = `<p class="map-spotlight__loading">🎲 今日 ${diceQuota()} 次手氣用完啦！<br>
+            明天 0 點自動補滿${streakDays < STREAK_BONUS_DAYS ? '，連續來 3 天、每天多送 2 次 🔥' : ''}</p>`;
+        links.innerHTML = '<button type="button" class="map-btn map-btn--primary" id="quotaBrowseBtn">先看看附近有哪些優惠</button>';
         document.getElementById('quotaBrowseBtn').addEventListener('click', () => {
             closeSpotlight();
             setSheetOpen(true);
@@ -804,7 +804,7 @@ async function drawSpotlight() {
         return;
     }
 
-    body.innerHTML = '<p class="map-spotlight__loading">🎲 正在為你挑選…</p>';
+    body.innerHTML = '<p class="map-spotlight__loading">🎲 骰子轉動中…</p>';
     links.innerHTML = '';
 
     // 取消守衛：使用者可能在輪盤/請求進行中按 ✕，之後不得再渲染、飛鏡頭或留 🎯
@@ -850,7 +850,7 @@ async function drawSpotlight() {
         }
 
         if (!restaurant) {
-            body.innerHTML = '<p class="map-spotlight__loading">這一帶沒有符合條件的店，拖動地圖或放寬篩選再試</p>';
+            body.innerHTML = '<p class="map-spotlight__loading">這一帶沒有符合的店，滑動地圖或放寬篩選再擲</p>';
             return;
         }
 
@@ -873,7 +873,7 @@ async function drawSpotlight() {
         if (isDaikichi) {
             panel.classList.add('is-daikichi');
             consumeDice(-1);
-            showPillMessage('✨ 大吉！奉還 1 次抽選機會', 4000);
+            showPillMessage('✨ 大吉！這把不算，送你再抽一次', 4000);
             track('map_daikichi', { or_id: restaurant.or_id, draw_count: decideCount });
         }
         track('map_decide_result', {
@@ -882,7 +882,7 @@ async function drawSpotlight() {
         });
     } catch (err) {
         console.error('幫我決定失敗:', err);
-        body.innerHTML = '<p class="map-spotlight__loading">哎呀，抽籤失敗了，再試一次！</p>';
+        body.innerHTML = '<p class="map-spotlight__loading">哎呀，骰子卡住了，再擲一次！</p>';
     } finally {
         decideInProgress = false;
     }
@@ -925,7 +925,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
     let dealBadges = '';
     if (hm) dealBadges += '<span class="map-badge map-badge--menu">套餐優惠</span>';
     if (ho) dealBadges += '<span class="map-badge map-badge--offer">訂位優惠</span>';
-    if (bookable && !hm && !ho) dealBadges += '<span class="map-badge map-badge--cashback">回饋現金</span>';
+    if (bookable && !hm && !ho) dealBadges += '<span class="map-badge map-badge--cashback">出席回饋 $3</span>';
     const detailLines = dealDetailLines({ hm, mc, offers, bookable });
 
     body.innerHTML = `
@@ -949,7 +949,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
     `;
 
     links.innerHTML = `
-        ${r.url ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${r.bookable ? '線上訂位' : '查看餐廳'}</a>` : ''}
+        ${r.url ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${r.bookable ? '立即訂位' : '看餐廳頁'}</a>` : ''}
         ${hasCoords ? `<a class="map-btn map-btn--ghost" data-track="navigation" href="${navigationUrl(coords.lat, coords.lng, r.name)}" target="_blank" rel="noopener">🧭 導航</a>` : ''}
     `;
     links.querySelectorAll('a[data-track]').forEach(a => {
@@ -996,7 +996,7 @@ function closeSpotlight() {
 function locateUser({ silent = false } = {}) {
     return new Promise(resolve => {
         if (!navigator.geolocation) {
-            if (!silent) showPillMessage('這台裝置不支援定位，拖動地圖探索吧');
+            if (!silent) showPillMessage('這台裝置不支援定位，直接滑地圖逛吧');
             resolve(false);
             return;
         }
@@ -1015,8 +1015,8 @@ function locateUser({ silent = false } = {}) {
                 if (!silent) {
                     // 定位被拒是最大流失點：不用 alert 擋路，地圖照樣能逛
                     showPillMessage(err && err.code === 1
-                        ? '定位被封鎖了，可到 LINE/系統設定開啟，或直接拖地圖逛'
-                        : '拿不到定位，拖動地圖探索或用 🎲 幫我決定', 5000);
+                        ? '定位被封鎖了，可到 LINE/系統設定開啟，或直接滑地圖逛'
+                        : '拿不到定位，滑動地圖逛逛，或用 🎲 手氣決定', 5000);
                 }
                 resolve(false);
             },
@@ -1281,7 +1281,7 @@ export async function initMapPage() {
         const streak = bumpStreak();
         updateFabBadge();
         if (streak.days >= 2) {
-            setTimeout(() => showPillMessage(`🔥 連續 ${streak.days} 天逛好康地圖！今日抽選 ${diceQuota()} 次`, 5000), 2200);
+            setTimeout(() => showPillMessage(`🔥 連續 ${streak.days} 天報到！今天有 ${diceQuota()} 次抽選等你用`, 5000), 2200);
         }
 
         map.on('moveend', () => {
@@ -1307,7 +1307,7 @@ export async function initMapPage() {
         try {
             if (!localStorage.getItem(ONBOARD_KEY)) {
                 localStorage.setItem(ONBOARD_KEY, '1');
-                setTimeout(() => showPillMessage('每間訂位出席都回饋現金 💵 紅=套餐優惠 金=訂位優惠・點店看詳情', 8000), 1200);
+                setTimeout(() => showPillMessage('💵 訂位出席就有現金回饋！紅點＝套餐優惠、金點＝訂位優惠，點店家看詳情', 8000), 1200);
             }
         } catch (e) { /* private mode: 略過 */ }
 
