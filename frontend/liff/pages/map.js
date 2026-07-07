@@ -458,30 +458,19 @@ function makeLabelClickable(marker, pin, trackProps) {
     });
 }
 
-function buildMarker(L, pin) {
-    const t = TIER[pin.t] || TIER.none;
-    // 「暫無優惠」(none)：與無優惠 POI 同款空心灰點——用戶眼中兩者等價（不能訂、沒優惠）
-    const hollow = pin.t === 'none';
-    const marker = L.circleMarker([pin.lat, pin.lng], {
-        radius: t.radius,
-        color: hollow ? t.color : '#fff',
-        weight: hollow ? 1.5 : 2,
-        fillColor: hollow ? '#FFFFFF' : t.color,
-        fillOpacity: hollow ? 0.9 : 0.95,
-        // circleMarker 預設 bubblingMouseEvents:true → 點擊會冒泡到地圖的 click，
-        // 而地圖 click 會 closeMiniCard() → 剛開的卡瞬間被關（用戶回報「點沒反應」）。
-        // 關掉冒泡（L.Marker 預設就是 false，所以贊助/星星釘一直正常）。
-        bubblingMouseEvents: false,
-    });
-    marker._baseRadius = t.radius;
+// 餐廳 icon（Google 風格刀叉）：合作店（有優惠/可回饋）用它，一眼跟灰點未合作店區隔。
+// Material「restaurant」字形，白色刀叉浮在 tier 色圓底上（白邊 + 陰影，像 Google 類別標記）。
+const FOOD_SVG = '<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>';
+
+function bindPinCommon(marker, pin, offsetX, isDeal) {
     // 高 zoom（cluster 散開後）顯示店名標籤：掃視地圖不用逐顆點
     // z16 先亮「有加碼優惠」的店名，z17 全亮（密集區標籤分層，見 syncLabels）
     marker.bindTooltip(pin.n, {
         permanent: true,
         interactive: true, // 標籤本身可點（否則點文字會穿透到地圖）
         direction: 'right',
-        offset: [8, 0],
-        className: `map-pin-label${(pin.t === 'menu' || pin.t === 'offer') ? ' map-pin-label--deal' : ''}`,
+        offset: [offsetX, 0],
+        className: `map-pin-label${isDeal ? ' map-pin-label--deal' : ''}`,
     });
     const trackProps = { or_id: pin.id, name: pin.n, tier: pin.t };
     marker.on('click', () => {
@@ -490,6 +479,41 @@ function buildMarker(L, pin) {
     });
     makeLabelClickable(marker, pin, trackProps);
     return marker;
+}
+
+// 「暫無優惠」(none)：與無優惠 POI 同款空心灰點——用戶眼中兩者等價（不能訂、沒優惠）。灰點不動。
+function buildDotMarker(L, pin, t) {
+    const marker = L.circleMarker([pin.lat, pin.lng], {
+        radius: t.radius,
+        color: t.color,
+        weight: 1.5,
+        fillColor: '#FFFFFF',
+        fillOpacity: 0.9,
+        // 關掉冒泡（否則點擊冒泡到地圖 click→closeMiniCard，卡瞬間被關，像「點沒反應」）
+        bubblingMouseEvents: false,
+    });
+    marker._baseRadius = t.radius;
+    return bindPinCommon(marker, pin, 8, false);
+}
+
+function buildMarker(L, pin) {
+    const t = TIER[pin.t] || TIER.none;
+    if (pin.t === 'none') return buildDotMarker(L, pin, t);
+
+    // 合作店（menu/offer/cashback）：改用餐廳 icon。優惠店(menu/offer)大一號、上層，回饋店(cashback)略小。
+    const isDeal = pin.t === 'menu' || pin.t === 'offer';
+    const size = isDeal ? 30 : 24;
+    const marker = L.marker([pin.lat, pin.lng], {
+        icon: L.divIcon({
+            className: 'map-food-wrap',
+            html: `<div class="map-food-pin${isDeal ? ' map-food-pin--lg' : ''}" style="background:${t.color}">${FOOD_SVG}</div>`,
+            iconSize: [size, size],
+            iconAnchor: [size / 2, size / 2],
+        }),
+        zIndexOffset: isDeal ? 500 : 400,
+        // L.marker 預設 bubblingMouseEvents:false，不會冒泡關卡
+    });
+    return bindPinCommon(marker, pin, size / 2 + 2, isDeal);
 }
 
 // 今日之星：日期種子每日輪換一間好康店（CD6+CD7：每日新鮮感 + 過期不候）
@@ -1980,7 +2004,8 @@ export async function initMapPage() {
             const bump = map.getZoom() >= 17;
             if (bump === pinBumped) return;
             pinBumped = bump;
-            pinMarkers.forEach(m => m.setRadius(m._baseRadius + (bump ? 2 : 0)));
+            // 只有灰點(circleMarker)有 setRadius；餐廳 icon(divIcon marker)固定尺寸，跳過。
+            pinMarkers.forEach(m => { if (m.setRadius) m.setRadius(m._baseRadius + (bump ? 2 : 0)); });
             if (extLayer) extLayer.eachLayer(m => m.setRadius(bump ? 7 : 5));
         };
         map.on('zoomend', syncPinSize);

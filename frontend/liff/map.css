@@ -176,6 +176,29 @@ body.is-map-page { overflow: hidden; }
 }
 .map-canvas.is-spotlight .map-pin-label--star { display: none; }
 .map-canvas.is-spotlight .map-star-pin { opacity: 0.25; }
+
+/* 合作餐廳 icon（Google 風格刀叉，取代原本的色點）。tier 色由 map.js inline 帶入 background。
+ * divIcon 給了自訂 className → 不吃 leaflet 預設白方塊；仍防禦性清掉背景/邊框。 */
+.map-food-wrap { background: transparent; border: none; }
+.map-food-pin {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+}
+.map-food-pin svg { width: 60%; height: 60%; display: block; }
+/* 優惠店(menu/offer)：大一號、邊框陰影更明顯，比回饋店突出 */
+.map-food-pin--lg {
+  border-width: 2.5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+/* 聚光燈時讓位（跟色點/星釘一致淡出） */
+.map-canvas.is-spotlight .map-food-pin { opacity: 0.3; }
 /* 聚光燈時所有店名標籤讓位（卡片上已有店名）；tooltip pane 不吃 overlay 淡出，需獨立隱藏 */
 .map-canvas.is-spotlight .map-pin-label { display: none !important; }
 /* 蓋掉 leaflet 預設 tooltip 箭頭 */
