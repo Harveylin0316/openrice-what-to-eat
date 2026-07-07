@@ -701,12 +701,13 @@ function viewportCandidates() {
 
 // 輪盤動畫：🎯 在候選店之間跳動、店名快速輪替、逐步減速 → 落在贏家
 // （隨機感的儀式：讓「抽」被看見，而不是畫面直接跳答案）
-async function rouletteReveal(decoyPins, body) {
+async function rouletteReveal(decoyPins, body, isCancelled) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (!decoyPins.length) return;
     const delays = [80, 90, 100, 120, 150, 190, 240, 300];
     const steps = Math.min(decoyPins.length, delays.length);
     for (let i = 0; i < steps; i++) {
+        if (isCancelled && isCancelled()) return; // 使用者中途關閉 → 停止跳動
         const p = decoyPins[i];
         setSpotlightPin(p.lat, p.lng);
         body.innerHTML = `<p class="map-spotlight__loading map-spotlight__roulette">🎲 ${escapeHtml(p.n)}</p>`;
@@ -758,6 +759,9 @@ async function drawSpotlight() {
     body.innerHTML = '<p class="map-spotlight__loading">🎲 正在為你挑選…</p>';
     links.innerHTML = '';
 
+    // 取消守衛：使用者可能在輪盤/請求進行中按 ✕，之後不得再渲染、飛鏡頭或留 🎯
+    const cancelled = () => panel.hidden;
+
     try {
         let restaurant = null;
         let isSponsoredPick = false;
@@ -781,15 +785,18 @@ async function drawSpotlight() {
         // 後備路徑：畫面內沒有合適的店 → 用推薦 API 在附近 5km / 北北基抽
         if (!restaurant) {
             let results = await fetchRecommendations(buildDecideFormData(), spotlightExcludes, 1);
+            if (cancelled()) return;
             if (!results.length) {
                 spotlightExcludes = []; // 全抽過了 → 重置排除清單再抽一次
                 results = await fetchRecommendations(buildDecideFormData(), [], 1);
+                if (cancelled()) return;
             }
             restaurant = results[0] || null;
             // API 不會過濾今日休息：抽到就換一次（只換一次，避免迴圈）
             if (restaurant && getOpeningStatus(restaurant.opening_hours).status === 'closed-today') {
                 spotlightExcludes.push(restaurant.name);
                 const retry = await fetchRecommendations(buildDecideFormData(), spotlightExcludes, 1);
+                if (cancelled()) return;
                 if (retry[0]) restaurant = retry[0];
             }
         }
@@ -802,7 +809,15 @@ async function drawSpotlight() {
         decideCount++; // 只計成功展示的抽數，網路失敗不消耗贊助保底節奏
         consumeDice(1);
         spotlightExcludes.push(restaurant.name);
-        await rouletteReveal(sampleDecoys(restaurant.name, 7), body);
+        await rouletteReveal(sampleDecoys(restaurant.name, 7), body, cancelled);
+        if (cancelled()) {
+            // 中途取消：退籌碼、清 🎯，本抽不算數（名字也退出排除清單）
+            consumeDice(-1);
+            clearSpotlightPin();
+            spotlightExcludes.pop();
+            decideCount--;
+            return;
+        }
 
         // ✨ 大吉時刻（變動獎勵）：金色特效 + 奉還 1 次抽選
         const isDaikichi = Math.random() < DAIKICHI_RATE;
