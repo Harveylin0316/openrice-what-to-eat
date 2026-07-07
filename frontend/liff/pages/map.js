@@ -594,6 +594,57 @@ function syncExtLabels() {
             m.unbindTooltip();
         }
     });
+    scheduleLabelCollision();
+}
+
+// ---- 標籤碰撞隱藏（Google Maps 式）----
+// 密集區店名互疊很擠 → 依優先序放置，重疊到高優先者的次要店名就藏起來（點還在）。
+// 優先序：搜尋落點 > 贊助(付費) > 今日之星 > 加碼優惠 > 合作店 > 暫無優惠(灰)。
+function labelPriority(el) {
+    const c = el.classList;
+    if (c.contains('map-pin-label--search')) return 100;
+    if (c.contains('map-pin-label--sponsor')) return 90;
+    if (c.contains('map-pin-label--star')) return 80;
+    if (c.contains('map-pin-label--deal')) return 70;
+    if (c.contains('map-pin-label--ext')) return 10;
+    return 40; // 合作店（出席回饋 cashback）
+}
+
+let collisionRAF = null;
+function scheduleLabelCollision() {
+    if (collisionRAF) return;
+    collisionRAF = requestAnimationFrame(() => {
+        collisionRAF = null;
+        runLabelCollision();
+    });
+}
+
+function runLabelCollision() {
+    const all = document.querySelectorAll('.map-pin-label');
+    if (!all.length) return;
+    for (const el of all) el.classList.remove('is-collided'); // 先全放出來重算
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const labels = [];
+    for (const el of all) {
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) continue;                       // 被分層規則隱藏
+        if (r.right < 0 || r.bottom < 0 || r.left > vw || r.top > vh) continue; // 視窗外
+        labels.push({ el, r, p: labelPriority(el) });
+    }
+    // 高優先先放；同優先照由上到下（結果穩定、不閃動）
+    labels.sort((a, b) => b.p - a.p || a.r.top - b.r.top);
+    const placed = [];
+    const PAD = 2;
+    for (const { el, r, p } of labels) {
+        if (p >= 90) { placed.push(r); continue; } // 搜尋/贊助永遠留（付費曝光不能被吃）
+        let hit = false;
+        for (const q of placed) {
+            if (r.left < q.right + PAD && r.right > q.left - PAD &&
+                r.top < q.bottom + PAD && r.bottom > q.top - PAD) { hit = true; break; }
+        }
+        if (hit) el.classList.add('is-collided');
+        else placed.push(r);
+    }
 }
 
 // 贊助店專屬圖釘：醒目、永不被 cluster 聚合、任何 zoom 都看得到、店名常駐
@@ -1825,8 +1876,10 @@ export async function initMapPage() {
             const el = document.getElementById('liffMap');
             el.classList.toggle('show-labels', z >= 16);
             el.classList.toggle('show-labels-all', z >= 17);
+            scheduleLabelCollision(); // 分層改變後重算碰撞
         };
         map.on('zoomend', syncLabels);
+        map.on('moveend', scheduleLabelCollision); // 平移後視窗內標籤集合變了
         syncLabels();
 
         // 拉近時 pin 略放大（手指點得到；z≥17 半徑 +2px）

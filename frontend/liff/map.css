@@ -111,6 +111,8 @@ body.is-map-page { overflow: hidden; }
 }
 .map-canvas .map-pin-label::before,
 .map-canvas .map-pin-label::after { display: none; } /* leaflet tooltip 的小箭角 */
+/* 碰撞隱藏（Google 式）：重疊到高優先店名的次要店名藏起來（點還在，見 runLabelCollision） */
+.map-canvas .map-pin-label.is-collided { display: none !important; }
 
 /* 贊助店圖釘：醒目星星釘，任何 zoom 都顯示（永不聚合），店名常駐 */
 .map-sponsor-pin {
