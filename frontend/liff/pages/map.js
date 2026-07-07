@@ -404,8 +404,12 @@ function showExtCard(poi) {
     body.innerHTML = `
         <div class="map-minicard__info">
             <div class="map-minicard__badges"><span class="map-badge map-badge--ext">尚未合作</span></div>
-            <h3 class="map-minicard__name">${escapeHtml(poi.n)}</h3>
-            ${poi.cu ? `<p class="map-minicard__meta">${escapeHtml(poi.cu)}</p>` : ''}
+            <h3 class="map-minicard__name">${poi.u
+                ? `<a href="${escapeHtml(poi.u)}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(poi.n)}<span class="map-minicard__more"> ›</span></a>`
+                : escapeHtml(poi.n)}</h3>
+            <p class="map-minicard__meta">
+                ${poi.r ? `⭐ ${formatRating(poi.r)}　` : ''}${escapeHtml(poi.d || '')}${poi.cu ? `　·　${escapeHtml(poi.cu)}` : ''}${poi.bud ? `　·　💰 ${escapeHtml(poi.bud)}` : ''}
+            </p>
             <p class="map-minicard__ext-note">這間還沒加入出席回饋計畫，訂位拿不到 $3 回饋 😢<br>找有色點的合作店，訂位出席每人回饋 $3</p>
             <div class="map-minicard__actions">
                 <a class="map-btn map-btn--ghost" data-track="navigation" href="${navigationUrl(poi.lat, poi.lng, poi.n)}" target="_blank" rel="noopener">🧭 導航</a>
@@ -420,6 +424,7 @@ function buildExtLayer(L) {
     if (!extPois.length || !map) return;
     extLayer = L.layerGroup();
     for (const poi of extPois) {
+        // 1,262 點：不掛常駐標籤（省 DOM），canvas 圓點 + 點擊開卡看名字
         const m = L.circleMarker([poi.lat, poi.lng], {
             radius: 5,
             color: '#9A948C',
@@ -427,32 +432,14 @@ function buildExtLayer(L) {
             fillColor: '#FFFFFF',
             fillOpacity: 0.9,
         });
-        m.bindTooltip(poi.n, {
-            permanent: true,
-            interactive: true,
-            direction: 'right',
-            offset: [7, 0],
-            className: 'map-pin-label map-pin-label--ext',
-        });
         m.on('click', () => {
             track('map_ext_pin_click', { name: poi.n });
             showExtCard(poi);
         });
-        m.on('tooltipopen', (e) => {
-            const el = e.tooltip && e.tooltip.getElement();
-            if (el && !el.dataset.clickBound) {
-                el.dataset.clickBound = '1';
-                el.addEventListener('click', (ev) => {
-                    ev.stopPropagation();
-                    track('map_ext_pin_click', { name: poi.n, via: 'label' });
-                    showExtCard(poi);
-                });
-            }
-        });
         extLayer.addLayer(m);
     }
     const syncExtLayer = () => {
-        const show = map.getZoom() >= 15; // 低 zoom 隱藏，避免灰點蓋滿市區
+        const show = map.getZoom() >= 16; // 街區層級才顯示，避免千顆灰點蓋滿市區
         if (show && !map.hasLayer(extLayer)) map.addLayer(extLayer);
         else if (!show && map.hasLayer(extLayer)) map.removeLayer(extLayer);
     };
@@ -1169,10 +1156,15 @@ function searchMatches(query) {
         .filter(p => p.n.toLowerCase().includes(q))
         .slice(0, Math.max(3, 8 - placeHits.length - catRows.length))
         .map(p => ({ kind: 'restaurant', name: p.n, sub: p.d, pin: p }));
-    return [...catRows, ...placeHits, ...pinHits];
+    // 未合作店（最多 2 筆、排最後）：搜得到 → 點開卡片看見「合作店才有回饋」的對照
+    const extHits = extPois
+        .filter(p => p.n.toLowerCase().includes(q))
+        .slice(0, 2)
+        .map(p => ({ kind: 'ext', name: p.n, sub: `${p.d || ''}·未合作`, poi: p }));
+    return [...catRows, ...placeHits, ...pinHits, ...extHits];
 }
 
-const SEARCH_ICON = { category: '🍴', district: '🏙️', landmark: '📍', restaurant: '🍽️', recent: '🕘' };
+const SEARCH_ICON = { category: '🍴', district: '🏙️', landmark: '📍', restaurant: '🍽️', recent: '🕘', ext: '⚪' };
 
 // ---- 最近搜尋（Google 式：聚焦空白搜尋框時出現）----
 const RECENT_KEY = 'rr_map_recent';
@@ -1262,6 +1254,9 @@ function selectSearchResult(m) {
     } else if (m.kind === 'restaurant') {
         map.flyTo([m.pin.lat, m.pin.lng], 17, { duration: 0.8 });
         showMiniCard(m.pin);
+    } else if (m.kind === 'ext') {
+        map.flyTo([m.poi.lat, m.poi.lng], 17, { duration: 0.8 });
+        showExtCard(m.poi);
     } else {
         // 行政區看全貌、地標看街區
         map.flyTo([m.lat, m.lng], m.kind === 'district' ? 15 : 16, { duration: 0.8 });
@@ -1503,9 +1498,14 @@ export async function initMapPage() {
         window.__lifeMap = {
             get map() { return map; },
             get pins() { return allPins; },
+            get extPois() { return extPois; },
             openPin(id) {
                 const pin = allPins.find(p => p.id === id);
                 if (pin) showMiniCard(pin);
+            },
+            openExt(name) {
+                const poi = extPois.find(p => p.n === name);
+                if (poi) showExtCard(poi);
             },
         };
 
