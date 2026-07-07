@@ -14,6 +14,12 @@ if command -v python3 >/dev/null 2>&1 && [ -f "generate_map_pins.py" ]; then
   fi
 fi
 
+# 抓取未合作餐廳 POI（OSM，松江南京試點；失敗沿用快照，不擋建置）
+if [ -f "fetch_external_pois.mjs" ]; then
+  echo "抓取未合作餐廳 POI..."
+  node fetch_external_pois.mjs || echo "⚠️ 外部 POI 抓取失敗，沿用快照"
+fi
+
 # 檢查數據庫文件是否存在
 if [ -f "restaurants_database.json" ]; then
   echo "找到數據庫文件，複製到函數目錄..."

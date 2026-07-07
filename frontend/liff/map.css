@@ -566,6 +566,23 @@ body.is-map-page { overflow: hidden; }
   border: 1.5px solid #fff;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
 }
+.map-dot--hollow {
+  background: #fff;
+  border: 1.5px solid #9A948C;
+  box-shadow: none;
+}
+
+/* 未合作店：灰字標籤與提示 */
+.map-canvas .map-pin-label--ext { color: var(--lm-text-muted); font-weight: 400; }
+.map-minicard__ext-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--lm-text-body);
+  background: #F7F5F2;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
 
 /* ---- 回地圖浮動鈕（顯示在 home / 抽獎等非地圖頁） ---- */
 
@@ -766,6 +783,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 .map-badge--offer         { background: var(--lm-or-yellow-subtle); color: var(--lm-or-yellow-deep); }
 .map-badge--cashback      { background: #DCEDEA; color: #2C6F67; }
 .map-badge--star          { background: linear-gradient(105deg, #FFF3C2, #FFE380); color: #7A5A00; }
+.map-badge--ext           { background: #F0EEEA; color: #6E6961; }
 .map-badge--daikichi      { background: linear-gradient(105deg, #FFE9A8, #FFD300); color: #6B4E00; }
 
 /* ---- 按鈕 ---- */

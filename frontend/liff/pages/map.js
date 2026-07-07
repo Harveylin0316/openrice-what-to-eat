@@ -106,6 +106,8 @@ let allPins = [];               // map_pins.json 的原始資料
 let allPlaces = [];             // 搜尋用地點索引（行政區/地標，含質心座標）
 let allCats = [];               // 品類詞彙表（火鍋店/燒肉店/居酒屋…，pin.ct 為索引）
 let catFilter = null;           // 品類篩選 {label, set:Set<catIdx>}，搜尋或快捷 chip 設定
+let extPois = [];               // 未合作餐廳 POI（OSM 松江南京試點）：對照出「有出席回饋」的價值
+let extLayer = null;
 let pinMarkers = new Map();     // pin.id -> L.CircleMarker（一般 pin，走 cluster）
 let sponsorMarkers = new Map(); // pin.id -> L.Marker（贊助店專屬圖釘，永不聚合）
 let starPin = null;             // 今日之星（日期種子每日輪換，金冠圖釘）
@@ -271,6 +273,7 @@ function ensureMapRoot() {
                     <span><i class="map-dot" style="background:#E5A000"></i>訂位優惠</span>
                     <span><i class="map-dot" style="background:#68A9A0"></i>出席回饋</span>
                     <span><i class="map-dot" style="background:#B4AFA8"></i>一般</span>
+                    <span><i class="map-dot map-dot--hollow"></i>未合作</span>
                 </div>
                 <div class="map-sheet__budget" id="sheetBudget" role="group" aria-label="預算篩選"></div>
                 <ul class="map-sheet__list" id="sheetList"></ul>
@@ -388,6 +391,73 @@ function buildStarMarker(L, pin) {
     });
     makeLabelClickable(marker, pin, trackProps);
     return marker;
+}
+
+// ---- 未合作餐廳（OSM 試點）：空心灰點，對照出「合作店有回饋」的價值 ----
+
+function showExtCard(poi) {
+    closeSpotlight();
+    const card = document.getElementById('mapMiniCard');
+    const body = document.getElementById('miniCardBody');
+    if (!card || !body) return;
+    setSelectedRing(poi.lat, poi.lng);
+    body.innerHTML = `
+        <div class="map-minicard__info">
+            <div class="map-minicard__badges"><span class="map-badge map-badge--ext">尚未合作</span></div>
+            <h3 class="map-minicard__name">${escapeHtml(poi.n)}</h3>
+            ${poi.cu ? `<p class="map-minicard__meta">${escapeHtml(poi.cu)}</p>` : ''}
+            <p class="map-minicard__ext-note">這間還沒加入出席回饋計畫，訂位拿不到 $3 回饋 😢<br>找有色點的合作店，訂位出席每人回饋 $3</p>
+            <div class="map-minicard__actions">
+                <a class="map-btn map-btn--ghost" data-track="navigation" href="${navigationUrl(poi.lat, poi.lng, poi.n)}" target="_blank" rel="noopener">🧭 導航</a>
+            </div>
+        </div>
+    `;
+    card.hidden = false;
+    updateCardOpenState();
+}
+
+function buildExtLayer(L) {
+    if (!extPois.length || !map) return;
+    extLayer = L.layerGroup();
+    for (const poi of extPois) {
+        const m = L.circleMarker([poi.lat, poi.lng], {
+            radius: 5,
+            color: '#9A948C',
+            weight: 1.5,
+            fillColor: '#FFFFFF',
+            fillOpacity: 0.9,
+        });
+        m.bindTooltip(poi.n, {
+            permanent: true,
+            interactive: true,
+            direction: 'right',
+            offset: [7, 0],
+            className: 'map-pin-label map-pin-label--ext',
+        });
+        m.on('click', () => {
+            track('map_ext_pin_click', { name: poi.n });
+            showExtCard(poi);
+        });
+        m.on('tooltipopen', (e) => {
+            const el = e.tooltip && e.tooltip.getElement();
+            if (el && !el.dataset.clickBound) {
+                el.dataset.clickBound = '1';
+                el.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    track('map_ext_pin_click', { name: poi.n, via: 'label' });
+                    showExtCard(poi);
+                });
+            }
+        });
+        extLayer.addLayer(m);
+    }
+    const syncExtLayer = () => {
+        const show = map.getZoom() >= 15; // 低 zoom 隱藏，避免灰點蓋滿市區
+        if (show && !map.hasLayer(extLayer)) map.addLayer(extLayer);
+        else if (!show && map.hasLayer(extLayer)) map.removeLayer(extLayer);
+    };
+    map.on('zoomend', syncExtLayer);
+    syncExtLayer();
 }
 
 // 贊助店專屬圖釘：醒目、永不被 cluster 聚合、任何 zoom 都看得到、店名常駐
@@ -563,7 +633,7 @@ function renderSheetList() {
                 <span class="map-sheet__item-info">
                     <span class="map-sheet__item-top">
                         <span class="map-sheet__item-name">${escapeHtml(pin.n)}</span>
-                        ${tierBadgeHtml(pin.t)}
+                        ${dealBadgesHtml(pin)}
                     </span>
                     <span class="map-sheet__item-meta">
                         ${pin.r ? `⭐ ${formatRating(pin.r)}` : ''}${dist ? `　${dist}` : ''}${pin.bud ? `　💰 ${escapeHtml(pin.bud)}` : ''}
@@ -1345,15 +1415,18 @@ export async function initMapPage() {
         // 背景載入，不擋首屏（serverless 冷啟可能秒級延遲）
         loadSponsoredRestaurants().then(list => { sponsoredRestaurants = list; });
 
-        // Leaflet 與 pin 資料平行載入
+        // Leaflet 與 pin 資料平行載入（外部 POI 為選配，失敗不擋）
         const pinsUrl = new URL('../data/map_pins.json', import.meta.url);
-        const [L, pinsRes] = await Promise.all([
+        const extUrl = new URL('../data/external_pois.json', import.meta.url);
+        const [L, pinsRes, extRes] = await Promise.all([
             loadLeaflet(),
             fetch(pinsUrl).then(r => {
                 if (!r.ok) throw new Error(`pin 資料載入失敗: ${r.status}`);
                 return r.json();
             }),
+            fetch(extUrl).then(r => (r.ok ? r.json() : null)).catch(() => null),
         ]);
+        extPois = (extRes && extRes.pois) || [];
         allPins = pinsRes.pins || [];
         allPlaces = pinsRes.places || [];
         allCats = pinsRes.cats || [];
@@ -1389,6 +1462,7 @@ export async function initMapPage() {
             starMarker = buildStarMarker(L, starPin).addTo(map);
         }
         map.addLayer(clusterGroup);
+        buildExtLayer(L); // 未合作餐廳（灰空心點，z≥15 顯示）
         applyFilters();
 
         // 遊戲化開場：連續天數 + 抽選額度 badge
