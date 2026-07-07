@@ -50,3 +50,11 @@ _rebuild/backups/videos/
 
 # nightly workflow：checker db 的暫時 checkout
 _checker/
+
+# netlify-build.sh 的本地產出（Netlify 雲端 build 會自行生成，不進版控）
+frontend/web/liff/
+frontend/web/admin/
+frontend/web/shared/shared/
+frontend/liff/shared/shared/
+netlify/functions/data/
+netlify/functions/supabase/
