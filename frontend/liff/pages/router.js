@@ -124,9 +124,17 @@ async function loadPage(pageName) {
         }
     } catch (error) {
         console.error(`載入頁面 "${pageName}" 失敗:`, error);
-        // 如果載入失敗，嘗試載入傳統首頁作為備用（地圖失敗也能退回表單推薦）
-        if (pageName !== 'home') {
-            console.log('嘗試載入首頁作為備用');
+        // 地圖是預設首頁：失敗時「不要」退回舊版「今天吃什麼」表單（Owner 要求不讓用戶再看到）。
+        // 保留 is-map-page，讓 initMapPage 已渲染在 #liffMap 內的「地圖載入失敗・重新載入」卡可見，
+        // 使用者留在地圖情境重試即可。只有「非地圖、非首頁」的其他頁才退回首頁。
+        if (pageName === 'map') {
+            const canvas = document.getElementById('liffMap');
+            if (canvas && !canvas.querySelector('.map-error')) {
+                canvas.innerHTML = '<div class="map-error"><p>😥 地圖載入失敗</p>'
+                    + '<button type="button" class="map-btn map-btn--primary" onclick="location.reload()">重新載入</button></div>';
+            }
+            currentPage = null; // 沒真正載成功 → 允許再次點「好康地圖」重試
+        } else if (pageName !== 'home') {
             document.body.classList.remove('is-map-page');
             await loadPage('home');
         }
