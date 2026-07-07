@@ -4,7 +4,9 @@
 
 // 注意：只靜態 import「一直都存在」的舊有 exports。新加的 fetchNearbyParking 改「動態載入」，
 // 否則萬一 webview 快取到舊版 api.js（沒有這個 export），整個 map.js 會 link 失敗 → 地圖載不出來。
-import { fetchRecommendations, loadSponsoredRestaurants } from '../shared/api.js';
+// api.js 版本釘死（?v 只是快取鍵，檔案內容永遠是最新的）→ 保證抓到含 fetchNearbyParking
+// 的新版，避免舊快取缺 export 造成整個 map.js link 失敗。改版時跟 index.html __V 一起 bump。
+import { fetchRecommendations, loadSponsoredRestaurants, fetchNearbyParking } from '../shared/api.js?v=r8';
 import {
     calculateDistance,
     formatDistance,
@@ -1073,25 +1075,20 @@ async function fillParking(pin) {
     const ver = (typeof window !== 'undefined' && window.__V) ? window.__V : '?';
     el.innerHTML = `<span class="map-parking__loading">🅿️ 查附近停車…</span>`;
     const parkMsg = (t) => { el.innerHTML = `<span class="map-parking__icon" aria-hidden="true">🅿️</span><span class="map-parking__text map-parking__loading">${escapeHtml(t)}</span>`; };
-    const apiV = ver !== '?' ? ('?v=' + ver) : '';
-
-    // 整段包起來 + 每步都有逾時：連「動態 import api.js」都可能 hang，所以也套逾時，
-    // 保證這行永遠會有結果（不會一直卡在「查附近停車…」）。訊息帶版本號方便診斷。
+    // fetchNearbyParking 改為靜態 import（釘版）→ 不再動態 import，消除「import 卡住」這條路。
+    // 只剩單一逾時（查詢）；失敗訊息保留完整原因（含步驟）方便診斷，不再壓成籠統「逾時」。
     let lots;
     try {
-        const mod = await withTimeout(import('../shared/api.js' + apiV), 6000, 'api 載入');
-        const fetchNearbyParking = mod && mod.fetchNearbyParking;
         if (typeof fetchNearbyParking !== 'function') {
-            if (inTaipei) parkMsg(`停車模組載入失敗（${ver}）`); else el.hidden = true;
+            if (inTaipei) parkMsg(`停車模組未載入（${ver}）`); else el.hidden = true;
             return;
         }
-        lots = await withTimeout(fetchNearbyParking(pin.lat, pin.lng, parkingAbort.signal), 12000, '停車查詢');
+        lots = await withTimeout(fetchNearbyParking(pin.lat, pin.lng, parkingAbort.signal), 12000, '查詢');
     } catch (err) {
         if (err && err.name === 'AbortError') return; // 卡片關了/換店
         const msg = (err && err.message) || '';
         const reason = err && err.status ? `HTTP ${err.status}`
-            : /逾時/.test(msg) ? '逾時'
-            : (msg ? msg.slice(0, 16) : '未知');
+            : (msg ? msg.slice(0, 20) : '未知');
         if (inTaipei) parkMsg(`停車暫時無法取得（${reason}·${ver}）`); else el.hidden = true;
         return;
     }
