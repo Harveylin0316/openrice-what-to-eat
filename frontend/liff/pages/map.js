@@ -633,6 +633,8 @@ function renderSheetList() {
         </li>`;
     }).join('') + (rows.length > SHEET_MAX_ROWS
         ? `<li class="map-sheet__empty">還有 ${rows.length - SHEET_MAX_ROWS} 間，拉近地圖看更多</li>`
+        : '') + (extPois.length
+        ? '<li class="map-sheet__footnote">地圖上的灰色小點＝未合作店家（訂位沒有回饋）</li>'
         : '');
 
     list.querySelectorAll('.map-sheet__item').forEach(btn => {
@@ -903,11 +905,18 @@ async function drawSpotlight() {
         }
 
         // 主要路徑：從使用者眼前的地圖抽（畫面內 + 通過篩選 + 今天有開），
-        // 抽選結果與「畫面內 N 間」的心智模型一致
+        // 抽選結果與「畫面內 N 間」的心智模型一致。
+        // 「現在有開」的優先：中午抽選不該落在 17:00 才開的店（有開的沒了才退而求其次）
         if (!restaurant) {
             const candidates = viewportCandidates();
             if (candidates.length) {
-                const pick = candidates[Math.floor(Math.random() * candidates.length)];
+                const now = new Date();
+                const openNow = candidates.filter(p => {
+                    const h = expandHours(p.h);
+                    return h && getOpeningStatus(h, now).openNow;
+                });
+                const pool = openNow.length ? openNow : candidates;
+                const pick = pool[Math.floor(Math.random() * pool.length)];
                 restaurant = pinToRestaurant(pick);
             }
         }
@@ -1374,6 +1383,34 @@ function wireControls() {
         else if (dy > 30 && sheetOpen) { setSheetOpen(false); dragToggled = true; dragStartY = null; }
     });
     handle.addEventListener('pointerup', () => { dragStartY = null; });
+
+    // 清單展開時的下拉手勢：頂端下拉 = 收合清單，
+    // 並 preventDefault 擋住 LINE「下拉縮小 LIFF」的原生手勢（用戶回報：往下滑會退出縮小）
+    const sheetEl = document.getElementById('mapSheet');
+    const listEl = document.getElementById('sheetList');
+    let sheetTouchY = null;
+    let sheetGestureDone = false;
+    sheetEl.addEventListener('touchstart', e => {
+        sheetTouchY = e.touches[0].clientY;
+        sheetGestureDone = false;
+    }, { passive: true });
+    sheetEl.addEventListener('touchmove', e => {
+        if (sheetTouchY == null || !sheetOpen) return;
+        const dy = e.touches[0].clientY - sheetTouchY;
+        const inList = listEl.contains(e.target);
+        const atTop = !inList || listEl.scrollTop <= 0;
+        const atBottom = !inList || (listEl.scrollTop + listEl.clientHeight >= listEl.scrollHeight - 1);
+        if (dy > 0 && atTop) {
+            e.preventDefault(); // 不讓 LINE 把整個 LIFF 拉下去
+            if (dy > 55 && !sheetGestureDone) {
+                sheetGestureDone = true;
+                setSheetOpen(false); // 頂端下拉超過門檻 = 使用者想關清單
+            }
+        } else if (dy < 0 && atBottom) {
+            e.preventDefault(); // 底端上拉的橡皮筋也不外漏
+        }
+    }, { passive: false });
+    sheetEl.addEventListener('touchend', () => { sheetTouchY = null; }, { passive: true });
 
     renderBudgetChips();
 

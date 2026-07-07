@@ -14,8 +14,20 @@
 import argparse
 import json
 import os
+import re
 import sqlite3
 from datetime import datetime, timezone
+
+# 防禦：OpenRice 少數店名登記成「編號+公司全名+門市名」，
+# 與 closure-checker 的 clean_corp_names.py 同規則（那邊清源頭，這邊保底）
+CORP_PREFIX = re.compile(r'^\d*[一-鿿（）()A-Za-z]*?(?:股份有限公司|有限公司)[-－·]?')
+
+
+def clean_name(name):
+    if not name or ('有限公司' not in name):
+        return name
+    stripped = CORP_PREFIX.sub('', name).strip()
+    return stripped if stripped else name
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DB = '/workspace/openrice-closure-checker/data/openrice.db'
@@ -63,7 +75,7 @@ def main():
         if not in_taipei:
             skipped_geo += 1
             continue
-        poi = {'n': r['name_tc'], 'lat': round(lat, 6), 'lng': round(lng, 6)}
+        poi = {'n': clean_name(r['name_tc']), 'lat': round(lat, 6), 'lng': round(lng, 6)}
         if d:
             poi['d'] = d
         try:

@@ -443,6 +443,7 @@ body.is-map-page { overflow: hidden; }
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain; /* 捲動到底/頂不外漏給 LINE 的縮小手勢 */
   margin: 0;
   padding: 0 8px 8px;
   list-style: none;
@@ -517,6 +518,13 @@ body.is-map-page { overflow: hidden; }
   padding: 20px 16px;
   text-align: center;
   font-size: 13px;
+  color: var(--lm-text-muted);
+  list-style: none;
+}
+.map-sheet__footnote {
+  padding: 10px 16px 14px;
+  text-align: center;
+  font-size: 12px;
   color: var(--lm-text-muted);
   list-style: none;
 }
