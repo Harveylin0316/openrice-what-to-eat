@@ -163,7 +163,10 @@ async function shareRestaurant(pin) {
     const url = shareDeepLink(pin);
     const liff = window.liff;
     // 在 LINE 內且支援 → shareTargetPicker 選好友/群組送出 Flex 卡
-    if (liff && liff.isApiAvailable && liff.isApiAvailable('shareTargetPicker')) {
+    // （用 try 包住：LIFF 若未初始化成功，isApiAvailable 可能丟錯，直接走退路）
+    let canPicker = false;
+    try { canPicker = !!(liff && liff.isApiAvailable && liff.isApiAvailable('shareTargetPicker')); } catch (e) { canPicker = false; }
+    if (canPicker) {
         try {
             const res = await liff.shareTargetPicker([buildFlexMessage(pin, url)]);
             showPillMessage(res ? '已分享給 LINE 好友 🎉' : '已取消分享', 2500);

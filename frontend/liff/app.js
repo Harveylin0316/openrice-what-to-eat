@@ -50,8 +50,13 @@ async function initLiff() {
         
         // 初始化 LIFF SDK
         liff = window.liff;
-        await liff.init({ liffId: LIFF_ID });
-        
+        // liff.init 偶爾在某些網路/登入狀態下 hang 住 → 逾時保護，
+        // 不讓用戶卡死在「正在連線 LINE」載入畫面（8 秒沒好就走 fallback）。
+        await Promise.race([
+            liff.init({ liffId: LIFF_ID }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('LIFF init 逾時')), 8000)),
+        ]);
+
         console.log('LIFF 初始化成功');
         console.log('LIFF 環境:', {
             isInClient: liff.isInClient(),
@@ -67,10 +72,17 @@ async function initLiff() {
             // 可以選擇提示用戶在 LINE 內打開
         }
         
-        // 如果已登入，獲取用戶資料
+        // 如果已登入，獲取用戶資料（也加逾時，拿不到就當未登入，不擋進場）
         if (liff.isLoggedIn()) {
-            liffProfile = await liff.getProfile();
-            console.log('用戶資料:', liffProfile);
+            try {
+                liffProfile = await Promise.race([
+                    liff.getProfile(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('getProfile 逾時')), 4000)),
+                ]);
+                console.log('用戶資料:', liffProfile);
+            } catch (e) {
+                console.warn('取用戶資料失敗/逾時，略過:', e);
+            }
         } else {
             // 如果未登入，可以選擇登入（如果需要）
             // liff.login();
@@ -94,17 +106,15 @@ async function initLiff() {
         initRouter();
         
     } catch (error) {
-        console.error('LIFF 初始化失敗:', error);
-        showError('初始化失敗，請重新整理頁面');
-        if (liffLoading) {
-            liffLoading.innerHTML = `
-                <div class="error">
-                    <p>初始化失敗</p>
-                    <p>${error.message}</p>
-                    <button onclick="location.reload()">重新載入</button>
-                </div>
-            `;
-        }
+        // init/getProfile 失敗或逾時 → 不卡在「正在連線 LINE」，改用無登入模式照樣進 App。
+        // 地圖核心不需要 LINE profile；分享等需要 LINE 的功能會各自降級處理。
+        console.error('LIFF 初始化失敗/逾時，改用無登入模式進場:', error);
+        try {
+            setUserContext({ is_in_line: false, os: 'liff-fallback', language: navigator.language });
+            track('app_open', { liff_fallback: true });
+        } catch (e) { /* ignore */ }
+        if (liffLoading) liffLoading.style.display = 'none';
+        initRouter();
     }
 }
 
