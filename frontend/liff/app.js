@@ -44,52 +44,37 @@ const mainContent = document.getElementById('mainContent');
 /**
  * 初始化 LIFF
  */
-async function initLiff() {
+// SDK 有時比 DOMContentLoaded 晚一點就緒（或載入失敗）→ 短暫輪詢等它，等不到就放棄。
+async function waitForLiffSdk(maxMs = 3000) {
+    if (window.liff) return window.liff;
+    const start = Date.now();
+    while (!window.liff && Date.now() - start < maxMs) {
+        await new Promise(r => setTimeout(r, 150));
+    }
+    return window.liff || null;
+}
+
+// LIFF 「背景」初始化：只為了拿 profile（追蹤/分享用）。
+// 關鍵：這裡完全不碰載入畫面與路由——地圖已經先開好了，所以 LIFF SDK 沒載到、
+// init 卡住或失敗，都不會再把用戶卡在「正在連線 LINE」。
+async function initLiffBackground() {
     try {
-        console.log('正在初始化 LINE LIFF...');
-        
-        // 初始化 LIFF SDK
-        liff = window.liff;
-        // liff.init 偶爾在某些網路/登入狀態下 hang 住 → 逾時保護，
-        // 不讓用戶卡死在「正在連線 LINE」載入畫面（8 秒沒好就走 fallback）。
+        liff = await waitForLiffSdk();
+        if (!liff) throw new Error('LIFF SDK 未載入（window.liff undefined）');
         await Promise.race([
             liff.init({ liffId: LIFF_ID }),
             new Promise((_, reject) => setTimeout(() => reject(new Error('LIFF init 逾時')), 8000)),
         ]);
-
-        console.log('LIFF 初始化成功');
-        console.log('LIFF 環境:', {
-            isInClient: liff.isInClient(),
-            isLoggedIn: liff.isLoggedIn(),
-            os: liff.getOS(),
-            version: liff.getVersion(),
-            language: liff.getLanguage()
-        });
-        
-        // 檢查是否在 LINE 內
-        if (!liff.isInClient()) {
-            console.warn('不在 LINE 內，某些功能可能無法使用');
-            // 可以選擇提示用戶在 LINE 內打開
-        }
-        
-        // 如果已登入，獲取用戶資料（也加逾時，拿不到就當未登入，不擋進場）
         if (liff.isLoggedIn()) {
             try {
                 liffProfile = await Promise.race([
                     liff.getProfile(),
                     new Promise((_, reject) => setTimeout(() => reject(new Error('getProfile 逾時')), 4000)),
                 ]);
-                console.log('用戶資料:', liffProfile);
             } catch (e) {
                 console.warn('取用戶資料失敗/逾時，略過:', e);
             }
-        } else {
-            // 如果未登入，可以選擇登入（如果需要）
-            // liff.login();
-            console.log('用戶未登入');
         }
-
-        // 設定 tracker 用戶 context + 送 app_open 事件
         setUserContext({
             line_id: liffProfile?.userId || null,
             is_in_line: liff.isInClient(),
@@ -97,24 +82,12 @@ async function initLiff() {
             language: liff.getLanguage(),
         });
         track('app_open', { logged_in: liff.isLoggedIn() });
-
-        // 隱藏 LIFF 載入畫面
-        if (liffLoading) liffLoading.style.display = 'none';
-        
-        // 初始化路由系統（路由系統會載入對應的頁面）
-        // 注意：mainContent 的顯示會在頁面初始化完成後由頁面自己控制
-        initRouter();
-        
     } catch (error) {
-        // init/getProfile 失敗或逾時 → 不卡在「正在連線 LINE」，改用無登入模式照樣進 App。
-        // 地圖核心不需要 LINE profile；分享等需要 LINE 的功能會各自降級處理。
-        console.error('LIFF 初始化失敗/逾時，改用無登入模式進場:', error);
+        console.warn('LIFF 背景初始化失敗（不影響地圖）:', error);
         try {
-            setUserContext({ is_in_line: false, os: 'liff-fallback', language: navigator.language });
-            track('app_open', { liff_fallback: true });
+            setUserContext({ is_in_line: false, os: 'liff-unavailable', language: navigator.language });
+            track('app_open', { liff_unavailable: true });
         } catch (e) { /* ignore */ }
-        if (liffLoading) liffLoading.style.display = 'none';
-        initRouter();
     }
 }
 
@@ -142,31 +115,37 @@ export function getLiffProfile() {
     return liffProfile;
 }
 
-// 頁面載入時初始化 LIFF
-document.addEventListener('DOMContentLoaded', () => {
-    // 防重複開機：app.js 若被載入成兩個模組實例（例如帶 ?v 查詢字串 + 其他頁 import '../app.js'
-    // 兩個 URL＝兩份實例），會註冊兩個 DOMContentLoaded → initRouter 跑兩次 → 地圖重複初始化
-    // (Map container is already initialized)。用全域旗標確保只開機一次。
+// 頁面載入 → 開機
+function boot() {
+    // 防重複開機：app.js 若被載入成兩個模組實例（例如帶 ?v 查詢字串 + 其他頁 import '../app.js'）
+    // 會註冊兩次 → initRouter 跑兩次 → 地圖重複初始化。用全域旗標確保只開機一次。
     if (window.__rrBooted) return;
     window.__rrBooted = true;
 
-    // Dev bypass: ?dev=1 跳過 LIFF 初始化（本機預覽 / Storybook 用，正式 LIFF 不受影響）
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('dev') === '1') {
-        console.log('[dev] Bypassing LIFF init');
+    // 關鍵：地圖不依賴 LINE → 先無條件把 App 開起來，畫面一定進得去。
+    // 徹底根治「卡在正在連線 LINE」——過去只要 LIFF SDK 沒載到或 init 卡住就整個卡死。
+    try {
         if (liffLoading) liffLoading.style.display = 'none';
-        // dev 模式也送 app_open（line_id 為 null）
-        setUserContext({ is_in_line: false, os: 'dev', language: navigator.language });
-        track('app_open', { dev: true });
         initRouter();
-        return;
+    } catch (e) {
+        console.error('initRouter 失敗:', e);
+        showError('載入失敗，請重新整理');
     }
 
-    // 檢查 LIFF SDK 是否已載入
-    if (window.liff) {
-        initLiff();
+    // 之後才在背景初始化 LIFF（拿 profile 供追蹤/分享用），成敗都不影響地圖已顯示
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('dev') === '1') {
+        setUserContext({ is_in_line: false, os: 'dev', language: navigator.language });
+        track('app_open', { dev: true });
     } else {
-        console.error('LINE LIFF SDK 未載入');
-        showError('LINE LIFF SDK 載入失敗，請檢查網路連線');
+        initLiffBackground();
     }
-});
+}
+
+// DOMContentLoaded 可能在此模組執行前就已觸發（模組是 deferred）→ 用 readyState 保險，
+// 兩種情況都能開機、且靠 __rrBooted 不會重複。
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+} else {
+    boot();
+}

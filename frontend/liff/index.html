@@ -31,8 +31,9 @@
         if (page === 'map') document.title = 'OpenRice 好康地圖';
     })();
     </script>
-    <!-- LINE LIFF SDK -->
-    <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+    <!-- LINE LIFF SDK：async 非阻塞載入，就算 line-scdn 慢/掛也不會拖住畫面渲染；
+         app.js 的 waitForLiffSdk() 會輪詢等它就緒（地圖本來就不依賴 LINE）。 -->
+    <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js" async></script>
 </head>
 <body>
     <!-- Reusable SVG icon sprite -->
