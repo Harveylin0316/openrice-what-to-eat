@@ -450,6 +450,10 @@ function buildMarker(L, pin) {
         weight: hollow ? 1.5 : 2,
         fillColor: hollow ? '#FFFFFF' : t.color,
         fillOpacity: hollow ? 0.9 : 0.95,
+        // circleMarker 預設 bubblingMouseEvents:true → 點擊會冒泡到地圖的 click，
+        // 而地圖 click 會 closeMiniCard() → 剛開的卡瞬間被關（用戶回報「點沒反應」）。
+        // 關掉冒泡（L.Marker 預設就是 false，所以贊助/星星釘一直正常）。
+        bubblingMouseEvents: false,
     });
     marker._baseRadius = t.radius;
     // 高 zoom（cluster 散開後）顯示店名標籤：掃視地圖不用逐顆點
@@ -543,6 +547,7 @@ function buildExtLayer(L) {
             weight: 1.5,
             fillColor: '#FFFFFF',
             fillOpacity: 0.9,
+            bubblingMouseEvents: false, // 同 buildMarker：不讓點擊冒泡到地圖 click 把卡關掉
         });
         m._poi = poi;
         m.on('click', () => {
@@ -1820,6 +1825,9 @@ export async function initMapPage() {
 
         map = L.map('liffMap', {
             preferCanvas: true,
+            // 圓點命中範圍外擴 12px（Leaflet 讀 renderer.options.tolerance）：
+            // 原本只有半徑 6–11px，手指常點不到 → 要按好幾次或只能點店名。放大到接近指腹尺寸。
+            renderer: L.canvas({ tolerance: 12 }),
             zoomControl: false,
             attributionControl: true,
         }).setView(DEFAULT_CENTER, DEFAULT_ZOOM);
