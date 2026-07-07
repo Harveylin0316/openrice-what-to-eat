@@ -86,13 +86,42 @@ async function getAvail() {
   return map;
 }
 
+// 單一 URL 診斷：實測從 Netlify function 抓兩支台北端點的狀態/耗時/筆數，一次回全部。
+// 用法：在手機瀏覽器開 /api/parking/nearby?debug=1（不吃快取，每次真打）
+async function probe(url, ms, label) {
+  const start = Date.now();
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    const text = await res.text();
+    let parks = null;
+    try { const j = JSON.parse(text); parks = (j.data && j.data.park && j.data.park.length) || 0; } catch (e) { /* 非 JSON */ }
+    return { label, ok: res.ok, status: res.status, ms: Date.now() - start, bytes: text.length, parks };
+  } catch (e) {
+    return { label, ok: false, status: null, ms: Date.now() - start, error: e.name === 'AbortError' ? `逾時(${ms}ms)` : String(e.message || e) };
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 exports.handler = async (event) => {
   const q = event.queryStringParameters || {};
   const lat = Number(q.lat), lng = Number(q.lng);
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=30' };
-  if (!isFinite(lat) || !isFinite(lng)) {
-    return { statusCode: 400, headers, body: JSON.stringify({ success: false, error: 'lat/lng required' }) };
+  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
+  if (q.debug) {
+    const [desc, avail] = await Promise.all([
+      probe(DESC_URL, 9000, 'desc'),
+      probe(AVAIL_URL, 7000, 'avail'),
+    ]);
+    return { statusCode: 200, headers, body: JSON.stringify({ debug: true, node: process.version, region: process.env.AWS_REGION || null, desc, avail }, null, 2) };
   }
+
+  if (!isFinite(lat) || !isFinite(lng)) {
+    return { statusCode: 400, headers: { ...headers, 'Cache-Control': 'public, max-age=30' }, body: JSON.stringify({ success: false, error: 'lat/lng required' }) };
+  }
+  headers['Cache-Control'] = 'public, max-age=30';
   // desc（名稱/座標）是必要的；avail（即時空位）是加分項——avail 掛了仍以「無即時」顯示停車場。
   // 兩者並行抓（total ≈ max，而非相加），avail 用 allSettled 容錯。
   const [lotsR, availR] = await Promise.allSettled([getLots(), getAvail()]);
