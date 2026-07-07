@@ -127,11 +127,16 @@ exports.handler = async (event) => {
   const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
 
   if (q.debug) {
+    const baked = getBakedLots();
     const [desc, avail] = await Promise.all([
       probe(DESC_URL, 9000, 'desc'),
       probe(AVAIL_URL, 7000, 'avail'),
     ]);
-    return { statusCode: 200, headers, body: JSON.stringify({ debug: true, node: process.version, region: process.env.AWS_REGION || null, desc, avail }, null, 2) };
+    return { statusCode: 200, headers, body: JSON.stringify({
+      debug: true, node: process.version, region: process.env.AWS_REGION || null,
+      baked: { active: !!baked, count: baked ? baked.length : 0 }, // 預烤檔是否生效
+      desc, avail,
+    }, null, 2) };
   }
 
   if (!isFinite(lat) || !isFinite(lng)) {
