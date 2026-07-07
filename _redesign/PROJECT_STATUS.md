@@ -27,7 +27,7 @@ LINE webview 對 `must-revalidate` 不可靠,會服務**舊的 JS**。解法是*
 `index.html` 內聯開機 `window.__V='rN'` → `import('./pages/router.js?v=rN')` →
 router 把 `?v` 串到 `import('./map.js?v=rN')`。新 URL = 一定重抓。
 **每次改到開機/router/map 的關鍵路徑,就 bump `index.html` 裡的 `__V` 和 `map.css?v=` 兩處。**
-目前版本:**r9**。
+目前版本:**r10**。
 
 開機解耦:`index.html` 內聯模組擁有地圖開機(`__rrBooted` guard);`app.js` 只做背景 LINE
 初始化(拿 profile,`__liffStarted` guard)。地圖不依賴 LINE,無條件先開。
@@ -55,6 +55,9 @@ router 把 `?v` 串到 `import('./map.js?v=rN')`。新 URL = 一定重抓。
 
 ## 其他已完成
 
+- **合作餐廳 marker = Google 風格餐廳 icon(刀叉)**(r10):`buildMarker` 對 menu/offer/cashback
+  改用 `L.marker` divIcon(白刀叉 + tier 色圓底,優惠店 30px/回饋店 24px);none 與未合作維持灰點。
+  樣式 `.map-food-pin`(map.css)。注意:icon marker 無 `setRadius`,zoom bump 已 guard。
 - 三段式 pill 文案:總數(含未合作)· 訂位反饋現金 · 加碼優惠。
 - 第一梯隊功能:分享到 LINE + 收藏 + 排序。
 - Google 風格地圖:無框浮動文字標籤 + halo,label 碰撞收合(優先序 search>sponsor>star>deal>partner>ext)。
