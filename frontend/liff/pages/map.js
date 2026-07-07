@@ -546,25 +546,37 @@ function updateCountPill() {
     if (!pill || !map) return;
     const bounds = map.getBounds();
     const now = new Date();
-    let inView = 0;
-    let deals = 0;
+    let partnerInView = 0; // 合作店（有座標、走篩選）
+    let cashback = 0;      // 可訂位＝出席回饋現金（基本盤）
+    let deals = 0;         // 套餐/訂位優惠（加碼）
     for (const pin of allPins) {
         if (!pinPassesFilters(pin, now)) continue;
-        if (bounds.contains([pin.lat, pin.lng])) {
-            inView++;
-            if (pin.t === 'menu' || pin.t === 'offer') deals++;
+        if (!bounds.contains([pin.lat, pin.lng])) continue;
+        partnerInView++;
+        if (pin.b) cashback++;
+        if (pin.t === 'menu' || pin.t === 'offer') deals++;
+    }
+    // 總數要含「暫無優惠」的未合作店（用戶眼中都是餐廳）：
+    // 僅在灰點真的顯示（z≥16）、且未套用會排除它們的篩選時併入
+    let extInView = 0;
+    const extShown = extLayer && map.hasLayer(extLayer);
+    const filterExcludesExt = activeFilters.deals || activeFilters.open || activeFilters.bookable;
+    if (extShown && !filterExcludesExt) {
+        for (const poi of extPois) {
+            if (bounds.contains([poi.lat, poi.lng])) extInView++;
         }
     }
-    if (inView === 0) {
+    const total = partnerInView + extInView;
+    if (total === 0) {
         const filtered = activeFilters.deals || activeFilters.open || activeFilters.bookable || activeFilters.budget;
         pill.textContent = filtered
             ? '篩選有點嚴格，鬆開一個條件再看看'
-            : '這一帶還沒有合作店家，滑去鬧區看看';
+            : '這一帶還沒有店家，滑去鬧區看看';
     } else {
         // 窄屏用短版，避免被 FAB 保留區截斷
         pill.textContent = window.matchMedia('(max-width: 360px)').matches
-            ? `${inView} 間 · ${deals} 加碼`
-            : `畫面內 ${inView} 間 · ${deals} 間加碼優惠`;
+            ? `${total} 間 · 回饋 ${cashback} · 加碼 ${deals}`
+            : `畫面內 ${total} 間 · ${cashback} 間出席回饋 · ${deals} 間加碼優惠`;
     }
     if (sheetOpen) renderSheetList();
 }
