@@ -2,11 +2,9 @@
 // 三種姿態：逛（地圖探索）、省（只看好康）、決（🎲 幫我決定 → 聚光燈單卡）
 // 依 _redesign/lifestyle-map-architecture.md
 
-// 注意：只靜態 import「一直都存在」的舊有 exports。新加的 fetchNearbyParking 改「動態載入」，
-// 否則萬一 webview 快取到舊版 api.js（沒有這個 export），整個 map.js 會 link 失敗 → 地圖載不出來。
-// api.js 版本釘死（?v 只是快取鍵，檔案內容永遠是最新的）→ 保證抓到含 fetchNearbyParking
-// 的新版，避免舊快取缺 export 造成整個 map.js link 失敗。改版時跟 index.html __V 一起 bump。
-import { fetchRecommendations, loadSponsoredRestaurants, fetchNearbyParking } from '../shared/api.js?v=r8';
+// 注意：只靜態 import「一直都存在」的舊有 exports（穩定、不會 link 失敗）。
+// 停車查詢不走 api.js（避免任何 import 失敗拖垮整個 map.js）→ 在 fillParking 內直接 fetch。
+import { fetchRecommendations, loadSponsoredRestaurants } from '../shared/api.js';
 import {
     calculateDistance,
     formatDistance,
@@ -1075,15 +1073,19 @@ async function fillParking(pin) {
     const ver = (typeof window !== 'undefined' && window.__V) ? window.__V : '?';
     el.innerHTML = `<span class="map-parking__loading">🅿️ 查附近停車…</span>`;
     const parkMsg = (t) => { el.innerHTML = `<span class="map-parking__icon" aria-hidden="true">🅿️</span><span class="map-parking__text map-parking__loading">${escapeHtml(t)}</span>`; };
-    // fetchNearbyParking 改為靜態 import（釘版）→ 不再動態 import，消除「import 卡住」這條路。
-    // 只剩單一逾時（查詢）；失敗訊息保留完整原因（含步驟）方便診斷，不再壓成籠統「逾時」。
+    // 停車查詢「就地」fetch，不 import api.js（靜態會拖垮 map.js、動態在 webview 會卡）。
+    // map.js 完全自足：只用瀏覽器原生 fetch。失敗訊息保留完整原因（含步驟）方便診斷。
+    const apiBase = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+        ? 'http://localhost:3000/api' : '/api';
     let lots;
     try {
-        if (typeof fetchNearbyParking !== 'function') {
-            if (inTaipei) parkMsg(`停車模組未載入（${ver}）`); else el.hidden = true;
-            return;
-        }
-        lots = await withTimeout(fetchNearbyParking(pin.lat, pin.lng, parkingAbort.signal), 12000, '查詢');
+        const res = await withTimeout(
+            fetch(`${apiBase}/parking/nearby?lat=${pin.lat}&lng=${pin.lng}`, { signal: parkingAbort.signal }),
+            12000, '查詢');
+        if (!res.ok) { const e = new Error('HTTP ' + res.status); e.status = res.status; throw e; }
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || '停車服務異常');
+        lots = data.lots || [];
     } catch (err) {
         if (err && err.name === 'AbortError') return; // 卡片關了/換店
         const msg = (err && err.message) || '';
