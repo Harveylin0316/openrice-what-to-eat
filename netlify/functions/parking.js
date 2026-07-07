@@ -108,7 +108,7 @@ async function probe(url, ms, label) {
 exports.handler = async (event) => {
   const q = event.queryStringParameters || {};
   const lat = Number(q.lat), lng = Number(q.lng);
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+  const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
 
   if (q.debug) {
     const [desc, avail] = await Promise.all([
