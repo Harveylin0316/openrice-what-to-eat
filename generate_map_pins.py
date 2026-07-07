@@ -51,13 +51,21 @@ def has_offer(r, ov=None):
     return bool(r.get('has_booking_offer') or r.get('booking_offers') or (ov and ov.get('offer')))
 
 
+def eff_bookable(r, ov=None):
+    # 可訂位：對照層(checker is_bookable，權威)優先，退回主檔 bookable。
+    # 兩個方向都覆蓋——主檔 6/10 常過時（誤標可訂位 → 假的出席回饋）。
+    if ov and 'b' in ov:
+        return bool(ov['b'])
+    return bool(r.get('bookable'))
+
+
 def derive_deal_tier(r, ov=None):
-    # ov（對照層）只做加法升級：checker 說有優惠就升級，缺漏不降級（等重跑 crawler 修）
+    # 優惠只做加法升級（checker 缺漏不降級）；但可訂位吃 checker 權威值
     if has_offer(r, ov):
         return TIER_OFFER
     if has_menu(r, ov):
         return TIER_MENU
-    if r.get('bookable'):
+    if eff_bookable(r, ov):
         return TIER_CASHBACK
     return TIER_NONE
 
@@ -125,7 +133,7 @@ def build_pin(r, ov=None):
         'lng': round(float(lng), 6),
         't': tier,
         'c': 'food',  # category：目前全為餐飲，預留未來擴品類
-        'b': bool(r.get('bookable')),
+        'b': eff_bookable(r, ov),
         'd': f"{r.get('city') or r.get('region') or ''}{('·' + r['district']) if r.get('district') else ''}",
     }
     if r.get('is_paid_account'):
