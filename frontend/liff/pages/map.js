@@ -1068,30 +1068,31 @@ async function fillParking(pin) {
     if (parkingAbort) parkingAbort.abort();
     parkingAbort = new AbortController();
     el.hidden = false;
-    el.innerHTML = '<span class="map-parking__loading">🅿️ 查附近停車…</span>';
     // 停車資訊目前只涵蓋台北市：非台北市的店直接不顯示這行（誠實不清單噪音）
     const inTaipei = /台北市/.test(pin.d || '');
-    // 動態載入 api.js —— 帶 ?v 抓新版（否則會配到 webview 快取的舊版 api.js、沒有這個 export）
-    const apiV = (typeof window !== 'undefined' && window.__V) ? ('?v=' + window.__V) : '';
-    let fetchNearbyParking;
-    try {
-        ({ fetchNearbyParking } = await import('../shared/api.js' + apiV));
-    } catch (e) { /* ignore */ }
-    if (typeof fetchNearbyParking !== 'function') { el.hidden = true; return; }
+    const ver = (typeof window !== 'undefined' && window.__V) ? window.__V : '?';
+    el.innerHTML = `<span class="map-parking__loading">🅿️ 查附近停車…</span>`;
     const parkMsg = (t) => { el.innerHTML = `<span class="map-parking__icon" aria-hidden="true">🅿️</span><span class="map-parking__text map-parking__loading">${escapeHtml(t)}</span>`; };
+    const apiV = ver !== '?' ? ('?v=' + ver) : '';
 
-    // 前端逾時：後端函式冷啟/台北 API 慢時，別讓「查附近停車…」一直轉 → 8 秒沒回就給訊息。
-    // 錯誤訊息帶原因（HTTP 狀態或逾時），使用者截圖即可診斷後端。
+    // 整段包起來 + 每步都有逾時：連「動態 import api.js」都可能 hang，所以也套逾時，
+    // 保證這行永遠會有結果（不會一直卡在「查附近停車…」）。訊息帶版本號方便診斷。
     let lots;
     try {
+        const mod = await withTimeout(import('../shared/api.js' + apiV), 6000, 'api 載入');
+        const fetchNearbyParking = mod && mod.fetchNearbyParking;
+        if (typeof fetchNearbyParking !== 'function') {
+            if (inTaipei) parkMsg(`停車模組載入失敗（${ver}）`); else el.hidden = true;
+            return;
+        }
         lots = await withTimeout(fetchNearbyParking(pin.lat, pin.lng, parkingAbort.signal), 8000, '停車查詢');
     } catch (err) {
         if (err && err.name === 'AbortError') return; // 卡片關了/換店
         const msg = (err && err.message) || '';
         const reason = err && err.status ? `HTTP ${err.status}`
             : /逾時/.test(msg) ? '逾時'
-            : (msg ? msg.slice(0, 20) : '未知');
-        if (inTaipei) parkMsg(`停車暫時無法取得（${reason}）`); else el.hidden = true;
+            : (msg ? msg.slice(0, 16) : '未知');
+        if (inTaipei) parkMsg(`停車暫時無法取得（${reason}·${ver}）`); else el.hidden = true;
         return;
     }
 
