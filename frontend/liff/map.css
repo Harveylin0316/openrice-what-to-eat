@@ -75,30 +75,42 @@ body.is-map-page { overflow: hidden; }
 .map-canvas.is-spotlight .leaflet-marker-pane .marker-cluster { opacity: 0.25; }
 .map-canvas.is-spotlight .map-pin-label { display: none; }
 
-/* 店名標籤：高 zoom（≥16，map.js 控制 .show-labels）才顯示 */
+/* 店名標籤：高 zoom（≥16，map.js 控制 .show-labels）才顯示。
+ * Google Maps 式——不用白方塊，改「深灰文字 + 白色描邊光暈」直接浮在地圖上，
+ * 密集區疊在一起也清爽（細文字互疊遠比不透明方塊互疊乾淨）。 */
 .map-pin-label {
   display: none;
-  background: rgba(255, 255, 255, 0.92);
-  border: none;
-  border-radius: 5px;
-  box-shadow: 0 1px 3px rgba(20, 16, 12, 0.25);
-  color: var(--lm-text-body);
-  font-size: 11px;
-  font-weight: 500;
-  padding: 3px 7px;
+  color: #3C4043;               /* Google 式中性深灰 */
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
   cursor: pointer; /* 標籤可點帶出餐廳資訊（tooltip interactive:true） */
   white-space: nowrap;
-  max-width: 140px;
+  max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* 白色描邊光暈：取代白底方塊，任何底圖上都讀得清楚 */
+  text-shadow:
+    -1px -1px 2px #fff, 1px -1px 2px #fff, -1px 1px 2px #fff, 1px 1px 2px #fff,
+    0 0 3px #fff, 0 0 4px #fff;
 }
-.map-pin-label--deal { color: var(--lm-accent-press); font-weight: 600; }
+.map-pin-label--deal { color: var(--lm-accent-press); font-weight: 700; }
 /* 標籤分層（密集區防互疊）：z16 只亮加碼優惠店名，z17 全亮（map.js 切 class） */
 .map-canvas.show-labels .map-pin-label--deal { display: block; }
 .map-canvas.show-labels-all .map-pin-label { display: block; }
-/* leaflet.css 動態載入在後、其 .leaflet-tooltip{pointer-events:none} 會蓋掉，
- * 用 .map-canvas 前綴提高特異性，讓標籤可點 */
-.map-canvas .map-pin-label { pointer-events: auto; }
+/* leaflet.css 動態載入在後，其 .leaflet-tooltip 的白底/邊框/陰影/內距/pointer-events
+ * 會蓋掉同權重的 .map-pin-label → 用 .map-canvas 前綴提高特異性搶回來，
+ * 拿掉白方塊改成 Google 式浮動描邊文字，並讓標籤可點。 */
+.map-canvas .map-pin-label {
+  pointer-events: auto;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+.map-canvas .map-pin-label::before,
+.map-canvas .map-pin-label::after { display: none; } /* leaflet tooltip 的小箭角 */
 
 /* 贊助店圖釘：醒目星星釘，任何 zoom 都顯示（永不聚合），店名常駐 */
 .map-sponsor-pin {
@@ -127,7 +139,6 @@ body.is-map-page { overflow: hidden; }
   display: block; /* 不受 zoom 門檻限制：贊助店名常駐 */
   color: var(--lm-accent-press);
   font-weight: 700;
-  border: 1px solid rgba(228, 78, 37, 0.35);
 }
 .map-canvas.is-spotlight .map-pin-label--sponsor { display: none; }
 .map-canvas.is-spotlight .map-sponsor-pin { opacity: 0.25; }
@@ -582,16 +593,15 @@ body.is-map-page { overflow: hidden; }
   box-shadow: none;
 }
 
-/* 未合作店：灰字標籤與提示 */
-.map-canvas .map-pin-label--ext { color: var(--lm-text-muted); font-weight: 400; }
+/* 未合作店：灰字標籤（比合作店淡，維持描邊光暈可讀） */
+.map-canvas .map-pin-label--ext { color: #9AA0A6; font-weight: 500; }
 
-/* 搜尋落點 pin 的名稱標籤：任何 zoom 常駐、加粗（Google 式紅 pin 旁的地名） */
+/* 搜尋落點 pin 的名稱標籤：任何 zoom 常駐、更粗更大（Google 式紅 pin 旁的地名） */
 .map-canvas .map-pin-label--search {
   display: block;
-  color: var(--lm-text);
-  font-weight: 700;
-  font-size: 12px;
-  border: 1px solid var(--lm-border);
+  color: #202124;
+  font-weight: 800;
+  font-size: 13px;
 }
 .map-minicard__ext-note {
   margin: 8px 0 0;
