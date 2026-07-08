@@ -16,6 +16,20 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
+# Leaflet 是版本釘死的第三方庫（vendor/，1.9.4 永不變）→ 長快取 immutable，
+# 免每次開 app 都對這 195K 發條件式重新驗證。更具體規則放在 /liff/* 之後 → 覆蓋它。
+[[headers]]
+  for = "/liff/vendor/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# 地圖資料（map_pins/external_pois，隨每日刷新/部署變）→ 短快取：重複開 app 命中快取，
+# 落後窗口僅 5 分鐘（資料一天才更新一次，可接受），省下每次開 app 重驗證 500K+。
+[[headers]]
+  for = "/liff/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300"
+
 # Netlify Functions 配置
 [functions]
   # Functions 目錄

@@ -10,15 +10,25 @@ const CITY_ALLOWLIST = new Set(['台北市', '新北市', '基隆市']);
 function applyCityAllowlist(data) {
   if (!data || !Array.isArray(data.restaurants)) return data;
   const before = data.restaurants.length;
-  data.restaurants = data.restaurants.filter(r => CITY_ALLOWLIST.has(r.city));
-  console.log(`CityAllowlist: kept ${data.restaurants.length}/${before} (北北基 only)`);
-  return data;
+  // 不就地改 data.restaurants（那是 require('./database') 的共享單例 / 之後會被快取）→ 回傳新物件
+  const restaurants = data.restaurants.filter(r => CITY_ALLOWLIST.has(r.city));
+  console.log(`CityAllowlist: kept ${restaurants.length}/${before} (北北基 only)`);
+  return { ...data, restaurants };
 }
 
 /**
- * 載入餐廳資料庫
+ * 載入餐廳資料庫（模組層快取：2.6MB DB 只 readFileSync + JSON.parse 一次，
+ * 之後每次呼叫直接回同一份 → /recommend 熱路徑不再每請求重讀重解析）。
+ * 安全性：recommendRestaurants 一開始就 .filter 出新陣列(294 行)、洗牌又在副本上做，
+ * 不會就地改動這份快取；getFilterOptions/getLocationOptions 也只讀不改。
  */
+let _dbCache = null;
 function loadRestaurantDatabase() {
+  if (!_dbCache) _dbCache = _loadRestaurantDatabaseUncached();
+  return _dbCache;
+}
+
+function _loadRestaurantDatabaseUncached() {
   // 如果設置了環境變數，優先使用它（Netlify Functions）
   if (process.env.RESTAURANT_DB_PATH && fs.existsSync(process.env.RESTAURANT_DB_PATH)) {
     console.log(`Found database via env var: ${process.env.RESTAURANT_DB_PATH}`);
@@ -497,9 +507,14 @@ function recommendRestaurants(filters = {}, limit = 5) {
   
   // TODO: 線上訂位篩選（需要訂位資料）
   
-  // 隨機排序並返回指定數量
-  const shuffled = restaurants.sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, limit);
+  // 隨機排序並返回指定數量（Fisher–Yates 均勻洗牌；在副本上洗，不動到快取的 DB 陣列）
+  // 註：sort(() => Math.random() - 0.5) 非均勻、且比較器不一致屬未定義行為，故改此法。
+  const pool = restaurants.slice();
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, limit);
 }
 
 /**

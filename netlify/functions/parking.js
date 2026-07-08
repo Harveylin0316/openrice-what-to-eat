@@ -123,7 +123,11 @@ async function probe(url, ms, label) {
 
 exports.handler = async (event) => {
   const q = event.queryStringParameters || {};
-  const lat = Number(q.lat), lng = Number(q.lng);
+  // 注意：Number('') === 0 且 isFinite(0) 為真 → 空字串會被當成座標 0 通過驗證。
+  // 先擋掉「缺參數/空字串」，避免 ?lat=&lng= 被誤判為 (0,0) 靜默回空清單。
+  const latRaw = q.lat, lngRaw = q.lng;
+  const lat = Number(latRaw), lng = Number(lngRaw);
+  const hasCoords = latRaw != null && latRaw !== '' && lngRaw != null && lngRaw !== '';
   const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
 
   if (q.debug) {
@@ -139,7 +143,7 @@ exports.handler = async (event) => {
     }, null, 2) };
   }
 
-  if (!isFinite(lat) || !isFinite(lng)) {
+  if (!hasCoords || !isFinite(lat) || !isFinite(lng)) {
     return { statusCode: 400, headers: { ...headers, 'Cache-Control': 'public, max-age=30' }, body: JSON.stringify({ success: false, error: 'lat/lng required' }) };
   }
   headers['Cache-Control'] = 'public, max-age=30';

@@ -13,6 +13,15 @@
     <!-- 生活地圖頁樣式（Leaflet 本體由 map.js 動態載入）。?v 破 webview 快取：
          改到 map.css 時，跟下方 __V 一起 bump，讓新樣式確實下發到用戶（不吃舊快取）。 -->
     <link rel="stylesheet" href="map.css?v=r10">
+    <!-- 圖磚 CDN 先握手（DNS+TLS）：首張地圖圖磚更快出現（tileLayer 在 Leaflet 載完才連太晚） -->
+    <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin>
+    <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com">
+    <!-- 首屏關鍵資源提早抓，壓平 module 瀑布：Leaflet(本地、版本釘死)與 pin 資料在 module chain
+         解析期間就並行下載，不必等到 map.js 執行 loadLeaflet 才開始。URL 與程式內解析路徑一致、
+         無 ?v 版本耦合（vendor/data 本就不帶版本），故不會重複下載。 -->
+    <link rel="preload" as="script" href="vendor/leaflet/leaflet.js">
+    <link rel="preload" as="style" href="vendor/leaflet/leaflet.css">
+    <link rel="prefetch" href="data/map_pins.json">
     <!-- 首繪前判定目標頁：地圖為預設首頁時，隱藏舊版外殼避免「今天吃什麼」閃現
          （router 載入完成後會移除 data-boot 接手控制） -->
     <script>
@@ -310,7 +319,7 @@
     <script type="module">
       // __V：關鍵路徑破快取版本。LINE webview 對 must-revalidate 不可靠 → 用 ?v 強制抓新版
       // router/map（新 URL＝一定重抓）。每次改到開機/router/map 的關鍵修復就 bump 這個值。
-      window.__V = 'r11';
+      window.__V = 'r12';
       import('./pages/router.js?v=' + window.__V).then(function (m) {
         if (window.__rrBooted) return;
         window.__rrBooted = true;

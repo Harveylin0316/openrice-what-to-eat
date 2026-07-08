@@ -304,6 +304,14 @@ exports.handler = async (event, context) => {
     
     const queryParams = event.queryStringParameters || {};
 
+    // 半靜態路由（隨部署才變）給 CDN 短快取，省下每請求重跑 function + 讀 DB。
+    // /recommend 是隨機結果，絕不快取。出錯時 catch 會覆蓋成 no-store，避免快取到錯誤回應。
+    // Netlify 原子部署會在每次上線清除 CDN 快取，故 s-maxage 不會服務到過期資料。
+    const STATIC_ROUTES = new Set(['/filter-options', '/location-options', '/all', '/sponsored', '/with-booking-offers']);
+    if (STATIC_ROUTES.has(apiPath)) {
+      headers['Cache-Control'] = 'public, max-age=0, s-maxage=300';
+    }
+
     // 路由處理
     if (apiPath === '/recommend' || apiPath === '') {
       // 推薦餐廳
@@ -480,7 +488,7 @@ exports.handler = async (event, context) => {
     console.error('Function error:', error);
     return {
       statusCode: 500,
-      headers,
+      headers: { ...headers, 'Cache-Control': 'no-store' }, // 別讓 CDN 快取到錯誤回應
       body: JSON.stringify({
         success: false,
         error: 'Internal server error',

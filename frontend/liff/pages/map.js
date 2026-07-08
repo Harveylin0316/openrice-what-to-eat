@@ -203,6 +203,7 @@ const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'satur
 
 let map = null;
 let clusterGroup = null;
+let controlsWired = false;      // wireControls 只接一次線（初次 init 失敗重試時避免重複綁 listener）
 let allPins = [];               // map_pins.json 的原始資料
 let allPlaces = [];             // 搜尋用地點索引（行政區/地標，含質心座標）
 let allCats = [];               // 品類詞彙表（火鍋店/燒肉店/居酒屋…，pin.ct 為索引）
@@ -294,10 +295,12 @@ let leafletReady = null;
 // 注入的 <script>/<link> 的 onerror 也不會觸發 → await 卡死。用 race 強制在 N 秒後失敗，
 // 讓 initMapPage 的 catch 能顯示「地圖載入失敗・重新載入」而不是無限空白。
 function withTimeout(promise, ms, label) {
-    return Promise.race([
-        promise,
-        new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} 逾時（${ms}ms）`)), ms)),
-    ]);
+    let t;
+    const timeout = new Promise((_, reject) => {
+        t = setTimeout(() => reject(new Error(`${label} 逾時（${ms}ms）`)), ms);
+    });
+    // 贏家出爐就清掉計時器（否則每次呼叫留一顆最長 ms 的 dangling timer + closure）
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
 }
 
 function loadScript(url) {
@@ -558,6 +561,8 @@ function buildStarMarker(L, pin) {
 
 function showExtCard(poi) {
     closeSpotlight();
+    // 若上一張餐廳卡的「查附近停車」還在飛，先取消：否則它會寫進已被本卡 innerHTML 換掉的節點（浪費請求）
+    if (parkingAbort) parkingAbort.abort();
     const card = document.getElementById('mapMiniCard');
     const body = document.getElementById('miniCardBody');
     if (!card || !body) return;
@@ -627,17 +632,22 @@ function syncExtLabels() {
                 offset: [7, 0],
                 className: 'map-pin-label map-pin-label--ext',
             });
-            m.on('tooltipopen', (e) => {
-                const el = e.tooltip && e.tooltip.getElement();
-                if (el && !el.dataset.clickBound) {
-                    el.dataset.clickBound = '1';
-                    el.addEventListener('click', (ev) => {
-                        ev.stopPropagation();
-                        track('map_ext_pin_click', { name: m._poi.n, via: 'label' });
-                        showExtCard(m._poi);
-                    });
-                }
-            });
+            // tooltipopen 只綁一次：marker 反覆進出視窗會重綁 tooltip，但 Leaflet 層級的 on()
+            // 不會被 unbindTooltip 移除 → 沒 guard 會每次進視窗多累積一個 handler（記憶體只增不減）。
+            if (!m._extLabelBound) {
+                m._extLabelBound = true;
+                m.on('tooltipopen', (e) => {
+                    const el = e.tooltip && e.tooltip.getElement();
+                    if (el && !el.dataset.clickBound) {
+                        el.dataset.clickBound = '1';
+                        el.addEventListener('click', (ev) => {
+                            ev.stopPropagation();
+                            track('map_ext_pin_click', { name: m._poi.n, via: 'label' });
+                            showExtCard(m._poi);
+                        });
+                    }
+                });
+            }
             m.openTooltip();
         } else if (!inView && m.getTooltip()) {
             m.unbindTooltip();
@@ -1910,25 +1920,26 @@ export async function initMapPage() {
         return;
     }
 
-    wireControls();
+    // 只接一次線：初次 init 失敗（Leaflet/資料載入逾時）後，router 允許重試會再進來一次，
+    // 此時 map 仍為 null、ensureMapRoot 回傳既有 DOM → 沒有 guard 會把每個 listener 綁第二遍
+    // （filter chip 被 toggle 兩次＝沒反應、Esc 關兩層…）。
+    if (!controlsWired) { wireControls(); controlsWired = true; }
 
     try {
         // 贊助店名單只有「幫我決定」第 4 抽才用得到：
         // 背景載入，不擋首屏（serverless 冷啟可能秒級延遲）
         loadSponsoredRestaurants().then(list => { sponsoredRestaurants = list; });
 
-        // Leaflet 與 pin 資料平行載入（外部 POI 為選配，失敗不擋）
+        // Leaflet 與 pin 資料平行載入。外部 POI（灰點，206K、只在 z≥16 顯示）不放進關鍵路徑：
+        // 延到首屏後 idle 才抓（見下方 loadExternalPois），避免與 Leaflet+pins 搶頻寬拖慢第一畫面。
         const pinsUrl = new URL('../data/map_pins.json', import.meta.url);
-        const extUrl = new URL('../data/external_pois.json', import.meta.url);
-        const [L, pinsRes, extRes] = await withTimeout(Promise.all([
+        const [L, pinsRes] = await withTimeout(Promise.all([
             loadLeaflet(),
             fetch(pinsUrl).then(r => {
                 if (!r.ok) throw new Error(`pin 資料載入失敗: ${r.status}`);
                 return r.json();
             }),
-            fetch(extUrl).then(r => (r.ok ? r.json() : null)).catch(() => null),
         ]), 15000, '地圖資料');
-        extPois = (extRes && extRes.pois) || [];
         allPins = pinsRes.pins || [];
         allPlaces = pinsRes.places || [];
         allCats = pinsRes.cats || [];
@@ -1967,8 +1978,23 @@ export async function initMapPage() {
             starMarker = buildStarMarker(L, starPin).addTo(map);
         }
         map.addLayer(clusterGroup);
-        buildExtLayer(L); // 未合作餐廳（灰空心點，z≥15 顯示）
         applyFilters();
+
+        // 外部 POI（1,262 顆灰點，只在 z≥16 顯示）延後載入：不與首屏搶頻寬/CPU。
+        // 首繪後 idle 再抓 + 建層（含 1262 marker 配置）；失敗不影響地圖（選配資料）。
+        const loadExternalPois = () => {
+            fetch(new URL('../data/external_pois.json', import.meta.url))
+                .then(r => (r.ok ? r.json() : null))
+                .then(extRes => {
+                    extPois = (extRes && extRes.pois) || [];
+                    if (!extPois.length || !map) return;
+                    buildExtLayer(L);      // 未合作餐廳（灰空心點，z≥16 顯示）
+                    updateCountPill();     // 補上「含未合作」的總數
+                })
+                .catch(() => { /* 選配資料，靜默失敗 */ });
+        };
+        if ('requestIdleCallback' in window) requestIdleCallback(loadExternalPois, { timeout: 3000 });
+        else setTimeout(loadExternalPois, 800);
 
         // 遊戲化開場：連續天數 + 抽選額度 badge
         const streak = bumpStreak();
