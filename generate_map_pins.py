@@ -201,7 +201,9 @@ def main():
     pin_tags = []  # 與 pins 對齊的原始品類 tags（建 cats 索引用）
     skipped_disabled = skipped_nocoords = skipped_city = skipped_closed = 0
     for r in restaurants:
-        if not r.get('enabled', True):
+        # 與所有 JS/API 路徑一致：用 truthy 判斷（filter(r => r.enabled)）。
+        # 原本 default=True 會讓「缺 enabled 欄位」的店上了地圖卻永遠無法被推薦 → 對齊為 falsy 即跳過。
+        if not r.get('enabled'):
             skipped_disabled += 1
             continue
         if r.get('city') not in CITY_ALLOWLIST:
