@@ -463,9 +463,40 @@ function makeLabelClickable(marker, pin, trackProps) {
     });
 }
 
-// 餐廳 icon（Google 風格刀叉）：合作店（有優惠/可回饋）用它，一眼跟灰點未合作店區隔。
-// Material「restaurant」字形，白色刀叉浮在 tier 色圓底上（白邊 + 陰影，像 Google 類別標記）。
+// 餐廳 icon（Google 風格）：合作店（有優惠/可回饋）用它，一眼跟灰點未合作店區隔。
+// 底色＝優惠等級（紅套餐/金訂位/青回饋），內嵌「分類圖示」＝這是什麼店（火鍋/燒肉/咖啡…）
+// → 同時傳達「有什麼優惠 + 是什麼店」，更接近 Google Maps 的分類化圖釘。
 const FOOD_SVG = '<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>';
+
+// 分類 → emoji 圖示。依 pin 的品類標籤(tg) + 分類名(ct→cats) 比對關鍵字，最 specific 先中；
+// 都不中 → 回傳 null（用預設刀叉）。順序＝優先序（火鍋/燒肉…比「日式」一般類先判）。
+const CATEGORY_GLYPHS = [
+    [/火鍋|麻辣鍋|涮涮鍋|鍋物|薑母鴨|羊肉爐/, '🍲'],
+    [/燒肉|烤肉|鐵板燒|燒烤/, '🍖'],
+    [/串燒|串焼|串揚|居酒屋/, '🍢'],
+    [/壽司|生魚片|割烹|丼飯/, '🍣'],
+    [/拉麵|烏龍麵|沾麵|蕎麥/, '🍜'],
+    [/披薩|pizza/i, '🍕'],
+    [/義大利|義式|pasta|燉飯/i, '🍝'],
+    [/咖啡|café|cafe|咖啡廳/i, '☕'],
+    [/甜點|蛋糕|麵包|西點|布丁|鬆餅|甜品|冰淇淋|可麗餅|下午茶/, '🍰'],
+    [/酒吧|餐酒|酒類|清酒|啤酒|調酒|bar|lounge|wine|whisky/i, '🍷'],
+    [/漢堡|三明治|美國|美式|burger|速食|炸雞/i, '🍔'],
+    [/咖哩|印度/, '🍛'],
+    [/泰式|越南|星馬|印尼|東南亞/, '🍤'],
+    [/海鮮|生猛|龍蝦|螃蟹/, '🦐'],
+    [/沙拉|輕食|素食|蔬食|salad|健康/i, '🥗'],
+    [/吃到飽|buffet|自助餐/i, '🍽️'],
+    [/港式|廣東|粵|川菜|四川|中餐|上海|江浙|湖南|東北|小籠|水餃|點心|滷味/, '🥟'],
+    [/日式|日本/, '🍱'], // 一般日式（壽司/拉麵/居酒屋已在前面判掉）
+    [/韓式|韓國/, '🍚'],
+];
+function pinGlyph(pin) {
+    const cats = (pin.tg || []).join(' ') + ' '
+        + (pin.ct || []).map(i => (allCats && allCats[i]) || '').join(' ');
+    for (const [re, g] of CATEGORY_GLYPHS) if (re.test(cats)) return g;
+    return null; // → 預設刀叉
+}
 
 function bindPinCommon(marker, pin, offsetX, isDeal) {
     // 高 zoom（cluster 散開後）顯示店名標籤：掃視地圖不用逐顆點
@@ -508,10 +539,12 @@ function buildMarker(L, pin) {
     // 合作店（menu/offer/cashback）：改用餐廳 icon。優惠店(menu/offer)大一號、上層，回饋店(cashback)略小。
     const isDeal = pin.t === 'menu' || pin.t === 'offer';
     const size = isDeal ? 30 : 24;
+    const glyph = pinGlyph(pin);
+    const inner = glyph ? `<span class="map-food-glyph" aria-hidden="true">${glyph}</span>` : FOOD_SVG;
     const marker = L.marker([pin.lat, pin.lng], {
         icon: L.divIcon({
             className: 'map-food-wrap',
-            html: `<div class="map-food-pin${isDeal ? ' map-food-pin--lg' : ''}" style="background:${t.color}">${FOOD_SVG}</div>`,
+            html: `<div class="map-food-pin${isDeal ? ' map-food-pin--lg' : ''}" style="background:${t.color}">${inner}</div>`,
             iconSize: [size, size],
             iconAnchor: [size / 2, size / 2],
         }),
@@ -1013,6 +1046,18 @@ function clearSelectedRing() {
     if (selectedRing && map) { map.removeLayer(selectedRing); selectedRing = null; }
 }
 
+// 選中強調（Google 式）：點到的合作店 icon 放大浮起、拉到最上層。灰點/外部點沿用選中圈即可。
+let selectedPinEl = null;
+function setSelectedPin(pin) {
+    clearSelectedPin();
+    const marker = pinMarkers.get(pin.id) || sponsorMarkers.get(pin.id);
+    const el = marker && marker.getElement && marker.getElement(); // divIcon 的 DOM（circleMarker 無）
+    if (el) { el.classList.add('is-selected'); selectedPinEl = el; }
+}
+function clearSelectedPin() {
+    if (selectedPinEl) { selectedPinEl.classList.remove('is-selected'); selectedPinEl = null; }
+}
+
 // 迷你卡/聚光燈任一開啟時，FAB 與定位鈕讓位（換一個/關閉就在卡上）
 function updateCardOpenState() {
     const spotlight = document.getElementById('mapSpotlight');
@@ -1027,6 +1072,7 @@ function showMiniCard(pin) {
     const body = document.getElementById('miniCardBody');
     if (!card || !body) return;
     setSelectedRing(pin.lat, pin.lng);
+    setSelectedPin(pin);
 
     const hours = expandHours(pin.h);
     const opening = hours ? getOpeningStatus(hours) : null;
@@ -1091,6 +1137,7 @@ function closeMiniCard() {
     if (card) card.hidden = true;
     if (parkingAbort) parkingAbort.abort(); // 取消進行中的停車查詢
     clearSelectedRing();
+    clearSelectedPin();
     updateCardOpenState();
 }
 

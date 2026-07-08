@@ -192,11 +192,28 @@ body.is-map-page { overflow: hidden; }
   box-sizing: border-box;
 }
 .map-food-pin svg { width: 60%; height: 60%; display: block; }
+/* 分類 emoji 圖示：置中、佔圓約 66%，行高歸零避免偏移 */
+.map-food-pin .map-food-glyph {
+  font-size: 15px;
+  line-height: 1;
+  display: block;
+  filter: drop-shadow(0 0.5px 0.5px rgba(0, 0, 0, 0.3)); /* 讓 emoji 在彩底上更立體 */
+}
+.map-food-pin--lg .map-food-glyph { font-size: 18px; }
 /* 優惠店(menu/offer)：大一號、邊框陰影更明顯，比回饋店突出 */
 .map-food-pin--lg {
   border-width: 2.5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
+/* 選中強調（Google 式）：放大浮起 + 陰影加深 + 拉到最上層，平滑過渡 */
+.map-food-wrap { transition: transform 0.14s ease-out; will-change: transform; }
+.map-food-wrap.is-selected { z-index: 10000 !important; }
+.map-food-wrap.is-selected .map-food-pin {
+  transform: scale(1.38);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+  border-width: 3px;
+}
+.map-food-pin { transition: transform 0.14s ease-out, box-shadow 0.14s ease-out; }
 /* 聚光燈時讓位（跟色點/星釘一致淡出） */
 .map-canvas.is-spotlight .map-food-pin { opacity: 0.3; }
 /* 聚光燈時所有店名標籤讓位（卡片上已有店名）；tooltip pane 不吃 overlay 淡出，需獨立隱藏 */
