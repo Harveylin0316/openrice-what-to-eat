@@ -281,7 +281,9 @@ function distanceLabel(lat, lng) {
 }
 
 function navigationUrl(lat, lng, name) {
-    return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_place_id=&travelmode=walking&dir_action=navigate&query=${encodeURIComponent(name)}`;
+    // 開 Google Maps「路線」畫面即可（不指定 travelmode、不 dir_action=navigate）：
+    // 用戶自己選開車 / 大眾運輸 / 步行，看各自路線與時間，不被強制丟進步行導航模式。
+    return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 }
 
 // ---- Leaflet 動態載入（只有地圖頁需要，不拖慢其他頁）----
