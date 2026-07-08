@@ -27,7 +27,7 @@ LINE webview 對 `must-revalidate` 不可靠,會服務**舊的 JS**。解法是*
 `index.html` 內聯開機 `window.__V='rN'` → `import('./pages/router.js?v=rN')` →
 router 把 `?v` 串到 `import('./map.js?v=rN')`。新 URL = 一定重抓。
 **每次改到開機/router/map 的關鍵路徑,就 bump `index.html` 裡的 `__V` 和 `map.css?v=` 兩處。**
-目前版本:**r10**。
+目前版本:**r12**。
 
 開機解耦:`index.html` 內聯模組擁有地圖開機(`__rrBooted` guard);`app.js` 只做背景 LINE
 初始化(拿 profile,`__liffStarted` guard)。地圖不依賴 LINE,無條件先開。
@@ -55,6 +55,13 @@ router 把 `?v` 串到 `import('./map.js?v=rN')`。新 URL = 一定重抓。
 
 ## 其他已完成
 
+- **全面體檢(r12)**:三路稽核(前端載入/map.js正確性/後端資料)後修正,本地 Playwright 真地圖 8/8 驗證。
+  載入:外部 POI(206K)移出首屏關鍵路徑改 idle 載入、vendor Leaflet 改 immutable 快取、
+  index.html preload/preconnect、後端 /recommend 快取解析過的 2.6MB DB(不再每請求重讀)。
+  Bug:推薦洗牌改 Fisher–Yates(原 sort(random) 非均勻)、wireControls 加一次性 guard(修 init 失敗
+  重試後篩選失效)、外部 POI tooltip listener 洩漏、withTimeout 計時器不清、showExtCard 未取消停車 fetch、
+  parking 空 lat/lng 回 400、restaurants 半靜態路由加 CDN 快取、enabled 預設值對齊 JS。
+- **導航改開 Google Maps 路線畫面**(r11):navigationUrl 移除 travelmode/dir_action,讓用戶自選交通方式。
 - **合作餐廳 marker = Google 風格餐廳 icon(刀叉)**(r10):`buildMarker` 對 menu/offer/cashback
   改用 `L.marker` divIcon(白刀叉 + tier 色圓底,優惠店 30px/回饋店 24px);none 與未合作維持灰點。
   樣式 `.map-food-pin`(map.css)。注意:icon marker 無 `setRadius`,zoom bump 已 guard。
