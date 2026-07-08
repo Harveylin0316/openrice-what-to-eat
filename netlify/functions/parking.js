@@ -147,17 +147,30 @@ exports.handler = async (event) => {
     return { statusCode: 400, headers: { ...headers, 'Cache-Control': 'public, max-age=30' }, body: JSON.stringify({ success: false, error: 'lat/lng required' }) };
   }
   headers['Cache-Control'] = 'public, max-age=30';
-  // desc（名稱/座標）是必要的；avail（即時空位）是加分項——avail 掛了仍以「無即時」顯示停車場。
-  // 兩者並行抓（total ≈ max，而非相加），avail 用 allSettled 容錯。
-  const [lotsR, availR] = await Promise.allSettled([getLots(), getAvail()]);
-  if (lotsR.status !== 'fulfilled') {
-    const e = lotsR.reason || {};
+
+  // desc（名稱/座標）是必要的且已預烤（秒回）；desc 失敗才是硬錯誤。
+  let lots;
+  try {
+    lots = await getLots();
+  } catch (e) {
     const reason = e.timeout ? 'desc逾時' : e.status ? `desc HTTP${e.status}` : (e.message || 'desc失敗').slice(0, 20);
     return { statusCode: 200, headers, body: JSON.stringify({ success: false, lots: [], error: reason }) };
   }
-  const lots = lotsR.value;
-  const avail = availR.status === 'fulfilled' ? availR.value : {};
 
+  // 快路徑（?fast=1）：只用預烤座標算最近停車場，不抓即時空位 → 免跨太平洋抓 461KB，
+  // 讓餐廳卡「秒顯示」場名/步行分鐘。前端第二階段再打完整版補上「剩 N 位」。
+  if (q.fast) {
+    return { statusCode: 200, headers, body: JSON.stringify({ success: true, fast: true, lots: nearestLots(lots, lat, lng, {}) }) };
+  }
+
+  // 完整版：加抓即時空位（avail 掛了仍以「無即時」顯示停車場，不擋卡片）。
+  let avail = {};
+  try { avail = await getAvail(); } catch (e) { /* 即時空位失敗 → 全部標為無即時 */ }
+  return { statusCode: 200, headers, body: JSON.stringify({ success: true, lots: nearestLots(lots, lat, lng, avail), scanned: lots.length }) };
+};
+
+// 從所有停車場挑出查詢點半徑內最近的幾個（附即時空位若有）。desc/avail 共用。
+function nearestLots(lots, lat, lng, avail) {
   const near = [];
   for (const lot of lots) {
     const d = haversineM(lat, lng, lot.lat, lot.lng);
@@ -173,5 +186,5 @@ exports.handler = async (event) => {
     });
   }
   near.sort((x, y) => x.dist - y.dist);
-  return { statusCode: 200, headers, body: JSON.stringify({ success: true, lots: near.slice(0, MAX_LOTS), scanned: lots.length }) };
-};
+  return near.slice(0, MAX_LOTS);
+}
