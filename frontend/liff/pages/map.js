@@ -466,36 +466,38 @@ function makeLabelClickable(marker, pin, trackProps) {
 // 餐廳 icon（Google 風格）：合作店（有優惠/可回饋）用它，一眼跟灰點未合作店區隔。
 // 底色＝優惠等級（紅套餐/金訂位/青回饋），內嵌「分類圖示」＝這是什麼店（火鍋/燒肉/咖啡…）
 // → 同時傳達「有什麼優惠 + 是什麼店」，更接近 Google Maps 的分類化圖釘。
-const FOOD_SVG = '<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>';
-
-// 分類 → emoji 圖示。依 pin 的品類標籤(tg) + 分類名(ct→cats) 比對關鍵字，最 specific 先中；
-// 都不中 → 回傳 null（用預設刀叉）。順序＝優先序（火鍋/燒肉…比「日式」一般類先判）。
-const CATEGORY_GLYPHS = [
-    [/火鍋|麻辣鍋|涮涮鍋|鍋物|薑母鴨|羊肉爐/, '🍲'],
-    [/燒肉|烤肉|鐵板燒|燒烤/, '🍖'],
-    [/串燒|串焼|串揚|居酒屋/, '🍢'],
-    [/壽司|生魚片|割烹|丼飯/, '🍣'],
-    [/拉麵|烏龍麵|沾麵|蕎麥/, '🍜'],
-    [/披薩|pizza/i, '🍕'],
-    [/義大利|義式|pasta|燉飯/i, '🍝'],
-    [/咖啡|café|cafe|咖啡廳/i, '☕'],
-    [/甜點|蛋糕|麵包|西點|布丁|鬆餅|甜品|冰淇淋|可麗餅|下午茶/, '🍰'],
-    [/酒吧|餐酒|酒類|清酒|啤酒|調酒|bar|lounge|wine|whisky/i, '🍷'],
-    [/漢堡|三明治|美國|美式|burger|速食|炸雞/i, '🍔'],
-    [/咖哩|印度/, '🍛'],
-    [/泰式|越南|星馬|印尼|東南亞/, '🍤'],
-    [/海鮮|生猛|龍蝦|螃蟹/, '🦐'],
-    [/沙拉|輕食|素食|蔬食|salad|健康/i, '🥗'],
-    [/吃到飽|buffet|自助餐/i, '🍽️'],
-    [/港式|廣東|粵|川菜|四川|中餐|上海|江浙|湖南|東北|小籠|水餃|點心|滷味/, '🥟'],
-    [/日式|日本/, '🍱'], // 一般日式（壽司/拉麵/居酒屋已在前面判掉）
-    [/韓式|韓國/, '🍚'],
+// 分類白色單色圖示（Google 式：依「用餐型態」分桶，非細分菜系）。都不中→預設刀叉(restaurant)。
+const GLYPHS = {
+    // 刀叉：一般餐廳（日式/中式/義式/海鮮…都歸這，跟 Google 一樣）
+    restaurant: '<path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>',
+    // 咖啡杯（Material local_cafe）
+    cafe: '<path d="M18.5 3H6c-1.1 0-2 .9-2 2v5.71c0 3.83 2.95 7.18 6.78 7.29 3.96.12 7.22-3.06 7.22-7v-1h.5c1.93 0 3.5-1.57 3.5-3.5S20.43 3 18.5 3zM16 5v3H6V5h10zm2.5 3H18V5h.5c.83 0 1.5.67 1.5 1.5S19.33 8 18.5 8zM4 19h16v2H4z"/>',
+    // 馬丁尼杯（Material local_bar）：酒吧/餐酒/居酒屋
+    bar: '<path d="M21 5V3H3v2l8 9v5H6v2h12v-2h-5v-5l8-9zM7.43 7L5.66 5h12.69l-1.78 2H7.43z"/>',
+    // 杯子蛋糕：甜點/烘焙
+    dessert: '<path d="M5.5 11a6.5 6.5 0 0 1 13 0z"/><path d="M6.7 12.6h10.6l-1.05 6.6a1 1 0 0 1-1 .8H8.75a1 1 0 0 1-1-.8z"/><circle cx="12" cy="6" r="1.5"/>',
+    // 鍋＋蒸氣：火鍋
+    hotpot: '<rect x="3.4" y="10.2" width="17.2" height="2.3" rx="1.1"/><path d="M5 13.2h14v.8a5.5 5.5 0 0 1-5.5 5.5h-3A5.5 5.5 0 0 1 5 14z"/><rect x="1.2" y="13.4" width="3.3" height="1.9" rx="0.95"/><rect x="19.5" y="13.4" width="3.3" height="1.9" rx="0.95"/><path d="M9 8.4c0-1 1-1.3 1-2.4s-1-1.4-1-2.4M14 8.4c0-1 1-1.3 1-2.4s-1-1.4-1-2.4" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>',
+    // 烤肉串（三塊肉串在竹籤上）：燒肉/串燒
+    grill: '<path d="M3.8 20.2 20.2 3.8" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/><rect x="6.6" y="13.6" width="4.2" height="4.2" rx="1.3" transform="rotate(-45 8.7 15.7)"/><rect x="9.9" y="9.9" width="4.2" height="4.2" rx="1.3" transform="rotate(-45 12 12)"/><rect x="13.2" y="6.2" width="4.2" height="4.2" rx="1.3" transform="rotate(-45 15.3 8.3)"/>',
+    // 麵碗＋筷子：拉麵/烏龍麵
+    noodles: '<path d="M3.5 11.2h17a8.5 8.5 0 0 1-8.5 8 8.5 8.5 0 0 1-8.5-8z"/><path d="M13.4 3.2 17 9.8M16.8 3 18.2 9.8" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>',
+};
+// 關鍵字 → 圖示 key（優先序：specific 在前）。比對 pin 的 tg 標籤 + ct 分類名。
+const CATEGORY_RULES = [
+    [/火鍋|麻辣鍋|涮涮鍋|鍋物|薑母鴨|羊肉爐/, 'hotpot'],
+    [/燒肉|烤肉|鐵板燒|燒烤|串燒|串焼|串揚/, 'grill'],
+    [/拉麵|烏龍麵|沾麵|蕎麥|麵線/, 'noodles'],
+    [/咖啡|café|cafe/i, 'cafe'],
+    [/酒吧|餐酒|酒類|清酒|啤酒|調酒|居酒屋|bar|lounge|wine|whisky|sake/i, 'bar'],
+    [/甜點|蛋糕|麵包|西點|布丁|鬆餅|甜品|冰淇淋|可麗餅|下午茶|烘焙|甜甜圈/, 'dessert'],
 ];
-function pinGlyph(pin) {
+function pinGlyphSvg(pin) {
     const cats = (pin.tg || []).join(' ') + ' '
         + (pin.ct || []).map(i => (allCats && allCats[i]) || '').join(' ');
-    for (const [re, g] of CATEGORY_GLYPHS) if (re.test(cats)) return g;
-    return null; // → 預設刀叉
+    let key = 'restaurant';
+    for (const [re, k] of CATEGORY_RULES) if (re.test(cats)) { key = k; break; }
+    return `<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true">${GLYPHS[key]}</svg>`;
 }
 
 function bindPinCommon(marker, pin, offsetX, isDeal) {
@@ -539,8 +541,7 @@ function buildMarker(L, pin) {
     // 合作店（menu/offer/cashback）：改用餐廳 icon。優惠店(menu/offer)大一號、上層，回饋店(cashback)略小。
     const isDeal = pin.t === 'menu' || pin.t === 'offer';
     const size = isDeal ? 30 : 24;
-    const glyph = pinGlyph(pin);
-    const inner = glyph ? `<span class="map-food-glyph" aria-hidden="true">${glyph}</span>` : FOOD_SVG;
+    const inner = pinGlyphSvg(pin); // 分類白色圖示（都不中→刀叉）
     const marker = L.marker([pin.lat, pin.lng], {
         icon: L.divIcon({
             className: 'map-food-wrap',

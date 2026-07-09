@@ -191,15 +191,7 @@ body.is-map-page { overflow: hidden; }
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
   box-sizing: border-box;
 }
-.map-food-pin svg { width: 60%; height: 60%; display: block; }
-/* 分類 emoji 圖示：置中、佔圓約 66%，行高歸零避免偏移 */
-.map-food-pin .map-food-glyph {
-  font-size: 15px;
-  line-height: 1;
-  display: block;
-  filter: drop-shadow(0 0.5px 0.5px rgba(0, 0, 0, 0.3)); /* 讓 emoji 在彩底上更立體 */
-}
-.map-food-pin--lg .map-food-glyph { font-size: 18px; }
+.map-food-pin svg { width: 66%; height: 66%; display: block; }
 /* 優惠店(menu/offer)：大一號、邊框陰影更明顯，比回饋店突出 */
 .map-food-pin--lg {
   border-width: 2.5px;
