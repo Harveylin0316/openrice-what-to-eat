@@ -1149,15 +1149,20 @@ async function fillParking(pin) {
         renderRow(lot, '<span class="map-parking__avail map-parking__avail--unknown">空位查詢中…</span>');
     } catch (err) { failMsg(err); return; }
 
-    // ── 第二階段：抓即時空位，補上同一顆最近場的「剩 N 位」。失敗就維持「即時不明」 ──
+    // ── 第二階段：抓即時空位，補上「剩 N 位」。失敗就維持「即時不明」 ──
+    // 很多路邊/私人停車場沒感測器（available=null）→ 若只認「最近那顆」常常變「即時不明」。
+    // 改成優先挑「附近有即時車位數的最近場」，整片都沒感測器才退回最近場顯示「即時不明」。
     try {
         const res2 = await withTimeout(fetch(base, { signal }), 12000, '空位');
         if (!res2.ok) throw new Error('HTTP ' + res2.status);
         const data2 = await res2.json();
         if (data2.success) {
-            const match = (data2.lots || []).find(l => l.name === lot.name) || (data2.lots || [])[0] || lot;
-            renderRow(match, availHtml(match.available));
-            track('map_parking_shown', { or_id: pin.id, lot: match.name, available: match.available });
+            const lots2 = data2.lots || [];
+            const best = lots2.find(l => l.available != null)   // 最近的「有即時車位數」場
+                || lots2.find(l => l.name === lot.name)          // 都沒有→維持第一階段那顆
+                || lots2[0] || lot;
+            renderRow(best, availHtml(best.available));
+            track('map_parking_shown', { or_id: pin.id, lot: best.name, available: best.available });
         }
     } catch (err) {
         if (err && err.name === 'AbortError') return; // 換卡：別覆寫新卡內容
