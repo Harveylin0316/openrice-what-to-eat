@@ -989,6 +989,7 @@ function setSheetOpen(open) {
             savedSheetView = null;
         } else {
             renderSheetList();
+            if (selectedPinId != null) highlightSheetRow(selectedPinId, true); // 捲到剛看過的那家
         }
     }
     track(open ? 'map_sheet_open' : 'map_sheet_close', {});
@@ -1061,7 +1062,7 @@ function renderSheetList() {
             : '';
         return `
         <li>
-            <button type="button" class="map-sheet__item" data-pin-id="${pin.id}">
+            <button type="button" class="map-sheet__item${pin.id === selectedPinId ? ' is-active' : ''}" data-pin-id="${pin.id}">
                 ${pin.img
                     ? `<img class="map-sheet__thumb" src="${escapeHtml(pin.img)}" alt="" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">`
                     : '<span class="map-sheet__thumb map-sheet__thumb--empty">🍽️</span>'}
@@ -1141,14 +1142,35 @@ function clearSelectedRing() {
 
 // 選中強調（Google 式）：點到的合作店 icon 放大浮起、拉到最上層。灰點/外部點沿用選中圈即可。
 let selectedPinEl = null;
+let selectedPinId = null;       // 目前選中的店（清單↔地圖雙向高亮共用）
 function setSelectedPin(pin) {
     clearSelectedPin();
+    selectedPinId = pin.id;
     const marker = pinMarkers.get(pin.id) || sponsorMarkers.get(pin.id);
     const el = marker && marker.getElement && marker.getElement(); // divIcon 的 DOM（circleMarker 無）
-    if (el) { el.classList.add('is-selected'); selectedPinEl = el; }
+    if (el) {
+        el.classList.add('is-selected');
+        // 一次性彈跳回饋：先移除再於下一幀加上，讓動畫每次選取都重播
+        el.classList.remove('is-bounce');
+        requestAnimationFrame(() => el.classList.add('is-bounce'));
+        selectedPinEl = el;
+    }
+    if (sheetOpen) highlightSheetRow(pin.id); // 清單開著時同步高亮對應列
 }
 function clearSelectedPin() {
-    if (selectedPinEl) { selectedPinEl.classList.remove('is-selected'); selectedPinEl = null; }
+    if (selectedPinEl) { selectedPinEl.classList.remove('is-selected', 'is-bounce'); selectedPinEl = null; }
+}
+// 清單列高亮 + 捲到可視（地圖→清單）
+function highlightSheetRow(pinId, scroll = false) {
+    const list = document.getElementById('sheetList');
+    if (!list) return;
+    let active = null;
+    list.querySelectorAll('.map-sheet__item').forEach(btn => {
+        const on = Number(btn.dataset.pinId) === pinId;
+        btn.classList.toggle('is-active', on);
+        if (on) active = btn;
+    });
+    if (active && scroll) active.scrollIntoView({ block: 'nearest' });
 }
 
 // Google 式：選了店若該 pin 被底部卡片蓋住/太貼近卡片，把地圖上移讓 pin 露在卡片上方。

@@ -219,6 +219,17 @@ body.is-map-page { overflow: hidden; }
   border-width: 3px;
 }
 .map-food-pin { transition: transform 0.14s ease-out, box-shadow 0.14s ease-out; }
+/* 選取時一次性彈跳（清單點選/直接點 pin 皆播放；結束停在 is-selected 的 1.38 倍） */
+@keyframes pinBounce {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.55); }
+  75% { transform: scale(1.28); }
+  100% { transform: scale(1.38); }
+}
+.map-food-wrap.is-bounce .map-food-pin { animation: pinBounce 0.42s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .map-food-wrap.is-bounce .map-food-pin { animation: none; }
+}
 /* 聚光燈時讓位（跟色點/星釘一致淡出） */
 .map-canvas.is-spotlight .map-food-pin { opacity: 0.3; }
 /* 聚光燈時所有店名標籤讓位（卡片上已有店名）；tooltip pane 不吃 overlay 淡出，需獨立隱藏 */
@@ -582,6 +593,12 @@ body.is-map-page { overflow: hidden; }
 .map-sheet__item:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 3px rgba(228, 78, 37, 0.4);
+  border-radius: var(--lm-radius-sm);
+}
+/* 清單↔地圖雙向高亮：目前選中的店在清單裡標出來（左側 accent 條 + 淡底） */
+.map-sheet__item.is-active {
+  background: var(--lm-accent-subtle);
+  box-shadow: inset 3px 0 0 var(--lm-accent);
   border-radius: var(--lm-radius-sm);
 }
 .map-sheet__thumb {
