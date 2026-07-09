@@ -8,7 +8,8 @@
 const DESC_URL = 'https://tcgbusfs.blob.core.windows.net/blobtcmsv/TCMSV_alldesc.json';
 const AVAIL_URL = 'https://tcgbusfs.blob.core.windows.net/blobtcmsv/TCMSV_allavailable.json';
 const DESC_TTL = 6 * 3600 * 1000;  // 名稱/座標半天更新一次夠了
-const AVAIL_TTL = 60 * 1000;       // 即時空位快取 60 秒（分鐘級來源）
+const AVAIL_TTL = 60 * 1000;       // 即時空位「記憶體」快取 60 秒（分鐘級來源，記憶體命中即回）
+const BLOB_AVAIL_TTL = 5 * 60 * 1000; // Blobs 超過 5 分沒更新（排程異常）→ 不採用，退回即時抓
 const NEAR_RADIUS_M = 700;         // 只回步行約 10 分內的停車場
 const MAX_LOTS = 5;                 // 回最近 5 場，讓前端「優先挑有即時車位數的場」有更多候選（減少「即時不明」）
 const WALK_DETOUR = 1.25;          // 直線 → 實際步行的繞路係數（街廓）
@@ -92,13 +93,35 @@ async function getLots() {
   return lots;
 }
 
+// 讀「排程每分鐘背景寫入 Blobs」的即時空位（跨 instance、us-east-2 同區、快）。
+// 這是讓「每個使用者（含冷啟第一次）都快」的關鍵：使用者不必等跨太平洋抓 461KB。
+async function readAvailBlob() {
+  try {
+    const { getStore } = await import('@netlify/blobs');
+    const c = await getStore('parking').get('avail', { type: 'json' });
+    if (c && c.map && (Date.now() - c.at) < BLOB_AVAIL_TTL) return c; // {at, map}
+  } catch (e) { /* Blobs 不可用/空/過期 → 交由呼叫端 live fetch */ }
+  return null;
+}
+async function writeAvailBlob(map) {
+  try {
+    const { getStore } = await import('@netlify/blobs');
+    await getStore('parking').setJSON('avail', { at: Date.now(), map, count: Object.keys(map).length });
+  } catch (e) { /* 寫失敗無妨：排程才是主要寫入者 */ }
+}
+
 async function getAvail() {
   if (availCache.map && Date.now() - availCache.at < AVAIL_TTL) return availCache.map;
+  // 1) 優先讀排程寫入的 Blobs（快 + ≤1 分新鮮）。以 blob 的資料時戳當快取時戳 → AVAIL_TTL 直接界定資料年齡。
+  const blob = await readAvailBlob();
+  if (blob) { availCache = { at: blob.at, map: blob.map }; return blob.map; }
+  // 2) fallback（Blobs 尚未暖機/排程異常）：即時抓一次，順手寫回 Blobs 自我修復（不 await，不擋回應）。
   const json = await fetchJson(AVAIL_URL, 6000, 'avail');
   const parks = (json.data && json.data.park) || [];
   const map = {};
   for (const p of parks) map[String(p.id)] = Number(p.availablecar);
   availCache = { at: Date.now(), map };
+  writeAvailBlob(map);
   return map;
 }
 
@@ -132,6 +155,7 @@ exports.handler = async (event) => {
 
   if (q.debug) {
     const baked = getBakedLots();
+    const blob = await readAvailBlob();
     const [desc, avail] = await Promise.all([
       probe(DESC_URL, 9000, 'desc'),
       probe(AVAIL_URL, 7000, 'avail'),
@@ -139,6 +163,8 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers, body: JSON.stringify({
       debug: true, node: process.version, region: process.env.AWS_REGION || null,
       baked: { active: !!baked, count: baked ? baked.length : 0 }, // 預烤檔是否生效
+      // 即時空位來源：blob=排程暖機中（使用者都快）、null=尚未暖機（暫用 live fallback）
+      availStore: blob ? { source: 'blob', ageSec: Math.round((Date.now() - blob.at) / 1000), count: blob.count || Object.keys(blob.map).length } : { source: 'live-fallback', warm: false },
       desc, avail,
     }, null, 2) };
   }

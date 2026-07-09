@@ -35,6 +35,10 @@
   # Functions 目錄
   directory = "netlify/functions"
 
+# 排程：每分鐘背景刷新台北即時停車空位到 Netlify Blobs（parking function 讀 Blobs → 每個使用者都快、資料 ≤1 分新鮮）
+[functions."refresh-parking"]
+  schedule = "* * * * *"
+
 # 重定向規則（將 API 請求重定向到 Functions）
 # 將所有 /api/restaurants/* 請求重定向到 Netlify Function
 [[redirects]]
