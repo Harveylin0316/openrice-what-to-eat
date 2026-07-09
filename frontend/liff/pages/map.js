@@ -1855,13 +1855,22 @@ function selectSearchResult(m) {
     savedSheetView = null;
     programmaticMove = true;
     if (m.kind === 'category') {
-        // 品類 → 地圖篩選（Google 式）：只留命中店家 + 視野框住結果
+        // 品類 → 地圖篩選（Google 式）：原地篩選、不 fitBounds 到整個北北基（會縮到看不清、體驗差）。
         setCatFilter(m.name, m.set);
-        const pts = allPins.filter(p => (p.ct || []).some(i => m.set.has(i)))
-            .map(p => [p.lat, p.lng]);
-        if (pts.length) {
-            map.fitBounds(pts, { padding: [48, 48], maxZoom: 16 });
+        const matchPins = allPins.filter(p => (p.ct || []).some(i => m.set.has(i)));
+        const bounds = map.getBounds();
+        const inView = matchPins.some(p => bounds.contains([p.lat, p.lng]));
+        if (!inView && matchPins.length) {
+            // 目前畫面內沒有命中店 → 平移到「離中心最近的一間」，維持街區級 zoom（不整片縮小）
+            const c = (userLocation && bounds.contains([userLocation.lat, userLocation.lng])) ? userLocation : map.getCenter();
+            let nearest = matchPins[0], best = Infinity;
+            for (const p of matchPins) {
+                const d = (p.lat - c.lat) ** 2 + (p.lng - c.lng) ** 2;
+                if (d < best) { best = d; nearest = p; }
+            }
+            map.flyTo([nearest.lat, nearest.lng], Math.min(16, Math.max(15, map.getZoom())), { duration: 0.8 });
         }
+        // else：畫面內已有命中店 → 停在原地只篩選（跟品類 chip 一致，不跳走）
         // 保留搜尋字在框內（清除 ✕ = 解除篩選）
         const input = document.getElementById('mapSearchInput');
         input.value = m.name;
