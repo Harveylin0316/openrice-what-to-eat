@@ -2057,6 +2057,19 @@ export async function initMapPage() {
         if ('requestIdleCallback' in window) requestIdleCallback(loadExternalPois, { timeout: 3000 });
         else setTimeout(loadExternalPois, 800);
 
+        // 停車暖機：進 app 就先叫醒 parking function + 預載即時空位快取（fire-and-forget，一次就好）。
+        // → 使用者稍後點餐廳卡的「第一次讀」不必再付 function cold start，幾乎瞬間出現。
+        if (!window.__parkingWarmed) {
+            window.__parkingWarmed = true;
+            const warm = () => {
+                const apiBase = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+                    ? 'http://localhost:3000/api' : '/api';
+                try { fetch(`${apiBase}/parking/nearby?warm=1`).catch(() => {}); } catch (e) { /* 靜默 */ }
+            };
+            if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 4000 });
+            else setTimeout(warm, 1200);
+        }
+
         // 遊戲化開場：連續天數 + 抽選額度 badge
         const streak = bumpStreak();
         updateFabBadge();

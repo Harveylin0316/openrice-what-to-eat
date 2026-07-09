@@ -169,6 +169,15 @@ exports.handler = async (event) => {
     }, null, 2) };
   }
 
+  // 暖機（?warm=1，進 app 時前端 fire）：喚醒此 function instance + 預載 baked 座標與即時空位到
+  // 記憶體快取。使用者稍後點餐廳卡的「第一次讀」就不必付 cold start、資料也已在手 → 幾乎瞬間。
+  if (q.warm) {
+    let lotsN = 0, avail = false;
+    try { lotsN = (await getLots()).length; } catch (e) { /* baked 缺→忽略 */ }
+    try { await getAvail(); avail = !!(availCache.map); } catch (e) { /* 即時空位失敗→忽略 */ }
+    return { statusCode: 200, headers, body: JSON.stringify({ ok: true, warm: true, lots: lotsN, avail }) };
+  }
+
   if (!hasCoords || !isFinite(lat) || !isFinite(lng)) {
     return { statusCode: 400, headers: { ...headers, 'Cache-Control': 'public, max-age=30' }, body: JSON.stringify({ success: false, error: 'lat/lng required' }) };
   }
