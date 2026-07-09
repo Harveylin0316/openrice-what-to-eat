@@ -343,6 +343,13 @@ body.is-map-page { overflow: hidden; }
   border-color: var(--lm-accent);
   color: #fff;
 }
+/* 時間感知「此刻」chip：淡 accent 底 + accent 字，一眼是「此刻推薦」；選中則填滿 accent（沿用 .is-active） */
+.map-chip--now {
+  background: var(--lm-accent-subtle);
+  border-color: var(--lm-accent);
+  color: var(--lm-accent-press);
+  font-weight: 700;
+}
 .map-chip:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(228, 78, 37, 0.4);

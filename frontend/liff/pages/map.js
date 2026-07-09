@@ -424,8 +424,36 @@ function ensureMapRoot() {
             </div>
         </div>
     `;
+
+    // 時間感知「此刻」快捷 chip（Google 式：依時段換）：置於 chips 列最前、依現在時段推一個應景品類。
+    // 沿用既有 data-cat 品類篩選機制（wireControls 的 .map-chip--cat handler + setCatFilter 同步），無需新邏輯。
+    try {
+        const chipsBar = root.querySelector('.map-chips');
+        const pick = daypartPick();
+        const nowChip = document.createElement('button');
+        nowChip.type = 'button';
+        nowChip.className = 'map-chip map-chip--cat map-chip--now';
+        nowChip.dataset.cat = pick.cat;
+        nowChip.setAttribute('aria-pressed', 'false');
+        nowChip.textContent = pick.label;
+        chipsBar.insertBefore(nowChip, chipsBar.firstChild);
+        // 隱藏與「此刻」同品類的那顆一般 chip（避免同品類出現兩顆）
+        const dup = chipsBar.querySelector(`.map-chip--cat[data-cat="${pick.cat}"]:not(.map-chip--now)`);
+        if (dup) dup.hidden = true;
+    } catch (e) { /* 時段 chip 失敗不影響地圖 */ }
+
     document.body.appendChild(root);
     return root;
+}
+
+// 依現在時段推一個應景品類（cat 對應既有品類 chip 的 data-cat）。
+function daypartPick() {
+    const h = new Date().getHours();
+    if (h >= 5 && h < 11) return { cat: '咖啡', label: '☕ 早餐 · 咖啡' };
+    if (h >= 11 && h < 14) return { cat: '吃到飽', label: '🍱 午餐 · 吃到飽' };
+    if (h >= 14 && h < 17) return { cat: '咖啡', label: '☕ 午茶 · 咖啡' };
+    if (h >= 17 && h < 21) return { cat: '火鍋', label: '🍲 晚餐 · 火鍋' };
+    return { cat: '餐酒館', label: '🍷 宵夜 · 餐酒' }; // 21:00–05:00
 }
 
 // ---- Pin 與篩選 ----

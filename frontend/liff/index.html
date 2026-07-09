@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="style.css">
     <!-- 生活地圖頁樣式（Leaflet 本體由 map.js 動態載入）。?v 破 webview 快取：
          改到 map.css 時，跟下方 __V 一起 bump，讓新樣式確實下發到用戶（不吃舊快取）。 -->
-    <link rel="stylesheet" href="map.css?v=r15">
+    <link rel="stylesheet" href="map.css?v=r17">
     <!-- 圖磚 CDN 先握手（DNS+TLS）：首張地圖圖磚更快出現（tileLayer 在 Leaflet 載完才連太晚） -->
     <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin>
     <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com">
@@ -319,7 +319,7 @@
     <script type="module">
       // __V：關鍵路徑破快取版本。LINE webview 對 must-revalidate 不可靠 → 用 ?v 強制抓新版
       // router/map（新 URL＝一定重抓）。每次改到開機/router/map 的關鍵修復就 bump 這個值。
-      window.__V = 'r16';
+      window.__V = 'r17';
       import('./pages/router.js?v=' + window.__V).then(function (m) {
         if (window.__rrBooted) return;
         window.__rrBooted = true;
