@@ -1151,6 +1151,23 @@ function clearSelectedPin() {
     if (selectedPinEl) { selectedPinEl.classList.remove('is-selected'); selectedPinEl = null; }
 }
 
+// Google 式：選了店若該 pin 被底部卡片蓋住/太貼近卡片，把地圖上移讓 pin 露在卡片上方。
+// 只在 pin 真的被遮時才動（純垂直），避免與 flyTo 類路徑打架、也不無謂晃動。
+function panPinAboveCard(lat, lng) {
+    if (!map) return;
+    requestAnimationFrame(() => {
+        const card = document.getElementById('mapMiniCard');
+        if (!card || card.hidden) return;
+        const size = map.getSize();
+        const cardTop = size.y - (card.offsetHeight || 0);
+        const target = map.latLngToContainerPoint([lat, lng]);
+        if (target.y <= cardTop - 24) return;                 // 已在卡片上方安全區 → 不動
+        const desiredY = Math.max(72, cardTop * 0.45);        // 移到卡片上方區域、偏上一點
+        programmaticMove = true;
+        map.panBy([0, target.y - desiredY], { animate: true, duration: 0.35 });
+    });
+}
+
 // 迷你卡/聚光燈任一開啟時，FAB 與定位鈕讓位（換一個/關閉就在卡上）
 function updateCardOpenState() {
     const spotlight = document.getElementById('mapSpotlight');
@@ -1164,6 +1181,9 @@ function showMiniCard(pin) {
     const card = document.getElementById('mapMiniCard');
     const body = document.getElementById('miniCardBody');
     if (!card || !body) return;
+    // flyTo 類路徑（清單/搜尋/深連結/骰子）會自行把 pin 帶到視野中央，別再補平移；
+    // 直接點 pin（無 programmaticMove）才做「上移露出卡片上方」的校正。
+    const skipRecenter = programmaticMove;
     setSelectedRing(pin.lat, pin.lng);
     setSelectedPin(pin);
 
@@ -1222,6 +1242,7 @@ function showMiniCard(pin) {
 
     card.hidden = false;
     updateCardOpenState();
+    if (!skipRecenter) panPinAboveCard(pin.lat, pin.lng); // 直接點 pin 時把它移到卡片上方
     fillParking(pin); // 非同步補「附近停車」一行，不擋卡片顯示
 }
 
