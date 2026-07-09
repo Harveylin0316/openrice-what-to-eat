@@ -10,7 +10,7 @@ const AVAIL_URL = 'https://tcgbusfs.blob.core.windows.net/blobtcmsv/TCMSV_allava
 const DESC_TTL = 6 * 3600 * 1000;  // 名稱/座標半天更新一次夠了
 const AVAIL_TTL = 60 * 1000;       // 即時空位快取 60 秒（分鐘級來源）
 const NEAR_RADIUS_M = 700;         // 只回步行約 10 分內的停車場
-const MAX_LOTS = 3;
+const MAX_LOTS = 5;                 // 回最近 5 場，讓前端「優先挑有即時車位數的場」有更多候選（減少「即時不明」）
 const WALK_DETOUR = 1.25;          // 直線 → 實際步行的繞路係數（街廓）
 
 // TWD97 TM2 (EPSG:3826) → WGS84。已用往返測試驗證誤差 0.000m。
