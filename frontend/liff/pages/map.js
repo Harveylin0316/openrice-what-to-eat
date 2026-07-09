@@ -1150,13 +1150,14 @@ function closeMiniCard() {
 // ---- 停車圖層（🅿️ 停車 chip：一鍵在地圖上看可視範圍內所有停車場）----
 const MIN_PARK_ZOOM = 15; // 街區層級才顯示，避免整個台北的停車場蓋滿畫面
 
-function parkAvailClass(a) {
-    if (a == null) return 'unknown';
+// 無即時感測器的場 → 不用灰色「即時不明」，改成中性藍「size」+ 顯示總車位「共 N 格」（一定知道，實用）。
+function parkAvailClass(a, total) {
+    if (a == null) return (total > 0) ? 'size' : 'unknown';
     if (a <= 0) return 'full';
     return a < 15 ? 'low' : 'ok';
 }
-function parkAvailText(a) {
-    if (a == null) return '車位即時不明';
+function parkAvailText(a, total) {
+    if (a == null) return (total > 0) ? `共 ${total} 格` : '車位即時不明';
     if (a <= 0) return '目前額滿';
     return `剩 ${a} 位`;
 }
@@ -1215,7 +1216,7 @@ function renderParkingMarkers(L, lots) {
     if (parkLayer) { map.removeLayer(parkLayer); parkLayer = null; }
     parkLayer = L.layerGroup();
     for (const lot of lots) {
-        const cls = parkAvailClass(lot.available);
+        const cls = parkAvailClass(lot.available, lot.total);
         const m = L.marker([lot.lat, lot.lng], {
             icon: L.divIcon({
                 className: 'map-park-wrap',
@@ -1225,7 +1226,7 @@ function renderParkingMarkers(L, lots) {
             }),
             zIndexOffset: 300,
         });
-        const avail = parkAvailText(lot.available);
+        const avail = parkAvailText(lot.available, lot.total);
         m.bindPopup(
             `<div class="map-park-popup"><strong>${escapeHtml(lot.name)}</strong>`
             + `<span class="map-park-popup__avail map-park-popup__avail--${cls}">${avail}</span>`
@@ -1242,8 +1243,8 @@ function renderParkingMarkers(L, lots) {
 // 開車族的決策點：正在看這間店時，直接告訴他「最近停車場・步行幾分・剩幾位」。
 let parkingAbort = null;
 
-async function fillParking(pin) {
-    const el = document.getElementById('miniCardParking');
+async function fillParking(pin, elId = 'miniCardParking') {
+    const el = document.getElementById(elId);
     if (!el) return;
     if (parkingAbort) parkingAbort.abort();
     parkingAbort = new AbortController();
@@ -1259,8 +1260,13 @@ async function fillParking(pin) {
         ? 'http://localhost:3000/api' : '/api';
     const base = `${apiBase}/parking/nearby?lat=${pin.lat}&lng=${pin.lng}`;
 
-    const availHtml = (a) => {
-        if (a == null) return '<span class="map-parking__avail map-parking__avail--unknown">車位即時不明</span>';
+    // 沒有即時感測器的場（台北約 1/3）→ 不顯示無用的「即時不明」，改給「一定知道」的總車位「共 N 格」。
+    const availHtml = (a, total) => {
+        if (a == null) {
+            return total > 0
+                ? `<span class="map-parking__avail map-parking__avail--size">共 ${total} 格</span>`
+                : '<span class="map-parking__avail map-parking__avail--unknown">車位即時不明</span>';
+        }
         if (a <= 0) return '<span class="map-parking__avail map-parking__avail--full">目前額滿</span>';
         const level = a < 15 ? 'low' : 'ok';
         return `<span class="map-parking__avail map-parking__avail--${level}">剩 ${a} 位</span>`;
@@ -1305,12 +1311,12 @@ async function fillParking(pin) {
             const best = lots2.find(l => l.available != null)   // 最近的「有即時車位數」場
                 || lots2.find(l => l.name === lot.name)          // 都沒有→維持第一階段那顆
                 || lots2[0] || lot;
-            renderRow(best, availHtml(best.available));
+            renderRow(best, availHtml(best.available, best.total));
             track('map_parking_shown', { or_id: pin.id, lot: best.name, available: best.available });
         }
     } catch (err) {
         if (err && err.name === 'AbortError') return; // 換卡：別覆寫新卡內容
-        renderRow(lot, availHtml(null)); // 空位拿不到 → 標「即時不明」，但場名/步行已在（不轉圈）
+        renderRow(lot, availHtml(null, lot.total)); // 空位拿不到 → 至少顯示「共 N 格」，場名/步行已在
     }
 }
 
@@ -1596,7 +1602,13 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
             ${detailLines.length ? `<ul class="map-minicard__offers">${detailLines.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}
         </div>
+        <div class="map-spotlight__parking map-minicard__parking" id="spotlightParking" hidden></div>
     `;
+
+    // 「幫我決定」的卡也要有停車資訊（與餐廳小卡一致）。有 pin 用 pin（已含 d/座標），否則用 r 組出來。
+    const parkSrc = (pin && pin.lat != null) ? pin
+        : (hasCoords ? { id: r.or_id, lat: coords.lat, lng: coords.lng, d: [r.city, r.district].filter(Boolean).join('·') } : null);
+    if (parkSrc && parkSrc.lat != null) fillParking(parkSrc, 'spotlightParking');
 
     links.innerHTML = `
         ${r.url ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${r.bookable ? '立即訂位' : '看餐廳頁'}</a>` : ''}

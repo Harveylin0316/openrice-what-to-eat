@@ -370,7 +370,8 @@ body.is-map-page { overflow: hidden; }
 .map-park-pin--ok { background: #2E9A66; }      /* 有位（≥15） */
 .map-park-pin--low { background: #D9961F; }     /* 快滿（<15） */
 .map-park-pin--full { background: #C0392B; }    /* 額滿 */
-.map-park-pin--unknown { background: #8A857E; } /* 無即時 */
+.map-park-pin--size { background: #2E6FD6; }    /* 無即時但知道總車位：中性藍（像 Google 停車 P） */
+.map-park-pin--unknown { background: #8A857E; } /* 連總車位都沒有 */
 /* 停車 popup 內容 */
 .map-park-popup { display: flex; flex-direction: column; gap: 3px; min-width: 120px; font-size: 13px; }
 .map-park-popup strong { color: var(--lm-text); }
@@ -378,6 +379,7 @@ body.is-map-page { overflow: hidden; }
 .map-park-popup__avail--ok { color: #2E9A66; }
 .map-park-popup__avail--low { color: #D9961F; }
 .map-park-popup__avail--full { color: #C0392B; }
+.map-park-popup__avail--size { color: #2E6FD6; }
 .map-park-popup__avail--unknown { color: var(--lm-text-muted); }
 .map-park-popup a { color: var(--lm-accent); font-weight: 700; text-decoration: none; }
 .map-chip:focus-visible {
@@ -929,6 +931,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 .map-parking__avail--ok { color: #2E9E6B; }      /* 充足：綠 */
 .map-parking__avail--low { color: #D08700; }     /* 緊張：琥珀 */
 .map-parking__avail--full { color: var(--lm-accent-press); } /* 額滿：紅 */
+.map-parking__avail--size { color: #2E6FD6; }    /* 無即時但知道總車位「共 N 格」：中性藍 */
 .map-parking__avail--unknown { color: var(--lm-text-muted); font-weight: 500; }
 .map-parking__nav {
   flex: 0 0 auto;

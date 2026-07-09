@@ -156,6 +156,17 @@ exports.handler = async (event) => {
   if (q.debug) {
     const baked = getBakedLots();
     const blob = await readAvailBlob();
+    // 感測器覆蓋率：全部停車場中，有多少「回報了有效即時車位數」→ 量化「即時不明」的規模。
+    let coverage = null;
+    if (baked && blob && blob.map) {
+      let hasEntry = 0, validLive = 0;
+      for (const lot of baked) {
+        const a = blob.map[lot.id];
+        if (a !== undefined) hasEntry++;
+        if (a != null && a >= 0) validLive++;
+      }
+      coverage = { totalLots: baked.length, hasAvailEntry: hasEntry, validLive, pct: Math.round(validLive / baked.length * 100) };
+    }
     const [desc, avail] = await Promise.all([
       probe(DESC_URL, 9000, 'desc'),
       probe(AVAIL_URL, 7000, 'avail'),
@@ -165,6 +176,7 @@ exports.handler = async (event) => {
       baked: { active: !!baked, count: baked ? baked.length : 0 }, // 預烤檔是否生效
       // 即時空位來源：blob=排程暖機中（使用者都快）、null=尚未暖機（暫用 live fallback）
       availStore: blob ? { source: 'blob', ageSec: Math.round((Date.now() - blob.at) / 1000), count: blob.count || Object.keys(blob.map).length } : { source: 'live-fallback', warm: false },
+      coverage, // 有效即時車位覆蓋率（validLive/totalLots）：其餘就是「共 N 格」的場
       desc, avail,
     }, null, 2) };
   }
