@@ -27,7 +27,7 @@ LINE webview 對 `must-revalidate` 不可靠,會服務**舊的 JS**。解法是*
 `index.html` 內聯開機 `window.__V='rN'` → `import('./pages/router.js?v=rN')` →
 router 把 `?v` 串到 `import('./map.js?v=rN')`。新 URL = 一定重抓。
 **每次改到開機/router/map 的關鍵路徑,就 bump `index.html` 裡的 `__V` 和 `map.css?v=` 兩處。**
-目前版本:**r12**。
+目前版本:**r15**。
 
 開機解耦:`index.html` 內聯模組擁有地圖開機(`__rrBooted` guard);`app.js` 只做背景 LINE
 初始化(拿 profile,`__liffStarted` guard)。地圖不依賴 LINE,無條件先開。
@@ -55,7 +55,17 @@ router 把 `?v` 串到 `import('./map.js?v=rN')`。新 URL = 一定重抓。
 
 ## 其他已完成
 
-- **全面體檢(r12)**:三路稽核(前端載入/map.js正確性/後端資料)後修正,本地 Playwright 真地圖 8/8 驗證。
+- **合作店分類白色圖標(r15)**:餐廳 marker 依用餐型態分 7 桶(restaurant/cafe/bar/dessert/
+  hotpot/grill/noodles)顯示白色單色 SVG 圖示,底色維持優惠等級。`GLYPHS`+`CATEGORY_RULES`+
+  `pinGlyphSvg`(map.js)。**選中放大**:點到的 icon `.map-food-wrap.is-selected` scale 1.38。
+- **停車效能三部曲**:
+  1. (r13)兩階段載入:`?fast=1` 快路徑只用預烤座標算最近場秒顯示,第二階段再補即時空位。
+  2. (r14)優先顯示「有即時車位數的最近場」(避免路邊/私人場無感測器→「即時不明」);`MAX_LOTS` 3→5。
+  3. **背景排程刷新**:`refresh-parking.js`(netlify.toml `schedule="* * * * *"`)每分鐘抓即時空位
+     寫入 **Netlify Blobs**;`parking.js getAvail()` 優先讀 Blobs(同區快)→ 每個使用者(含冷啟)都快、
+     資料 ≤1 分新鮮。Blobs 空/異常 → 退回 live fetch(零回歸)。依賴 `@netlify/blobs`。
+     `?debug=1` 的 `availStore` 欄位可確認排程暖機(source: blob/live-fallback)。
+- **導航開 Google 路線畫面(r11)**、**全面體檢(r12)**:三路稽核(前端載入/map.js正確性/後端資料)後修正,本地 Playwright 真地圖 8/8 驗證。
   載入:外部 POI(206K)移出首屏關鍵路徑改 idle 載入、vendor Leaflet 改 immutable 快取、
   index.html preload/preconnect、後端 /recommend 快取解析過的 2.6MB DB(不再每請求重讀)。
   Bug:推薦洗牌改 Fisher–Yates(原 sort(random) 非均勻)、wireControls 加一次性 guard(修 init 失敗
