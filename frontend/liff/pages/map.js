@@ -723,12 +723,13 @@ function rebuildExtMembership() {
     extLayerCatKey = catFilter ? catFilter.label : null;
 }
 
-// 灰點（未合作餐廳）只在「沒套用會排除它們的篩選」時顯示：
-// - 可訂位/加碼優惠/預算/收藏：這些是「我們的合作條件」，未合作店本來就不符合 → 隱藏。
-// - 「現在有開」不算：營業時間是每家店都有的客觀屬性，未合作店也可能正在營業，
-//   只因為沒跟我們合作就把它們抹掉很奇怪（用戶回報）→ 開這個篩選時灰點保留當作周邊參考。
+// 灰點（未合作餐廳）只在「沒套用會排除它們的篩選」時顯示。原則：篩選代表某個條件，
+// 灰點資料無法證明它符合，就不該顯示（否則等於假裝它符合）。
+// - 可訂位/加碼優惠/預算/收藏：合作條件，未合作店本就不符合 → 隱藏。
+// - 現在有開：灰點的 external_pois 沒有營業時間資料 → 無法證明「現在有開」。全部留著＝
+//   假裝 1261 家都開著，早上 7 點幾乎全關時特別離譜（用戶回報）→ 一律隱藏，只留「確定有開」的合作店。
 function extFilteredOut() {
-    return activeFilters.deals || activeFilters.bookable
+    return activeFilters.deals || activeFilters.open || activeFilters.bookable
         || !!activeFilters.budget || activeFilters.favOnly;
 }
 function syncExtLayer() {
