@@ -368,8 +368,9 @@ function applyTheme(mode, persist) {
     const btn = document.getElementById('themeToggle');
     if (btn) {
         const dark = mode === 'dark';
-        btn.textContent = dark ? '☀️ 淺色' : '🌙 深色';
+        btn.textContent = dark ? '☀️' : '🌙'; // 顯示「點下去會變成的樣子」
         btn.setAttribute('aria-pressed', String(dark));
+        btn.setAttribute('aria-label', dark ? '切換為淺色外觀' : '切換為深色外觀');
     }
 }
 function toggleTheme() {
@@ -415,6 +416,7 @@ function ensureMapRoot() {
             <button type="button" class="map-chip map-chip--cat" data-cat="餐酒館" aria-pressed="false">🍷 餐酒館</button>
             <button type="button" class="map-chip map-chip--cat" data-cat="咖啡" aria-pressed="false">☕ 咖啡廳</button>
         </div>
+        <button type="button" class="map-theme-btn" id="themeToggle" aria-label="切換深色／淺色外觀" aria-pressed="false">🌙</button>
         <button type="button" class="map-locate-btn" id="chipLocate" aria-label="定位到我的位置">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
@@ -449,10 +451,6 @@ function ensureMapRoot() {
                     <button type="button" class="map-sort-chip" data-sort="distance" aria-pressed="false">距離</button>
                     <button type="button" class="map-sort-chip" data-sort="rating" aria-pressed="false">評分</button>
                     <button type="button" class="map-sort-chip" data-sort="deal" aria-pressed="false">優惠</button>
-                </div>
-                <div class="map-sheet__theme">
-                    <span class="map-sheet__sort-label">外觀</span>
-                    <button type="button" class="map-theme-toggle" id="themeToggle" aria-pressed="false">🌙 深色</button>
                 </div>
                 <ul class="map-sheet__list" id="sheetList"></ul>
             </div>
@@ -688,15 +686,24 @@ function buildExtLayer(L) {
         });
         extLayer.addLayer(m);
     }
-    const syncExtLayer = () => {
-        const show = map.getZoom() >= 16; // 街區層級才顯示，避免千顆灰點蓋滿市區
-        if (show && !map.hasLayer(extLayer)) map.addLayer(extLayer);
-        else if (!show && map.hasLayer(extLayer)) map.removeLayer(extLayer);
-        syncExtLabels();
-    };
     map.on('zoomend', syncExtLayer);
     map.on('moveend', syncExtLabels);
     syncExtLayer();
+}
+
+// 灰點（未合作、暫無優惠的餐廳）只在「沒套用會排除它們的篩選」時顯示：
+// 這些店本來就不可訂位、無優惠、無營業時間資料 → 任何 qualifying 篩選開啟時，
+// 它們都不符合，必須跟著隱藏，否則會出現「可訂位卻還有灰點」的矛盾。
+function extFilteredOut() {
+    return activeFilters.deals || activeFilters.open || activeFilters.bookable
+        || !!activeFilters.budget || activeFilters.favOnly;
+}
+function syncExtLayer() {
+    if (!extLayer || !map) return;
+    const show = map.getZoom() >= 16 && !extFilteredOut(); // 街區層級 + 未被篩選排除
+    if (show && !map.hasLayer(extLayer)) map.addLayer(extLayer);
+    else if (!show && map.hasLayer(extLayer)) map.removeLayer(extLayer);
+    syncExtLabels();
 }
 
 // 灰點店名：拉很近（z≥17）時顯示灰色標籤（用戶回報：zoom 很近應該要看得到名字）。
@@ -839,6 +846,7 @@ function applyFilters() {
         else if (!pass && map.hasLayer(m)) map.removeLayer(m);
     }
     refreshFavLayer();
+    if (extLayer) syncExtLayer(); // 篩選改變 → 灰點跟著顯示/隱藏（可訂位等 qualifying 篩選會排除未合作店）
     updateCountPill();
 }
 
@@ -900,8 +908,7 @@ function updateCountPill() {
     // 僅在灰點真的顯示（z≥16）、且未套用會排除它們的篩選時併入
     let extInView = 0;
     const extShown = extLayer && map.hasLayer(extLayer);
-    const filterExcludesExt = activeFilters.deals || activeFilters.open || activeFilters.bookable;
-    if (extShown && !filterExcludesExt) {
+    if (extShown && !extFilteredOut()) {
         for (const poi of extPois) {
             if (bounds.contains([poi.lat, poi.lng])) extInView++;
         }
@@ -2036,13 +2043,14 @@ function wireControls() {
     const chipParking = document.getElementById('chipParking');
     if (chipParking) chipParking.addEventListener('click', toggleParkingLayer);
 
-    // 深色模式切換（初始文字反映目前主題；主題已由 index.html 內聯開機設好 data-theme）
+    // 深色模式切換（初始 icon 反映目前主題；主題已由 index.html 內聯開機設好 data-theme）
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
         themeToggle.addEventListener('click', toggleTheme);
         const dark = isDarkTheme();
-        themeToggle.textContent = dark ? '☀️ 淺色' : '🌙 深色';
+        themeToggle.textContent = dark ? '☀️' : '🌙';
         themeToggle.setAttribute('aria-pressed', String(dark));
+        themeToggle.setAttribute('aria-label', dark ? '切換為淺色外觀' : '切換為深色外觀');
     }
 
     // 品類快捷 chips（Google Maps 的「餐廳/咖啡」列）：單選切換，與搜尋共用 catFilter
@@ -2301,6 +2309,7 @@ export async function initMapPage() {
             get map() { return map; },
             get pins() { return allPins; },
             get extPois() { return extPois; },
+            get extLayerShown() { return !!(extLayer && map && map.hasLayer(extLayer)); },
             openPin(id) {
                 const pin = allPins.find(p => p.id === id);
                 if (pin) showMiniCard(pin);

@@ -35,12 +35,12 @@
  * 店名標籤等需個別翻色（見檔案後段 [data-theme="dark"] 區塊）。範圍：地圖頁（home/抽獎頁維持淺色）。 */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --lm-bg: #17181B;
-  --lm-surface: #26272C;
-  --lm-border: #3A3B42;
-  --lm-text: #F2F1EE;
-  --lm-text-body: #D7D5D0;
-  --lm-text-muted: #9C978F;
+  --lm-bg: #1C1D21;
+  --lm-surface: #2E3038;
+  --lm-border: #474954;
+  --lm-text: #F5F4F1;
+  --lm-text-body: #DEDCD7;
+  --lm-text-muted: #A8A39B;
   --lm-accent-subtle: #3A241C;
   --lm-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.35);
   --lm-shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.6), 0 4px 8px rgba(0, 0, 0, 0.4);
@@ -632,8 +632,10 @@ body.is-map-page { overflow: hidden; }
 /* sheet 展開或卡片（迷你卡/聚光燈）開啟時：FAB 與定位鈕讓位 */
 .map-root.is-sheet-open .map-fab,
 .map-root.is-sheet-open .map-locate-btn,
+.map-root.is-sheet-open .map-theme-btn,
 .map-root.is-card-open .map-fab,
-.map-root.is-card-open .map-locate-btn { display: none; }
+.map-root.is-card-open .map-locate-btn,
+.map-root.is-card-open .map-theme-btn { display: none; }
 
 /* 窄屏（≤360px）：卡片按鈕縮小避免換行 */
 @media (max-width: 360px) {
@@ -1171,23 +1173,37 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 /* 灰點未合作店：白填在深色上太亮 → 壓成深色填、淺灰邊（canvas 標記，circleMarker 的 fill/stroke 由 map.js 給，
    這裡只處理 divIcon 型；circleMarker 顏色若要跟著深色調整需在 JS，暫維持—白點在深底仍可見） */
 
-/* 深色模式切換鈕（sheet 內「外觀」列） */
-.map-sheet__theme {
+/* 深色/淺色切換：右下角浮動 icon（疊在定位鈕上方） */
+.map-theme-btn {
+  position: absolute;
+  right: 16px;
+  bottom: calc(192px + var(--lm-safe-bottom)); /* 定位鈕(134+48)上方 */
+  z-index: 500;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 4px 0 2px;
-}
-.map-theme-toggle {
-  min-height: 40px;
-  padding: 0 16px;
+  justify-content: center;
   border: 1px solid var(--lm-border);
-  border-radius: 999px;
+  border-radius: 50%;
   background: var(--lm-surface);
   color: var(--lm-text-body);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
   box-shadow: var(--lm-shadow-chip);
+  cursor: pointer;
 }
-.map-theme-toggle:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(228, 78, 37, 0.4); }
+.map-theme-btn:active { transform: scale(0.94); }
+.map-theme-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--lm-shadow-chip), 0 0 0 3px rgba(228, 78, 37, 0.4);
+}
+@media (min-width: 768px) {
+  .map-root .map-theme-btn { right: calc(50% - 240px + 16px); }
+}
+
+/* 深色：大面板在近黑地圖上僅靠陰影分不出邊界 → 補細邊做出層次 */
+:root[data-theme="dark"] .map-sheet,
+:root[data-theme="dark"] .map-minicard,
+:root[data-theme="dark"] .map-spotlight { border: 1px solid var(--lm-border); }
+:root[data-theme="dark"] .map-sheet { border-bottom: none; }
