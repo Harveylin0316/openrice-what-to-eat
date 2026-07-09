@@ -214,6 +214,7 @@ let parkLayer = null;           // 停車圖層（🅿️ 停車 chip 開啟）�
 let parkOn = false;
 let parkAbort = null;
 let parkDebounce = null;
+let tileLayer = null;           // 底圖圖磚層（深色模式切 dark_matter / 淺色 voyager）
 let searchFocus = null;         // 搜尋地點錨 {name,lat,lng}：清單改以此排序（Google 式）
 let searchMarker = null;        // 搜尋落點 pin
 let pinMarkers = new Map();     // pin.id -> L.CircleMarker（一般 pin，走 cluster）
@@ -347,6 +348,45 @@ function loadLeaflet() {
     return leafletReady;
 }
 
+// ---- 深色模式 ----
+// 生效主題：localStorage 覆寫優先，否則跟系統（prefers-color-scheme）。data-theme 設在 <html>，
+// CSS 用 :root[data-theme="dark"] 套深色變數；index.html 內聯開機也會先設一次避免閃白。
+const TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+const TILE_DARK = 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png';
+function isDarkTheme() { return document.documentElement.dataset.theme === 'dark'; }
+function tileUrl() { return isDarkTheme() ? TILE_DARK : TILE_LIGHT; }
+function resolveTheme() {
+    let pref = null;
+    try { pref = localStorage.getItem('rr_theme'); } catch (e) { /* private mode */ }
+    if (pref === 'dark' || pref === 'light') return pref;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function applyTheme(mode, persist) {
+    document.documentElement.dataset.theme = mode;
+    if (persist) { try { localStorage.setItem('rr_theme', mode); } catch (e) { /* private mode */ } }
+    if (tileLayer) tileLayer.setUrl(tileUrl()); // 換底圖圖磚（Leaflet 原地刷新，不用重建）
+    const btn = document.getElementById('themeToggle');
+    if (btn) {
+        const dark = mode === 'dark';
+        btn.textContent = dark ? '☀️ 淺色' : '🌙 深色';
+        btn.setAttribute('aria-pressed', String(dark));
+    }
+}
+function toggleTheme() {
+    const next = isDarkTheme() ? 'light' : 'dark';
+    applyTheme(next, true);
+    track('map_theme_toggle', { theme: next });
+}
+// 系統主題變動時（且使用者沒手動覆寫）跟著變
+if (window.matchMedia) {
+    try {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            let pref = null; try { pref = localStorage.getItem('rr_theme'); } catch (e) {}
+            if (pref !== 'dark' && pref !== 'light') applyTheme(resolveTheme(), false);
+        });
+    } catch (e) { /* older webview */ }
+}
+
 // ---- 頁面骨架 ----
 
 function ensureMapRoot() {
@@ -409,6 +449,10 @@ function ensureMapRoot() {
                     <button type="button" class="map-sort-chip" data-sort="distance" aria-pressed="false">距離</button>
                     <button type="button" class="map-sort-chip" data-sort="rating" aria-pressed="false">評分</button>
                     <button type="button" class="map-sort-chip" data-sort="deal" aria-pressed="false">優惠</button>
+                </div>
+                <div class="map-sheet__theme">
+                    <span class="map-sheet__sort-label">外觀</span>
+                    <button type="button" class="map-theme-toggle" id="themeToggle" aria-pressed="false">🌙 深色</button>
                 </div>
                 <ul class="map-sheet__list" id="sheetList"></ul>
             </div>
@@ -1992,6 +2036,15 @@ function wireControls() {
     const chipParking = document.getElementById('chipParking');
     if (chipParking) chipParking.addEventListener('click', toggleParkingLayer);
 
+    // 深色模式切換（初始文字反映目前主題；主題已由 index.html 內聯開機設好 data-theme）
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+        const dark = isDarkTheme();
+        themeToggle.textContent = dark ? '☀️ 淺色' : '🌙 深色';
+        themeToggle.setAttribute('aria-pressed', String(dark));
+    }
+
     // 品類快捷 chips（Google Maps 的「餐廳/咖啡」列）：單選切換，與搜尋共用 catFilter
     document.querySelectorAll('.map-chip--cat').forEach(chip => {
         chip.addEventListener('click', () => {
@@ -2136,7 +2189,7 @@ export async function initMapPage() {
         }).setView(DEFAULT_CENTER, DEFAULT_ZOOM);
         map.attributionControl.setPrefix(false);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        tileLayer = L.tileLayer(tileUrl(), {  // 深色模式→dark_matter，淺色→voyager
             maxZoom: 19,
             attribution: '&copy; OpenStreetMap &copy; CARTO',
         }).addTo(map);

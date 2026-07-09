@@ -30,9 +30,22 @@
   --lm-safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* 深色模式暫不啟用：全 app（index.html meta color-scheme + style.css）刻意鎖淺色，
- * 磚圖也是淺色 Voyager。待 P5 連磚圖（dark_matter）與 home/lottery 一起做，
- * 避免深色 UI 疊在淺色地圖上且 accent 對比不足。 */
+/* ---- 深色模式：<html data-theme="dark">（index.html 內聯開機 + map.js 切換設定）。
+ * 覆寫 --lm-* 變數，卡片/chips/搜尋/sheet 因用變數而自動變深；底圖磚由 map.js 換 dark_matter；
+ * 店名標籤等需個別翻色（見檔案後段 [data-theme="dark"] 區塊）。範圍：地圖頁（home/抽獎頁維持淺色）。 */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --lm-bg: #17181B;
+  --lm-surface: #26272C;
+  --lm-border: #3A3B42;
+  --lm-text: #F2F1EE;
+  --lm-text-body: #D7D5D0;
+  --lm-text-muted: #9C978F;
+  --lm-accent-subtle: #3A241C;
+  --lm-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.35);
+  --lm-shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.6), 0 4px 8px rgba(0, 0, 0, 0.4);
+  --lm-shadow-chip: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.35);
+}
 
 /* ---- 開場防閃現：首繪前 index.html 內聯腳本判定目標頁是地圖時，
  * 隱藏舊版外殼（header/表單/footer），只留載入 spinner。
@@ -1134,3 +1147,47 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   color: var(--lm-text-body);
   font-size: 15px;
 }
+
+/* ==== 深色模式：個別翻色（變數覆寫沒涵蓋到的：底圖底色、店名標籤、leaflet popup/attribution） ==== */
+/* 地圖底色（磚圖載入前/縫隙）配深 */
+:root[data-theme="dark"] .map-canvas,
+:root[data-theme="dark"] .map-canvas.leaflet-container { background: #0E0F11; }
+/* 店名標籤：淺色地圖用深字白暈；深色地圖翻成亮字 + 黑色描邊，才讀得清楚 */
+:root[data-theme="dark"] .map-canvas .map-pin-label {
+  color: #E9E8E5;
+  text-shadow:
+    -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000, 1px 1px 2px #000,
+    0 0 3px #000, 0 0 4px #000;
+}
+:root[data-theme="dark"] .map-canvas .map-pin-label--deal { color: #FF8A64; } /* 優惠店名：深色上亮橘 */
+:root[data-theme="dark"] .map-canvas .map-pin-label--sponsor { color: #FF8A64; }
+:root[data-theme="dark"] .map-canvas .map-pin-label--star { color: #FFD86A; }
+/* Leaflet popup（停車圖層）：預設白底 → 深色 */
+:root[data-theme="dark"] .leaflet-popup-content-wrapper,
+:root[data-theme="dark"] .leaflet-popup-tip { background: var(--lm-surface); color: var(--lm-text); box-shadow: var(--lm-shadow-md); }
+/* attribution：深底淺字，不刺眼 */
+:root[data-theme="dark"] .leaflet-control-attribution { background: rgba(20, 20, 24, 0.7) !important; color: #8A8A8A !important; }
+:root[data-theme="dark"] .leaflet-control-attribution a { color: #A8A8A8 !important; }
+/* 灰點未合作店：白填在深色上太亮 → 壓成深色填、淺灰邊（canvas 標記，circleMarker 的 fill/stroke 由 map.js 給，
+   這裡只處理 divIcon 型；circleMarker 顏色若要跟著深色調整需在 JS，暫維持—白點在深底仍可見） */
+
+/* 深色模式切換鈕（sheet 內「外觀」列） */
+.map-sheet__theme {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0 2px;
+}
+.map-theme-toggle {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--lm-border);
+  border-radius: 999px;
+  background: var(--lm-surface);
+  color: var(--lm-text-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--lm-shadow-chip);
+}
+.map-theme-toggle:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(228, 78, 37, 0.4); }
