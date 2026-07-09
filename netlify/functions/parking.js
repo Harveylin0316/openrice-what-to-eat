@@ -178,6 +178,31 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers, body: JSON.stringify({ ok: true, warm: true, lots: lotsN, avail }) };
   }
 
+  // 地圖停車圖層（?bbox=w,s,e,n）：回傳「目前可視範圍」內的停車場（附即時空位）。上限保護避免爆量。
+  if (q.bbox) {
+    headers['Cache-Control'] = 'public, max-age=30';
+    const p = String(q.bbox).split(',').map(Number);
+    if (p.length !== 4 || p.some(v => !isFinite(v))) {
+      return { statusCode: 400, headers, body: JSON.stringify({ success: false, error: 'bbox=w,s,e,n required' }) };
+    }
+    const [w, s, e, n] = p;
+    let lots;
+    try { lots = await getLots(); } catch (err) {
+      return { statusCode: 200, headers, body: JSON.stringify({ success: false, lots: [], error: 'desc失敗' }) };
+    }
+    let avail = {};
+    try { avail = await getAvail(); } catch (err) { /* 即時空位失敗 → 全標無即時 */ }
+    const MAX_LAYER = 300;
+    const inb = [];
+    for (const lot of lots) {
+      if (lot.lng < w || lot.lng > e || lot.lat < s || lot.lat > n) continue;
+      const a = avail[lot.id];
+      inb.push({ id: lot.id, name: lot.name, lat: lot.lat, lng: lot.lng, total: lot.total, available: (a != null && a >= 0) ? a : null });
+      if (inb.length >= MAX_LAYER) break;
+    }
+    return { statusCode: 200, headers, body: JSON.stringify({ success: true, lots: inb, capped: inb.length >= MAX_LAYER }) };
+  }
+
   if (!hasCoords || !isFinite(lat) || !isFinite(lng)) {
     return { statusCode: 400, headers: { ...headers, 'Cache-Control': 'public, max-age=30' }, body: JSON.stringify({ success: false, error: 'lat/lng required' }) };
   }

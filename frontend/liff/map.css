@@ -350,6 +350,36 @@ body.is-map-page { overflow: hidden; }
   color: var(--lm-accent-press);
   font-weight: 700;
 }
+
+/* 停車圖層 P 標記（🅿️ 停車 chip 開啟）：小圓角方塊，依即時空位上色 */
+.map-park-wrap { background: transparent; border: none; }
+.map-park-pin {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  font-weight: 800;
+  font-size: 13px;
+  color: #fff;
+  box-sizing: border-box;
+}
+.map-park-pin--ok { background: #2E9A66; }      /* 有位（≥15） */
+.map-park-pin--low { background: #D9961F; }     /* 快滿（<15） */
+.map-park-pin--full { background: #C0392B; }    /* 額滿 */
+.map-park-pin--unknown { background: #8A857E; } /* 無即時 */
+/* 停車 popup 內容 */
+.map-park-popup { display: flex; flex-direction: column; gap: 3px; min-width: 120px; font-size: 13px; }
+.map-park-popup strong { color: var(--lm-text); }
+.map-park-popup__avail { font-weight: 600; }
+.map-park-popup__avail--ok { color: #2E9A66; }
+.map-park-popup__avail--low { color: #D9961F; }
+.map-park-popup__avail--full { color: #C0392B; }
+.map-park-popup__avail--unknown { color: var(--lm-text-muted); }
+.map-park-popup a { color: var(--lm-accent); font-weight: 700; text-decoration: none; }
 .map-chip:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(228, 78, 37, 0.4);

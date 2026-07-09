@@ -210,6 +210,10 @@ let allCats = [];               // 品類詞彙表（火鍋店/燒肉店/居酒�
 let catFilter = null;           // 品類篩選 {label, set:Set<catIdx>}，搜尋或快捷 chip 設定
 let extPois = [];               // 無優惠餐廳 POI（closure-checker 台北市）：對照出「有優惠」的價值
 let extLayer = null;
+let parkLayer = null;           // 停車圖層（🅿️ 停車 chip 開啟）：可視範圍內的停車場
+let parkOn = false;
+let parkAbort = null;
+let parkDebounce = null;
 let searchFocus = null;         // 搜尋地點錨 {name,lat,lng}：清單改以此排序（Google 式）
 let searchMarker = null;        // 搜尋落點 pin
 let pinMarkers = new Map();     // pin.id -> L.CircleMarker（一般 pin，走 cluster）
@@ -365,6 +369,7 @@ function ensureMapRoot() {
             <button type="button" class="map-chip" id="chipOpen" aria-pressed="false">🕐 現在有開</button>
             <button type="button" class="map-chip" id="chipBookable" aria-pressed="false">📅 可訂位</button>
             <button type="button" class="map-chip" id="chipFav" aria-pressed="false">❤️ 收藏</button>
+            <button type="button" class="map-chip" id="chipParking" aria-pressed="false">🅿️ 停車</button>
             <button type="button" class="map-chip map-chip--cat" data-cat="火鍋" aria-pressed="false">🍲 火鍋</button>
             <button type="button" class="map-chip map-chip--cat" data-cat="燒肉" aria-pressed="false">🥩 燒肉</button>
             <button type="button" class="map-chip map-chip--cat" data-cat="吃到飽" aria-pressed="false">🍱 吃到飽</button>
@@ -1170,6 +1175,97 @@ function closeMiniCard() {
     updateCardOpenState();
 }
 
+// ---- 停車圖層（🅿️ 停車 chip：一鍵在地圖上看可視範圍內所有停車場）----
+const MIN_PARK_ZOOM = 15; // 街區層級才顯示，避免整個台北的停車場蓋滿畫面
+
+function parkAvailClass(a) {
+    if (a == null) return 'unknown';
+    if (a <= 0) return 'full';
+    return a < 15 ? 'low' : 'ok';
+}
+function parkAvailText(a) {
+    if (a == null) return '車位即時不明';
+    if (a <= 0) return '目前額滿';
+    return `剩 ${a} 位`;
+}
+
+function toggleParkingLayer() {
+    parkOn = !parkOn;
+    const chip = document.getElementById('chipParking');
+    if (chip) { chip.classList.toggle('is-active', parkOn); chip.setAttribute('aria-pressed', String(parkOn)); }
+    track('map_parking_layer', { on: parkOn });
+    if (parkOn) {
+        refreshParkingLayer();
+        map.on('moveend', scheduleParkingRefresh);
+        map.on('zoomend', scheduleParkingRefresh);
+    } else {
+        map.off('moveend', scheduleParkingRefresh);
+        map.off('zoomend', scheduleParkingRefresh);
+        if (parkAbort) parkAbort.abort();
+        if (parkLayer) { map.removeLayer(parkLayer); parkLayer = null; }
+    }
+}
+
+function scheduleParkingRefresh() {
+    if (parkDebounce) clearTimeout(parkDebounce);
+    parkDebounce = setTimeout(refreshParkingLayer, 350); // 拖動停下才抓，不每幀打
+}
+
+async function refreshParkingLayer() {
+    if (!parkOn || !map) return;
+    if (map.getZoom() < MIN_PARK_ZOOM) {
+        if (parkLayer) { map.removeLayer(parkLayer); parkLayer = null; }
+        showPillMessage('放大一點看停車場 🅿️', 2000);
+        return;
+    }
+    if (parkAbort) parkAbort.abort();
+    parkAbort = new AbortController();
+    const b = map.getBounds();
+    const bbox = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()].map(v => v.toFixed(5)).join(',');
+    const apiBase = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+        ? 'http://localhost:3000/api' : '/api';
+    let lots;
+    try {
+        const res = await withTimeout(fetch(`${apiBase}/parking/nearby?bbox=${bbox}`, { signal: parkAbort.signal }), 10000, '停車圖層');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || '停車服務異常');
+        lots = data.lots || [];
+    } catch (err) {
+        if (err && err.name === 'AbortError') return;
+        return; // 靜默：圖層抓不到不干擾地圖
+    }
+    if (!parkOn) return; // 抓的途中被關掉
+    renderParkingMarkers(window.L, lots);
+}
+
+function renderParkingMarkers(L, lots) {
+    if (parkLayer) { map.removeLayer(parkLayer); parkLayer = null; }
+    parkLayer = L.layerGroup();
+    for (const lot of lots) {
+        const cls = parkAvailClass(lot.available);
+        const m = L.marker([lot.lat, lot.lng], {
+            icon: L.divIcon({
+                className: 'map-park-wrap',
+                html: `<div class="map-park-pin map-park-pin--${cls}">P</div>`,
+                iconSize: [22, 22],
+                iconAnchor: [11, 11],
+            }),
+            zIndexOffset: 300,
+        });
+        const avail = parkAvailText(lot.available);
+        m.bindPopup(
+            `<div class="map-park-popup"><strong>${escapeHtml(lot.name)}</strong>`
+            + `<span class="map-park-popup__avail map-park-popup__avail--${cls}">${avail}</span>`
+            + `<a href="${navigationUrl(lot.lat, lot.lng, lot.name)}" target="_blank" rel="noopener">導航 ›</a></div>`,
+            { closeButton: false, offset: [0, -4] }
+        );
+        m.on('click', () => track('map_parking_layer_pin', { lot: lot.name, available: lot.available }));
+        parkLayer.addLayer(m);
+    }
+    map.addLayer(parkLayer);
+}
+
 // ---- 附近停車（第一刀：餐廳卡「附近停車」一行）----
 // 開車族的決策點：正在看這間店時，直接告訴他「最近停車場・步行幾分・剩幾位」。
 let parkingAbort = null;
@@ -1898,6 +1994,10 @@ function wireControls() {
     });
 
     document.getElementById('chipLocate').addEventListener('click', () => locateUser({ silent: false }));
+
+    // 🅿️ 停車圖層開關：一鍵在地圖顯示可視範圍內的停車場（含即時空位）
+    const chipParking = document.getElementById('chipParking');
+    if (chipParking) chipParking.addEventListener('click', toggleParkingLayer);
 
     // 品類快捷 chips（Google Maps 的「餐廳/咖啡」列）：單選切換，與搜尋共用 catFilter
     document.querySelectorAll('.map-chip--cat').forEach(chip => {
