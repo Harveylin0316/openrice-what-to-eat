@@ -691,11 +691,12 @@ function buildExtLayer(L) {
     syncExtLayer();
 }
 
-// 灰點（未合作、暫無優惠的餐廳）只在「沒套用會排除它們的篩選」時顯示：
-// 這些店本來就不可訂位、無優惠、無營業時間資料 → 任何 qualifying 篩選開啟時，
-// 它們都不符合，必須跟著隱藏，否則會出現「可訂位卻還有灰點」的矛盾。
+// 灰點（未合作餐廳）只在「沒套用會排除它們的篩選」時顯示：
+// - 可訂位/加碼優惠/預算/收藏：這些是「我們的合作條件」，未合作店本來就不符合 → 隱藏。
+// - 「現在有開」不算：營業時間是每家店都有的客觀屬性，未合作店也可能正在營業，
+//   只因為沒跟我們合作就把它們抹掉很奇怪（用戶回報）→ 開這個篩選時灰點保留當作周邊參考。
 function extFilteredOut() {
-    return activeFilters.deals || activeFilters.open || activeFilters.bookable
+    return activeFilters.deals || activeFilters.bookable
         || !!activeFilters.budget || activeFilters.favOnly;
 }
 function syncExtLayer() {
