@@ -1181,7 +1181,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   position: absolute;
   inset: 0;
   z-index: 300;
-  background: #21344F;
+  background: #454B57; /* 偏灰的藍灰：screen 把死黑提成 Google 那種灰藍，比純 navy 更亮更灰 */
   mix-blend-mode: screen;
   pointer-events: none;
 }
