@@ -1226,6 +1226,7 @@ function toggleParkingLayer() {
         map.off('moveend', scheduleParkingRefresh);
         map.off('zoomend', scheduleParkingRefresh);
         if (parkAbort) parkAbort.abort();
+        setParkingChipLoading(false);
         if (parkLayer) { map.removeLayer(parkLayer); parkLayer = null; }
     }
 }
@@ -1233,6 +1234,12 @@ function toggleParkingLayer() {
 function scheduleParkingRefresh() {
     if (parkDebounce) clearTimeout(parkDebounce);
     parkDebounce = setTimeout(refreshParkingLayer, 350); // 拖動停下才抓，不每幀打
+}
+
+// 停車 chip 讀取中狀態：第一次抓車位要等後端，沒有回饋用戶會以為 chip 壞了 → 轉圈動畫
+function setParkingChipLoading(on) {
+    const chip = document.getElementById('chipParking');
+    if (chip) chip.classList.toggle('is-loading', on);
 }
 
 async function refreshParkingLayer() {
@@ -1244,20 +1251,25 @@ async function refreshParkingLayer() {
     }
     if (parkAbort) parkAbort.abort();
     parkAbort = new AbortController();
+    const thisAbort = parkAbort;
     const b = map.getBounds();
     const bbox = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()].map(v => v.toFixed(5)).join(',');
     const apiBase = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
         ? 'http://localhost:3000/api' : '/api';
     let lots;
+    setParkingChipLoading(true);
     try {
-        const res = await withTimeout(fetch(`${apiBase}/parking/nearby?bbox=${bbox}`, { signal: parkAbort.signal }), 10000, '停車圖層');
+        const res = await withTimeout(fetch(`${apiBase}/parking/nearby?bbox=${bbox}`, { signal: thisAbort.signal }), 10000, '停車圖層');
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         if (!data.success) throw new Error(data.error || '停車服務異常');
         lots = data.lots || [];
     } catch (err) {
-        if (err && err.name === 'AbortError') return;
+        if (err && err.name === 'AbortError') return; // 被新的抓取取代：讓新的那次負責關 loading
         return; // 靜默：圖層抓不到不干擾地圖
+    } finally {
+        // 只有「還是自己這次抓取」才關 loading：被 abort 換掉時交給接手的那次，避免提前熄燈
+        if (parkAbort === thisAbort) setParkingChipLoading(false);
     }
     if (!parkOn) return; // 抓的途中被關掉
     renderParkingMarkers(window.L, lots);

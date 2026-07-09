@@ -356,6 +356,24 @@ body.is-map-page { overflow: hidden; }
   border-color: var(--lm-accent);
   color: #fff;
 }
+/* chip 讀取中：文字後接一顆轉圈（停車圖層第一次抓後端要等，給明確「處理中」回饋） */
+.map-chip.is-loading::after {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-left: 6px;
+  vertical-align: -1px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: mapChipSpin 0.6s linear infinite;
+}
+@keyframes mapChipSpin { to { transform: rotate(360deg); } }
+@keyframes mapChipPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+@media (prefers-reduced-motion: reduce) {
+  .map-chip.is-loading::after { animation: mapChipPulse 1s ease-in-out infinite; }
+}
 /* 時間感知「此刻」chip：淡 accent 底 + accent 字，一眼是「此刻推薦」；選中則填滿 accent（沿用 .is-active） */
 .map-chip--now {
   background: var(--lm-accent-subtle);
@@ -1151,9 +1169,22 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 }
 
 /* ==== 深色模式：個別翻色（變數覆寫沒涵蓋到的：底圖底色、店名標籤、leaflet popup/attribution） ==== */
-/* 地圖底色（磚圖載入前/縫隙）配深 */
+/* 地圖底色（磚圖載入前/縫隙）：Google 風深藍灰，不用死黑 */
 :root[data-theme="dark"] .map-canvas,
-:root[data-theme="dark"] .map-canvas.leaflet-container { background: #0E0F11; }
+:root[data-theme="dark"] .map-canvas.leaflet-container { background: #1B2739; }
+/* CARTO dark_all 是純黑系；疊一層 navy 用 screen 混色把黑「提」成 Google 深藍灰。
+ * screen(暗底圖, navy)→深藍；screen(白點/彩標, navy)≈幾乎不變（亮色疊暗色變化極小），
+ * 所以標記、cluster 數字泡泡、店名標籤都不會被染色。z-index 300 介於 tilePane(200)
+ * 與 overlayPane(400) 之上、控制項(≥800)之下；pointer-events:none 不吃點擊。 */
+:root[data-theme="dark"] .map-canvas::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 300;
+  background: #21344F;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
 /* 店名標籤：淺色地圖用深字白暈；深色地圖翻成亮字 + 黑色描邊，才讀得清楚 */
 :root[data-theme="dark"] .map-canvas .map-pin-label {
   color: #E9E8E5;
