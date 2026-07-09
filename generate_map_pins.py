@@ -23,6 +23,8 @@ OUTPUT = os.path.join(BASE_DIR, 'frontend', 'liff', 'data', 'map_pins.json')
 # 對照層（來自 closure-checker，見 export_checker_overlay.py）：歇業下架 + booking 加法升級。
 # 選配：缺檔時退回純主檔行為（Netlify build 也吃這份 committed 快照）。
 OVERLAY = os.path.join(BASE_DIR, 'frontend', 'liff', 'data', 'partner_overlay.json')
+# 座標退路（選配）：有地址但主檔+overlay 都缺座標的合作店，用 geocode 補值讓它們仍能上地圖。
+COORD_OVERRIDES = os.path.join(BASE_DIR, 'frontend', 'liff', 'data', 'coord_overrides.json')
 
 # 與 netlify/functions/restaurants.js 的 applyCityAllowlist 保持一致：
 # API（含「幫我決定」推薦引擎）只服務北北基，地圖 pin 必須套同一個白名單，
@@ -113,12 +115,16 @@ def compact_hours(opening_hours):
     return out
 
 
-def build_pin(r, ov=None):
+def build_pin(r, ov=None, coord_override=None):
     ov = ov or {}
     coords = r.get('coordinates') or {}
-    # 座標：對照層(checker 最新)優先，退回主檔
+    # 座標：對照層(checker 最新)優先，退回主檔，最後退回手動/geocode 補值（coord_overrides.json）。
+    # 最後這道退路是為了「有地址但主檔與 overlay 都缺座標」的合作店（否則會被 skip、永遠不上地圖）。
     lat = ov.get('lat', coords.get('lat'))
     lng = ov.get('lng', coords.get('lng'))
+    if (lat is None or lng is None) and coord_override:
+        lat = coord_override.get('lat')
+        lng = coord_override.get('lng')
     if lat is None or lng is None:
         return None
 
@@ -190,12 +196,26 @@ def load_overlay():
         return {'closed': set(), 'partners': {}}
 
 
+def load_coord_overrides():
+    """座標退路（選配）：{or_id(int): {'lat','lng'}}。缺檔則空。"""
+    try:
+        with open(COORD_OVERRIDES, encoding='utf-8') as f:
+            data = json.load(f)
+        coords = {int(k): v for k, v in (data.get('coords') or {}).items()}
+        if coords:
+            print(f"ℹ️  座標退路 coord_overrides.json：{len(coords)} 間補值")
+        return coords
+    except FileNotFoundError:
+        return {}
+
+
 def main():
     with open(SOURCE, encoding='utf-8') as f:
         data = json.load(f)
     restaurants = data if isinstance(data, list) else data.get('restaurants', [])
 
     overlay = load_overlay()
+    coord_overrides = load_coord_overrides()
 
     pins = []
     pin_tags = []  # 與 pins 對齊的原始品類 tags（建 cats 索引用）
@@ -212,7 +232,8 @@ def main():
         if r.get('or_id') in overlay['closed']:
             skipped_closed += 1  # Google 已確認永久歇業/搬遷 → 下架
             continue
-        pin = build_pin(r, overlay['partners'].get(r.get('or_id')))
+        pin = build_pin(r, overlay['partners'].get(r.get('or_id')),
+                        coord_overrides.get(r.get('or_id')))
         if pin is None:
             skipped_nocoords += 1
             continue

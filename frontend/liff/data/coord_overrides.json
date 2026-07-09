@@ -1,0 +1,5 @@
+{
+  "note": "手動/geocode 補的座標，供 generate_map_pins.py 在『主檔與 partner_overlay 都缺座標』時作為最後退路，避免有地址的合作店因無座標而永遠不出現在地圖上。key = or_id（字串）。來源見 geocode_missing.py（Google Geocoding）。日後 crawler/checker 補到真座標後，這裡對應項可移除。",
+  "source": "google-geocoding",
+  "coords": {}
+}
