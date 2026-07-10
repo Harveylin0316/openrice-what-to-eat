@@ -30,6 +30,19 @@ OUTPUT = os.path.join(BASE_DIR, 'frontend', 'liff', 'data', 'partner_overlay.jso
 # 只下架「確定永久歇業/搬遷」；temp_closed / closed_unverified 不動（checker 自述會誤判）
 CLOSED_STATUS = ('closed', 'closed_moved')
 
+# 已確認過期的優惠壓制名單（stopgap）：checker db 的 booking_offers 只加不減，店家撤下的
+# 優惠會殘留、每晚重生又流回地圖（2026-07-09 實際發生：551013 鹽牛舌被重生加回）。
+# 在來源端（checker 跑 refresh_offers.py 重驗全站優惠）修好之前，這裡按 poi_id+標題關鍵字
+# 過濾；來源修好後對應項目可移除。
+SUPPRESSED_OFFERS = {
+    551013: ('鹽牛舌',),  # 燒肉擔當 本店：官網已無此優惠（用戶 2026-07-09 回報）
+}
+
+
+def offer_suppressed(pid, title):
+    kws = SUPPRESSED_OFFERS.get(pid)
+    return bool(kws) and any(k in (title or '') for k in kws)
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -53,6 +66,8 @@ def main():
         SELECT poi_id, title FROM booking_offers
         WHERE poi_id IN (SELECT poi_id FROM partners) AND title IS NOT NULL AND title != ''
     """):
+        if offer_suppressed(r['poi_id'], r['title']):
+            continue  # 已確認過期，見 SUPPRESSED_OFFERS
         offer_titles.setdefault(r['poi_id'], []).append(r['title'])
 
     closed = []
