@@ -120,7 +120,7 @@ function dealSummaryText(pin) {
     const parts = [];
     if (pin.hm) parts.push('套餐優惠');
     if (pin.ho) parts.push('訂位優惠');
-    if (pin.b) parts.push('出席回饋 $3');
+    if (pin.b) parts.push('出席回饋 $3/人');
     return parts.join('・');
 }
 
@@ -249,7 +249,7 @@ function dealBadgesHtml(pin) {
     let html = '';
     if (pin.hm) html += '<span class="map-badge map-badge--menu">套餐優惠</span>';
     if (pin.ho) html += '<span class="map-badge map-badge--offer">訂位優惠</span>';
-    if (pin.b) html += '<span class="map-badge map-badge--cashback">出席回饋 $3</span>'; // 基本盤，與加碼優惠並存
+    if (pin.b) html += '<span class="map-badge map-badge--cashback">出席回饋 $3/人</span>'; // 基本盤，與加碼優惠並存
     return html;
 }
 
@@ -1724,7 +1724,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
     let dealBadges = '';
     if (hm) dealBadges += '<span class="map-badge map-badge--menu">套餐優惠</span>';
     if (ho) dealBadges += '<span class="map-badge map-badge--offer">訂位優惠</span>';
-    if (bookable) dealBadges += '<span class="map-badge map-badge--cashback">出席回饋 $3</span>'; // 基本盤，與加碼優惠並存
+    if (bookable) dealBadges += '<span class="map-badge map-badge--cashback">出席回饋 $3/人</span>'; // 基本盤，與加碼優惠並存
     const detailLines = dealDetailLines({ hm, mc, offers, bookable });
 
     body.innerHTML = `
