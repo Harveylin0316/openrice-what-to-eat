@@ -129,6 +129,9 @@ function shareDeepLink(pin) {
     return `https://liff.line.me/${id}?r=${pin.id}`;
 }
 
+// OpenRice 連結：優先用短網址 deeplink（dl，帶推薦碼可追蹤），缺則退回主檔長網址（url）
+function orLink(x) { return (x && (x.dl || x.url)) || ''; }
+
 // 組 LINE Flex Message（好友在聊天室看到的餐廳卡）
 function buildFlexMessage(pin, url) {
     const deal = dealSummaryText(pin);
@@ -149,7 +152,7 @@ function buildFlexMessage(pin, url) {
         body: { type: 'box', layout: 'vertical', spacing: 'none', contents: body },
         footer: { type: 'box', layout: 'vertical', contents: [
             { type: 'button', style: 'primary', color: '#E44E25', height: 'sm',
-              action: { type: 'uri', label: pin.b ? '看好康・訂位' : '看餐廳好康', uri: url } },
+              action: { type: 'uri', label: pin.b ? '看好康・訂位' : '看餐廳好康', uri: orLink(pin) || url } },
         ]},
     };
     // LINE Flex hero 只吃 https 圖；非 https 就不放大圖，避免整張卡被拒收
@@ -1224,8 +1227,8 @@ function showMiniCard(pin) {
             <div class="map-minicard__badges">
                 ${isStar ? '<span class="map-badge map-badge--star">🌟 今日之星</span>' : ''}${pin.sp ? '<span class="map-badge map-badge--sponsored">精選推薦</span>' : ''}${dealBadgesHtml(pin)}
             </div>
-            <h3 class="map-minicard__name">${pin.url
-                ? `<a href="${escapeHtml(pin.url)}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(pin.n)}<span class="map-minicard__more"> ›</span></a>`
+            <h3 class="map-minicard__name">${orLink(pin)
+                ? `<a href="${escapeHtml(orLink(pin))}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(pin.n)}<span class="map-minicard__more"> ›</span></a>`
                 : escapeHtml(pin.n)}</h3>
             <p class="map-minicard__meta">
                 ${pin.r ? `⭐ ${formatRating(pin.r)}　` : ''}${escapeHtml(pin.d || '')}${dist ? `　·　${dist}` : ''}${pin.bud ? `　·　💰 ${escapeHtml(pin.bud)}` : ''}
@@ -1236,7 +1239,7 @@ function showMiniCard(pin) {
             ${isStar ? '<p class="map-minicard__star-note">每天換一間，明天就不是它了</p>' : ''}
             <div class="map-minicard__parking" id="miniCardParking" hidden></div>
             <div class="map-minicard__actions">
-                ${pin.url ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(pin.url)}" target="_blank" rel="noopener">${pin.b ? '立即訂位' : '看餐廳頁'}</a>` : ''}
+                ${orLink(pin) ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(orLink(pin))}" target="_blank" rel="noopener">${pin.b ? '立即訂位' : '看餐廳頁'}</a>` : ''}
                 <a class="map-btn map-btn--ghost map-btn--icon" data-track="navigation" href="${navigationUrl(pin.lat, pin.lng, pin.n)}" target="_blank" rel="noopener" aria-label="導航">🧭</a>
                 <button type="button" class="map-btn map-btn--ghost map-btn--icon map-btn--fav ${isFav(pin.id) ? 'is-fav' : ''}" data-fav aria-pressed="${isFav(pin.id)}" aria-label="收藏">${isFav(pin.id) ? '❤️' : '🤍'}</button>
                 <button type="button" class="map-btn map-btn--ghost map-btn--icon" data-share aria-label="分享給 LINE 好友">↗</button>
@@ -1517,6 +1520,7 @@ function pinToRestaurant(pin) {
         booking_offers: pin.of || [],
         door_photo_url: pin.img,
         url: pin.url,
+        dl: pin.dl,
         bookable: pin.b,
         _tier: pin.t,
         _hm: pin.hm, _ho: pin.ho, _mc: pin.mc, _sp: pin.sp,
@@ -1735,8 +1739,8 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
                 ${isSponsoredPick ? '<span class="map-badge map-badge--sponsored">精選推薦</span>' : ''}${dealBadges}
             </div>
             ${evidence && evidence.length ? `<p class="map-spotlight__evidence">${escapeHtml(Array.isArray(evidence) ? evidence[0] : evidence)}</p>` : ''}
-            <h3 class="map-spotlight__name">${r.url
-                ? `<a href="${escapeHtml(r.url)}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(r.name)}<span class="map-minicard__more"> ›</span></a>`
+            <h3 class="map-spotlight__name">${orLink(r)
+                ? `<a href="${escapeHtml(orLink(r))}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(r.name)}<span class="map-minicard__more"> ›</span></a>`
                 : escapeHtml(r.name)}</h3>
             <p class="map-minicard__meta">
                 ${r.rating ? `⭐ ${formatRating(r.rating)}　` : ''}${escapeHtml(r.district || '')}${dist ? `　·　${dist}` : ''}${r.budget ? `　·　💰 ${escapeHtml(r.budget)}` : ''}
@@ -1754,7 +1758,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
     if (parkSrc && parkSrc.lat != null) fillParking(parkSrc, 'spotlightParking');
 
     links.innerHTML = `
-        ${r.url ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${r.bookable ? '立即訂位' : '看餐廳頁'}</a>` : ''}
+        ${orLink(r) ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(orLink(r))}" target="_blank" rel="noopener">${r.bookable ? '立即訂位' : '看餐廳頁'}</a>` : ''}
         ${hasCoords ? `<a class="map-btn map-btn--ghost" data-track="navigation" href="${navigationUrl(coords.lat, coords.lng, r.name)}" target="_blank" rel="noopener">🧭 導航</a>` : ''}
     `;
     links.querySelectorAll('a[data-track]').forEach(a => {
