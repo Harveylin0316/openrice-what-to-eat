@@ -544,20 +544,28 @@ const GLYPHS = {
     // 麵碗＋筷子：拉麵/烏龍麵
     noodles: '<path d="M3.5 11.2h17a8.5 8.5 0 0 1-8.5 8 8.5 8.5 0 0 1-8.5-8z"/><path d="M13.4 3.2 17 9.8M16.8 3 18.2 9.8" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>',
 };
-// 關鍵字 → 圖示 key（優先序：specific 在前）。比對 pin 的 tg 標籤 + ct 分類名。
-const CATEGORY_RULES = [
+// 「強訊號」菜式：不管出現在主要菜系或完整分類都算數（火鍋/燒肉/拉麵是明確的用餐身份）。
+// 牛排館歸「一般餐廳」刀叉（跟日式/中式/義式/海鮮一樣的坐下用餐店，Google 式分桶）——
+// 22px 下畫不出清楚的牛排 icon，刀叉最不會誤讀，重點是不再是咖啡杯。
+const STRONG_RULES = [
     [/火鍋|麻辣鍋|涮涮鍋|鍋物|薑母鴨|羊肉爐/, 'hotpot'],
     [/燒肉|烤肉|鐵板燒|燒烤|串燒|串焼|串揚/, 'grill'],
     [/拉麵|烏龍麵|沾麵|蕎麥|麵線/, 'noodles'],
+];
+// 「附帶服務/氛圍」類：只比對主要菜系 tg，不吃 ct 那包標籤。否則牛排館有賣咖啡(咖啡廳店)、
+// 餐廳有賣酒(酒類飲品)、有甜點就會被誤判成咖啡/酒吧/甜點店（亞里士牛排館被標成咖啡即此故）。
+const SOFT_RULES = [
     [/咖啡|café|cafe/i, 'cafe'],
-    [/酒吧|餐酒|酒類|清酒|啤酒|調酒|居酒屋|bar|lounge|wine|whisky|sake/i, 'bar'],
+    [/酒吧|餐酒|清酒|啤酒|調酒|居酒屋|bar|lounge|wine|whisky|sake/i, 'bar'],
     [/甜點|蛋糕|麵包|西點|布丁|鬆餅|甜品|冰淇淋|可麗餅|下午茶|烘焙|甜甜圈/, 'dessert'],
 ];
 function pinGlyphSvg(pin) {
-    const cats = (pin.tg || []).join(' ') + ' '
+    const strong = (pin.tg || []).join(' ') + ' '
         + (pin.ct || []).map(i => (allCats && allCats[i]) || '').join(' ');
+    const soft = (pin.tg || []).join(' '); // 只看主要菜系，避免服務/氛圍標籤誤判
     let key = 'restaurant';
-    for (const [re, k] of CATEGORY_RULES) if (re.test(cats)) { key = k; break; }
+    for (const [re, k] of STRONG_RULES) if (re.test(strong)) { key = k; break; }
+    if (key === 'restaurant') for (const [re, k] of SOFT_RULES) if (re.test(soft)) { key = k; break; }
     return `<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true">${GLYPHS[key]}</svg>`;
 }
 
