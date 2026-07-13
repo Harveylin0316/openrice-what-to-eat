@@ -30,6 +30,19 @@
   [headers.values]
     Cache-Control = "public, max-age=300"
 
+# 版本化資源長快取：pages/*.js 與 map.css 永遠以 ?v=rN 引用（index.html 單一來源），
+# 新版本＝新 URL 必重抓，舊 URL 內容不變 → immutable 安全，回訪省掉逐檔 revalidate RTT。
+# shared/*.js 為「無版本參數」import，不可長快取（維持 /liff/* 的 must-revalidate）。
+[[headers]]
+  for = "/liff/pages/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/liff/map.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 # Netlify Functions 配置
 [functions]
   # Functions 目錄

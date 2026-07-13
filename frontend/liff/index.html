@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="style.css">
     <!-- 生活地圖頁樣式（Leaflet 本體由 map.js 動態載入）。?v 破 webview 快取：
          改到 map.css 時，跟下方 __V 一起 bump，讓新樣式確實下發到用戶（不吃舊快取）。 -->
-    <link rel="stylesheet" href="map.css?v=r38">
+    <link rel="stylesheet" href="map.css?v=r39">
     <!-- 圖磚 CDN 先握手（DNS+TLS）：首張地圖圖磚更快出現（tileLayer 在 Leaflet 載完才連太晚） -->
     <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin>
     <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com">
@@ -21,7 +21,11 @@
          無 ?v 版本耦合（vendor/data 本就不帶版本），故不會重複下載。 -->
     <link rel="preload" as="script" href="vendor/leaflet/leaflet.js">
     <link rel="preload" as="style" href="vendor/leaflet/leaflet.css">
-    <link rel="prefetch" href="data/map_pins.json">
+    <link rel="preload" as="script" href="vendor/leaflet/leaflet.markercluster.js">
+    <link rel="preload" as="style" href="vendor/leaflet/MarkerCluster.css">
+    <link rel="preload" as="style" href="vendor/leaflet/MarkerCluster.Default.css">
+    <!-- pin 資料是首屏必需：preload（高優先）取代 prefetch（低優先、行動網路常被跳過） -->
+    <link rel="preload" as="fetch" href="data/map_pins.json">
     <!-- 首繪前判定目標頁：地圖為預設首頁時，隱藏舊版外殼避免「今天吃什麼」閃現
          （router 載入完成後會移除 data-boot 接手控制） -->
     <script>
@@ -50,6 +54,25 @@
                 document.documentElement.setAttribute('data-textsize', 'lg'); // 大字模式：首繪前套用避免閃動
             }
         } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+
+        // __V：關鍵路徑破快取版本（單一來源，body 開機腳本讀這個）。
+        window.__V = 'r39';
+        // modulepreload：JS 模組鏈原本逐層發現（router→map→shared→constants 串行 4 層 RTT），
+        // 首繪前全部並行預抓+預編譯 → 實測 pins 就緒時間大幅提前。舊 webview 不支援也只是忽略提示。
+        try {
+            var V = window.__V;
+            var mods = [
+                'pages/router.js?v=' + V,
+                'pages/map.js?v=' + V,
+                'pages/components/liff-features.js?v=' + V,
+                'shared/api.js', 'shared/utils.js', 'shared/tracker.js', 'shared/constants.js',
+            ];
+            for (var i = 0; i < mods.length; i++) {
+                var l = document.createElement('link');
+                l.rel = 'modulepreload'; l.href = mods[i];
+                document.head.appendChild(l);
+            }
+        } catch (e) { /* 提示失敗無妨 */ }
     })();
     </script>
     <!-- LINE LIFF SDK：async 非阻塞載入，就算 line-scdn 慢/掛也不會拖住畫面渲染；
@@ -328,9 +351,7 @@
          永遠是最新的，不受 app.js 被 webview 快取住舊版的影響——這正是根治「卡在正在
          連線 LINE」的關鍵：地圖不依賴 LINE，無條件先開，只 import 最小相依（router）。 -->
     <script type="module">
-      // __V：關鍵路徑破快取版本。LINE webview 對 must-revalidate 不可靠 → 用 ?v 強制抓新版
-      // router/map（新 URL＝一定重抓）。每次改到開機/router/map 的關鍵修復就 bump 這個值。
-      window.__V = 'r38';
+      // __V 已在 head 內聯定義（單一來源；也供 modulepreload 用）
       import('./pages/router.js?v=' + window.__V).then(function (m) {
         if (window.__rrBooted) return;
         window.__rrBooted = true;
