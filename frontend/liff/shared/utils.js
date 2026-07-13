@@ -144,14 +144,15 @@ export function generateEvidence(restaurant, context = {}) {
     const { distance } = context;
 
     // ★ OpenRice 評分（最強說服力，新版資料源）
+    // 「高評價」要有底氣：至少 5 則評論才敢說（全庫 rating≥4 的店中位數僅 2 則，
+    // 無門檻會變話術——用戶點進 OpenRice 發現只有 1 則評論，信任直接崩）。
     const rating = restaurant.rating;
     if (typeof rating === 'number' && rating > 0) {
-        if (rating >= 4) {
-            facts.push({ p: 11, t: `OpenRice ${rating.toFixed(1)} 星，高評價` });
-        } else if (rating >= 3.5) {
-            facts.push({ p: 9, t: `OpenRice ${rating.toFixed(1)} 星` });
+        const rc = restaurant.review_count || 0;
+        if (rating >= 4 && rc >= 5) {
+            facts.push({ p: 11, t: `OpenRice ${rating.toFixed(1)} 星，高評價（${rc} 則）` });
         } else if (rating >= 3) {
-            facts.push({ p: 6, t: `OpenRice ${rating.toFixed(1)} 星` });
+            facts.push({ p: rating >= 3.5 ? 9 : 6, t: `OpenRice ${rating.toFixed(1)} 星${rc ? `（${rc} 則）` : ''}` });
         }
     }
 

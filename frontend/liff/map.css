@@ -12,15 +12,15 @@
   --lm-border: #E8E5E0;
   --lm-text: #1A1815;
   --lm-text-body: #3D3A35;
-  --lm-text-muted: #8A857E;
+  --lm-text-muted: #6B665F; /* 5.7:1，高齡對比（原 #8A857E 僅 3.66:1）*/
   --lm-accent: #E44E25;        /* OR 紅橘 */
   --lm-accent-press: #B93C1A;
   --lm-accent-subtle: #FDE9E2;
   --lm-or-yellow: #FFD300;     /* OR 黃 */
   --lm-or-yellow-deep: #8B5A00;
   --lm-or-yellow-subtle: #FFF6CC;
-  --lm-success: #2E9A66;
-  --lm-warning: #D9961F;
+  --lm-success: #1E7A4E; /* 文字用 4.9:1（原 #2E9A66 僅 3.5:1）*/
+  --lm-warning: #9A6A00; /* 文字用 4.8:1（原 #D9961F 僅 2.5:1）*/
   --lm-shadow-md: 0 4px 12px rgba(20, 16, 12, 0.12), 0 2px 4px rgba(20, 16, 12, 0.06);
   --lm-shadow-lg: 0 12px 24px rgba(20, 16, 12, 0.16), 0 4px 8px rgba(20, 16, 12, 0.08);
   /* 地圖上的浮動控制項：輕薄陰影＋細邊框就夠「浮」，大片模糊在淺色磚圖上像髒污 */
@@ -94,7 +94,7 @@ body.is-map-page { overflow: hidden; }
 .map-pin-label {
   display: none;
   color: #3C4043;               /* Google 式中性深灰 */
-  font-size: 12px;
+  font-size: 13.5px;
   font-weight: 600;
   letter-spacing: 0.1px;
   cursor: pointer; /* 標籤可點帶出餐廳資訊（tooltip interactive:true） */
@@ -314,7 +314,7 @@ body.is-map-page { overflow: hidden; }
 .map-search__item-sub {
   margin-left: auto;
   flex-shrink: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--lm-text-muted);
 }
 .map-search__item:focus-visible {
@@ -466,7 +466,7 @@ body.is-map-page { overflow: hidden; }
   color: #fff;
   border-radius: 10px;
   padding: 10px 14px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   text-align: center;
   box-shadow: var(--lm-shadow-lg);
@@ -535,7 +535,7 @@ body.is-map-page { overflow: hidden; }
   background: var(--lm-border);
 }
 .map-sheet__summary {
-  font-size: 13px;
+  font-size: 14px;
   max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
@@ -642,7 +642,7 @@ body.is-map-page { overflow: hidden; }
   text-overflow: ellipsis;
 }
 .map-sheet__item-meta {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--lm-text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -699,7 +699,7 @@ body.is-map-page { overflow: hidden; }
   display: flex;
   gap: 14px;
   padding: 0 16px 8px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--lm-text-muted);
 }
 .map-sheet__legend span { display: inline-flex; align-items: center; gap: 4px; }
@@ -718,7 +718,7 @@ body.is-map-page { overflow: hidden; }
 }
 
 /* 未合作店：灰字標籤（比合作店淡，維持描邊光暈可讀） */
-.map-canvas .map-pin-label--ext { color: #9AA0A6; font-weight: 500; }
+.map-canvas .map-pin-label--ext { color: #6F7378; /* 原 #9AA0A6 白暈上僅 2.64:1 */ font-weight: 500; }
 
 /* 搜尋落點 pin 的名稱標籤：任何 zoom 常駐、更粗更大（Google 式紅 pin 旁的地名） */
 .map-canvas .map-pin-label--search {
@@ -858,8 +858,8 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   top: 8px;
   right: 8px;
   z-index: 2;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: 1px solid var(--lm-border);
   border-radius: 50%;
   background: var(--lm-surface);
@@ -889,7 +889,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 }
 .map-minicard__meta {
   margin: 0 0 2px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--lm-text-muted);
 }
 .map-minicard__meta.is-open { color: var(--lm-success); }
@@ -911,7 +911,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   margin: 8px 0 0;
   padding: 0;
   list-style: none;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--lm-text-body);
 }
 .map-minicard__offers li { margin-bottom: 2px; }
@@ -925,7 +925,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 
 .map-badge {
   display: inline-block;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   border-radius: 6px;
   padding: 2px 8px;
@@ -984,14 +984,17 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 .map-parking__avail--size { color: #2E6FD6; }    /* 無即時但知道總車位「共 N 格」：中性藍 */
 .map-parking__avail--unknown { color: var(--lm-text-muted); font-weight: 500; }
 .map-parking__nav {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px; /* 開車長輩最需要的鈕，觸控 ≥44px（原約 24px）*/
   flex: 0 0 auto;
-  padding: 3px 10px;
+  margin-left: auto;
+  padding: 0 14px;
   border-radius: 999px;
-  border: 1px solid var(--lm-border);
-  background: #fff;
-  color: var(--lm-accent-press);
-  font-weight: 600;
-  font-size: 12px;
+  background: var(--lm-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
   text-decoration: none;
 }
 .map-parking__nav:active { background: var(--lm-bg); }
@@ -1038,7 +1041,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 }
 .map-sort-chip {
   flex: 0 0 auto;
-  min-height: 30px;
+  min-height: 44px; /* 觸控 ≥44px（原 30px）*/
   padding: 0 12px;
   border-radius: 15px;
   border: 1px solid var(--lm-border);
@@ -1209,8 +1212,8 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
     -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000, 1px 1px 2px #000,
     0 0 3px #000, 0 0 4px #000;
 }
-:root[data-theme="dark"] .map-canvas .map-pin-label--deal { color: #FF8A64; } /* 優惠店名：深色上亮橘 */
-:root[data-theme="dark"] .map-canvas .map-pin-label--sponsor { color: #FF8A64; }
+:root[data-theme="dark"] .map-canvas .map-pin-label--deal { color: #FFB59A; } /* 板岩底提亮（#FF8A64 僅 1.7:1）*/ /* 優惠店名：深色上亮橘 */
+:root[data-theme="dark"] .map-canvas .map-pin-label--sponsor { color: #FFB59A; }
 :root[data-theme="dark"] .map-canvas .map-pin-label--star { color: #FFD86A; }
 /* Leaflet popup（停車圖層）：預設白底 → 深色 */
 :root[data-theme="dark"] .leaflet-popup-content-wrapper,
@@ -1255,3 +1258,21 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 :root[data-theme="dark"] .map-minicard,
 :root[data-theme="dark"] .map-spotlight { border: 1px solid var(--lm-border); }
 :root[data-theme="dark"] .map-sheet { border-bottom: none; }
+
+/* ── 高齡友善 r35 ── */
+/* 清除篩選：任一篩選啟用時出現在 chips 下方——長輩不知道「再按一次取消」，
+ * 預算篩選又收在清單裡看不見，給一顆永遠找得到的逃生口 */
+.map-chip--clear {
+  position: absolute;
+  top: 122px; /* search(58) + chips(44) + 間距 */
+  left: 12px;
+  z-index: 500;
+  background: var(--lm-accent);
+  border-color: var(--lm-accent);
+  color: #fff;
+  font-weight: 700;
+}
+/* 卡片動作列：全部帶字（↗/🤍/🧭 純 emoji 對 50-60 歲不可解），主鈕整行、其餘均分換行 */
+.map-minicard__actions { flex-wrap: wrap; }
+.map-minicard__actions .map-btn--full { flex: 1 1 100%; } /* 提高特異性壓過 --primary 的 flex:1 1 auto */
+.map-btn--labeled { flex: 1 1 auto; padding: 0 10px; font-size: 14px; }

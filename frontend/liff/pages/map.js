@@ -120,7 +120,7 @@ function dealSummaryText(pin) {
     const parts = [];
     if (pin.hm) parts.push('套餐優惠');
     if (pin.ho) parts.push('訂位優惠');
-    if (pin.b) parts.push('出席回饋 $3/人');
+    if (pin.b) parts.push('出席回饋 NT$3/人');
     return parts.join('・');
 }
 
@@ -252,7 +252,7 @@ function dealBadgesHtml(pin) {
     let html = '';
     if (pin.hm) html += '<span class="map-badge map-badge--menu">套餐優惠</span>';
     if (pin.ho) html += '<span class="map-badge map-badge--offer">訂位優惠</span>';
-    if (pin.b) html += '<span class="map-badge map-badge--cashback">出席回饋 $3/人</span>'; // 基本盤，與加碼優惠並存
+    if (pin.b) html += '<span class="map-badge map-badge--cashback">出席回饋 NT$3/人</span>'; // 基本盤，與加碼優惠並存
     return html;
 }
 
@@ -261,7 +261,7 @@ function dealDetailLines({ hm, mc, offers, bookable }) {
     const lines = [];
     if (hm) lines.push(`🍽️ ${mc ? mc + ' 款' : ''}優惠套餐，訂位即享`);
     for (const o of (offers || []).slice(0, 3)) lines.push(`🎁 ${escapeHtml(o)}`);
-    if (bookable) lines.push('💵 線上訂位＋出席，每人回饋 $3');
+    if (bookable) lines.push('💵 線上訂位＋到店用餐，每人回饋現金 NT$3');
     return lines;
 }
 let sponsoredRestaurants = [];
@@ -430,6 +430,7 @@ function ensureMapRoot() {
             <button type="button" class="map-chip map-chip--cat" data-cat="餐酒館" aria-pressed="false">🍷 餐酒館</button>
             <button type="button" class="map-chip map-chip--cat" data-cat="咖啡" aria-pressed="false">☕ 咖啡廳</button>
         </div>
+        <button type="button" class="map-chip map-chip--clear" id="clearFilters" hidden>✕ 清除篩選</button>
         <button type="button" class="map-theme-btn" id="themeToggle" aria-label="切換深色／淺色外觀" aria-pressed="false">🌙</button>
         <button type="button" class="map-locate-btn" id="chipLocate" aria-label="定位到我的位置">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -871,6 +872,31 @@ function buildSponsorMarker(L, pin) {
     return marker;
 }
 
+// 任一篩選（含品類/預算/收藏）啟用時，chips 下方顯示「✕ 清除篩選」：
+// 長輩不知道「再按一次取消」，也看不到收在清單裡的預算篩選——給一顆永遠看得到的逃生口。
+function anyFilterActive() {
+    return activeFilters.deals || activeFilters.open || activeFilters.bookable
+        || !!activeFilters.budget || activeFilters.favOnly || !!catFilter;
+}
+function updateClearFiltersBtn() {
+    const btn = document.getElementById('clearFilters');
+    if (btn) btn.hidden = !anyFilterActive();
+}
+function clearAllFilters() {
+    activeFilters.deals = activeFilters.open = activeFilters.bookable = activeFilters.favOnly = false;
+    activeFilters.budget = null;
+    ['chipOpen', 'chipBookable'].forEach(id => {
+        const c = document.getElementById(id);
+        if (c) { c.classList.remove('is-active'); c.setAttribute('aria-pressed', 'false'); }
+    });
+    updateFavChip();
+    renderBudgetChips();
+    track('map_filters_clear', {});
+    if (catFilter) setCatFilter(null, null); // 內部會 applyFilters
+    else applyFilters();
+    showPillMessage('已清除所有篩選', 2000);
+}
+
 function applyFilters() {
     if (!clusterGroup) return;
     savedSheetView = null; // 篩選變了，舊的清單脈絡不再成立
@@ -894,6 +920,7 @@ function applyFilters() {
     }
     refreshFavLayer();
     if (extLayer) syncExtLayer(); // 篩選改變 → 灰點跟著顯示/隱藏（可訂位等 qualifying 篩選會排除未合作店）
+    updateClearFiltersBtn();
     updateCountPill();
 }
 
@@ -973,8 +1000,8 @@ function updateCountPill() {
     } else {
         // 窄屏用短版，避免被 FAB 保留區截斷
         pill.textContent = window.matchMedia('(max-width: 360px)').matches
-            ? `${total} 間 · 回饋 ${cashback} · 加碼 ${deals}`
-            : `畫面內 ${total} 間 · ${cashback} 間出席回饋 · ${deals} 間加碼優惠`;
+            ? `${total} 間 · 回饋 ${cashback} · 優惠 ${deals}`
+            : `畫面內 ${total} 間 · ${cashback} 間出席回饋 · ${deals} 間有優惠`;
     }
     if (sheetOpen) renderSheetList();
 }
@@ -1084,7 +1111,7 @@ function renderSheetList() {
                         ${dealBadgesHtml(pin)}
                     </span>
                     <span class="map-sheet__item-meta">
-                        ${pin.r ? `⭐ ${formatRating(pin.r)}` : ''}${dist ? `　${dist}` : ''}${pin.bud ? `　💰 ${escapeHtml(pin.bud)}` : ''}
+                        ${pin.r ? `⭐ ${formatRating(pin.r)}${pin.rc ? ` (${pin.rc})` : ''}` : ''}${dist ? `　${dist}` : ''}${pin.bud ? `　💰 ${escapeHtml(pin.bud)}` : ''}
                     </span>
                     ${opening && opening.label
                         ? `<span class="map-sheet__item-meta ${opening.openNow ? 'is-open' : ''}">${escapeHtml(opening.label)}</span>`
@@ -1239,7 +1266,7 @@ function showMiniCard(pin) {
                 ? `<a href="${escapeHtml(orLink(pin))}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(pin.n)}<span class="map-minicard__more"> ›</span></a>`
                 : escapeHtml(pin.n)}</h3>
             <p class="map-minicard__meta">
-                ${pin.r ? `⭐ ${formatRating(pin.r)}　` : ''}${escapeHtml(pin.d || '')}${dist ? `　·　${dist}` : ''}${pin.bud ? `　·　💰 ${escapeHtml(pin.bud)}` : ''}
+                ${pin.r ? `⭐ ${formatRating(pin.r)}${pin.rc ? ` (${pin.rc})` : ''}　` : ''}${escapeHtml(pin.d || '')}${dist ? `　·　${dist}` : ''}${pin.bud ? `　·　💰 ${escapeHtml(pin.bud)}` : ''}
             </p>
             ${opening && opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</p>` : ''}
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
@@ -1247,18 +1274,19 @@ function showMiniCard(pin) {
             ${isStar ? '<p class="map-minicard__star-note">每天換一間，明天就不是它了</p>' : ''}
             <div class="map-minicard__parking" id="miniCardParking" hidden></div>
             <div class="map-minicard__actions">
-                ${orLink(pin) ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(orLink(pin))}" target="_blank" rel="noopener">${pin.b ? '立即訂位' : '看餐廳頁'}</a>` : ''}
-                <a class="map-btn map-btn--ghost map-btn--icon" data-track="navigation" href="${navigationUrl(pin.lat, pin.lng, pin.n)}" target="_blank" rel="noopener" aria-label="導航">🧭</a>
-                <button type="button" class="map-btn map-btn--ghost map-btn--icon map-btn--fav ${isFav(pin.id) ? 'is-fav' : ''}" data-fav aria-pressed="${isFav(pin.id)}" aria-label="收藏">${isFav(pin.id) ? '❤️' : '🤍'}</button>
-                <button type="button" class="map-btn map-btn--ghost map-btn--icon" data-share aria-label="分享給 LINE 好友">↗</button>
+                ${orLink(pin) ? `<a class="map-btn map-btn--primary map-btn--full" data-track="booking" data-liff-internal href="${escapeHtml(orLink(pin))}" target="_blank" rel="noopener">${pin.b ? '立即訂位' : '看餐廳頁'}</a>` : ''}
+                ${pin.ph ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="phone" href="tel:${escapeHtml(pin.ph)}">📞 電話</a>` : ''}
+                <a class="map-btn map-btn--ghost map-btn--labeled" data-track="navigation" href="${navigationUrl(pin.lat, pin.lng, pin.n)}" target="_blank" rel="noopener">🧭 導航</a>
+                <button type="button" class="map-btn map-btn--ghost map-btn--labeled map-btn--fav ${isFav(pin.id) ? 'is-fav' : ''}" data-fav aria-pressed="${isFav(pin.id)}">${isFav(pin.id) ? '❤️ 已收藏' : '🤍 收藏'}</button>
+                <button type="button" class="map-btn map-btn--ghost map-btn--labeled" data-share>↗ 分享</button>
             </div>
         </div>
     `;
 
     body.querySelectorAll('a[data-track]').forEach(a => {
         a.addEventListener('click', () => {
-            track(a.dataset.track === 'booking' ? 'map_booking_click' : 'map_navigation_click',
-                { or_id: pin.id, name: pin.n, tier: pin.t, source: 'minicard' });
+            const evt = { booking: 'map_booking_click', phone: 'map_phone_click' }[a.dataset.track] || 'map_navigation_click';
+            track(evt, { or_id: pin.id, name: pin.n, tier: pin.t, source: 'minicard' });
         });
     });
 
@@ -1267,7 +1295,7 @@ function showMiniCard(pin) {
         const nowFav = toggleFav(pin.id);
         favBtn.classList.toggle('is-fav', nowFav);
         favBtn.setAttribute('aria-pressed', String(nowFav));
-        favBtn.textContent = nowFav ? '❤️' : '🤍';
+        favBtn.textContent = nowFav ? '❤️ 已收藏' : '🤍 收藏';
         showPillMessage(nowFav ? '已加入收藏 ❤️' : '已移除收藏', 1800);
         afterFavChange();
     });
@@ -1428,7 +1456,7 @@ async function fillParking(pin, elId = 'miniCardParking') {
     const renderRow = (lot, availInner) => {
         el.innerHTML =
             '<span class="map-parking__icon" aria-hidden="true">🅿️</span>' +
-            `<span class="map-parking__text">${escapeHtml(lot.name)}・步行 ${lot.walkMin} 分・${availInner}</span>` +
+            `<span class="map-parking__text">${escapeHtml(lot.name)}・${Number.isFinite(lot.walkMin) ? `步行 ${lot.walkMin} 分・` : ''}${availInner}</span>` +
             `<a class="map-parking__nav" href="${navigationUrl(lot.lat, lot.lng, lot.name)}" target="_blank" rel="noopener" data-park-nav>導航</a>`;
         const nav = el.querySelector('[data-park-nav]');
         if (nav) nav.addEventListener('click', () => track('map_parking_nav_click', { or_id: pin.id, lot: lot.name }));
@@ -1529,6 +1557,8 @@ function pinToRestaurant(pin) {
         door_photo_url: pin.img,
         url: pin.url,
         dl: pin.dl,
+        review_count: pin.rc,
+        phone: pin.ph,
         bookable: pin.b,
         _tier: pin.t,
         _hm: pin.hm, _ho: pin.ho, _mc: pin.mc, _sp: pin.sp,
@@ -1736,7 +1766,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
     let dealBadges = '';
     if (hm) dealBadges += '<span class="map-badge map-badge--menu">套餐優惠</span>';
     if (ho) dealBadges += '<span class="map-badge map-badge--offer">訂位優惠</span>';
-    if (bookable) dealBadges += '<span class="map-badge map-badge--cashback">出席回饋 $3/人</span>'; // 基本盤，與加碼優惠並存
+    if (bookable) dealBadges += '<span class="map-badge map-badge--cashback">出席回饋 NT$3/人</span>'; // 基本盤，與加碼優惠並存
     const detailLines = dealDetailLines({ hm, mc, offers, bookable });
 
     body.innerHTML = `
@@ -1751,7 +1781,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
                 ? `<a href="${escapeHtml(orLink(r))}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(r.name)}<span class="map-minicard__more"> ›</span></a>`
                 : escapeHtml(r.name)}</h3>
             <p class="map-minicard__meta">
-                ${r.rating ? `⭐ ${formatRating(r.rating)}　` : ''}${escapeHtml(r.district || '')}${dist ? `　·　${dist}` : ''}${r.budget ? `　·　💰 ${escapeHtml(r.budget)}` : ''}
+                ${r.rating ? `⭐ ${formatRating(r.rating)}${r.review_count ? ` (${r.review_count})` : ''}　` : ''}${escapeHtml(r.district || '')}${dist ? `　·　${dist}` : ''}${r.budget ? `　·　💰 ${escapeHtml(r.budget)}` : ''}
             </p>
             ${opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</p>` : ''}
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
@@ -1766,13 +1796,14 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
     if (parkSrc && parkSrc.lat != null) fillParking(parkSrc, 'spotlightParking');
 
     links.innerHTML = `
-        ${orLink(r) ? `<a class="map-btn map-btn--primary" data-track="booking" href="${escapeHtml(orLink(r))}" target="_blank" rel="noopener">${r.bookable ? '立即訂位' : '看餐廳頁'}</a>` : ''}
-        ${hasCoords ? `<a class="map-btn map-btn--ghost" data-track="navigation" href="${navigationUrl(coords.lat, coords.lng, r.name)}" target="_blank" rel="noopener">🧭 導航</a>` : ''}
+        ${orLink(r) ? `<a class="map-btn map-btn--primary" data-track="booking" data-liff-internal href="${escapeHtml(orLink(r))}" target="_blank" rel="noopener">${r.bookable ? '立即訂位' : '看餐廳頁'}</a>` : ''}
+        ${r.phone ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="phone" href="tel:${escapeHtml(r.phone)}">📞 電話</a>` : ''}
+        ${hasCoords ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="navigation" href="${navigationUrl(coords.lat, coords.lng, r.name)}" target="_blank" rel="noopener">🧭 導航</a>` : ''}
     `;
     links.querySelectorAll('a[data-track]').forEach(a => {
         a.addEventListener('click', () => {
-            track(a.dataset.track === 'booking' ? 'map_booking_click' : 'map_navigation_click',
-                { or_id: r.or_id, name: r.name, sponsored: isSponsoredPick, source: 'spotlight' });
+            const evt = { booking: 'map_booking_click', phone: 'map_phone_click' }[a.dataset.track] || 'map_navigation_click';
+            track(evt, { or_id: r.or_id, name: r.name, sponsored: isSponsoredPick, source: 'spotlight' });
         });
     });
 }
@@ -2148,6 +2179,9 @@ function wireControls() {
     if (chipParking) chipParking.addEventListener('click', toggleParkingLayer);
 
     // 深色模式切換（初始 icon 反映目前主題；主題已由 index.html 內聯開機設好 data-theme）
+    const clearBtn = document.getElementById('clearFilters');
+    if (clearBtn) clearBtn.addEventListener('click', clearAllFilters);
+
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
         themeToggle.addEventListener('click', toggleTheme);
