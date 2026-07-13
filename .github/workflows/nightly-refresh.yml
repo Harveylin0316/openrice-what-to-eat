@@ -9,19 +9,18 @@ name: map-data-refresh
 #      每 15 分鐘抓 checker 最新 db → 比對雜湊，db 有變才重生 map_pins /
 #      partner_overlay / external_pois → commit → Netlify 自動部署
 #
-# 「掃完即時上」怎麼運作：
-#   - 每 15 分鐘的排程會自動偵測你 commit 的新 db（比對 .github/last-checker-db.sha），
-#     有變才動 → 你 push 完最多等 15 分鐘就自動上線，「不用等我/不用設 token」。
-#   - db 沒變就跳過，不會產生重複 commit / 重複部署。
-#   - 想「秒上」：本機 commit db 後打 repository_dispatch(checker-updated)（run_daily_local.sh
-#     設 APP_DISPATCH_TOKEN 即會自動打），本 workflow 立刻跑一次、同樣走雜湊閘。
+# 更新節奏（餐廳資料一天變一次，不需高頻輪詢）：
+#   - 每日排程一次（05:00 台北）自動抓 checker 最新 db；比對 .github/last-checker-db.sha，
+#     db 有變才重生+部署，沒變就跳過（不會產生重複 commit / 部署）。
+#   - 想「掃完即時上、不等隔天排程」：本機 commit db 後打 repository_dispatch(checker-updated)
+#     （run_daily_local.sh 設 APP_DISPATCH_TOKEN 即會自動打），本 workflow 立刻跑一次、同樣走雜湊閘。
 #
 # ⚙️ 一次性設定：Settings → Secrets and variables → Actions 新增
 #   CHECKER_TOKEN = 對 harveylin0316/openrice-closure-checker 有 Contents:Read 的 fine-grained PAT。
 
 on:
   schedule:
-    - cron: '*/15 * * * *'   # 每 15 分鐘檢查 checker db 有無更新（雜湊沒變就跳過）
+    - cron: '0 21 * * *'    # 每日 21:00 UTC = 05:00 台北（雜湊沒變就跳過）
   workflow_dispatch: {}
   repository_dispatch:
     types: [checker-updated]
