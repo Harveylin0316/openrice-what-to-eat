@@ -55,7 +55,8 @@ def main():
     # 合作店最新欄位（限 partners 這 928 間）
     rows = con.execute("""
         SELECT r.poi_id, r.name_tc, r.lat, r.lng, r.overall_rating, r.door_photo_url,
-               r.is_bookable, r.has_menu, r.has_offer, r.booking_menu_count, r.google_status
+               r.is_bookable, r.has_menu, r.has_offer, r.booking_menu_count, r.google_status,
+               r.short_url
         FROM restaurants r
         WHERE r.poi_id IN (SELECT poi_id FROM partners)
     """).fetchall()
@@ -91,6 +92,9 @@ def main():
             entry['r'] = r['overall_rating']
         if r['door_photo_url']:
             entry['img'] = r['door_photo_url']
+        # OpenRice 短網址 deeplink（帶推薦碼、可追蹤）；缺則前端退回主檔長網址
+        if r['short_url'] and r['short_url'].startswith('https://s.openrice.com/'):
+            entry['dl'] = r['short_url']
         # 優惠（加法升級）：has_menu/has_offer 或 booking 表有資料就算
         titles = offer_titles.get(pid) or []
         menu_n = r['booking_menu_count'] or 0
@@ -106,7 +110,7 @@ def main():
     payload = {
         'generated_at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
         'source': 'openrice-closure-checker/openrice.db',
-        'note': ('closed=永久歇業下架；partners[poi]=最新 name/座標/評分/照片/優惠。'
+        'note': ('closed=永久歇業下架；partners[poi]=最新 name/座標/評分/照片/優惠/dl(短網址deeplink)。'
                  '座標名稱評分照片直接覆蓋、優惠只加不減。主檔仍為 restaurants_database.json'),
         'closed_count': len(closed),
         'partner_count': len(partners),

@@ -169,6 +169,8 @@ def build_pin(r, ov=None, coord_override=None):
         pin['img'] = r['images'][0]
     if r.get('url'):
         pin['url'] = r['url']
+    if ov.get('dl'):
+        pin['dl'] = ov['dl']  # OpenRice 短網址 deeplink（帶追蹤），前端連結優先用它
     hours = compact_hours(r.get('opening_hours'))
     if hours:
         pin['h'] = hours
