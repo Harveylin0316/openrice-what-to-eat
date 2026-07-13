@@ -871,10 +871,24 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 
 /* ---- 迷你卡 ---- */
 
-.map-minicard__body { display: flex; gap: 12px; padding: 12px; }
+.map-minicard__body {
+  display: block;
+  padding: 12px 14px;
+  max-height: min(55vh, 460px); /* 卡片高度保底：內容再多也留住地圖（Owner：卡片佔比太高） */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+/* 頭列（Google 式）：小頭圖＋店名/評分/營業並排，內容區用全寬不再折行 */
+.map-minicard__head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 4px;
+  padding-right: 40px; /* 避開右上 ✕ 關閉鈕 */
+}
 .map-minicard__img {
-  width: 96px;
-  height: 96px;
+  width: 56px;
+  height: 56px;
   flex: 0 0 auto;
   object-fit: cover;
   border-radius: var(--lm-radius-sm);
@@ -890,11 +904,14 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 .map-minicard__meta {
   margin: 0 0 2px;
   font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--lm-text-muted);
 }
 .map-minicard__meta.is-open { color: var(--lm-success); }
 .map-minicard__meta.is-closed { color: var(--lm-warning); font-weight: 600; }
-.map-minicard__badges { min-height: 0; }
+.map-minicard__badges { min-height: 0; white-space: nowrap; overflow: hidden; }
 .map-minicard__name a { color: inherit; text-decoration: none; }
 .map-minicard__more { color: var(--lm-text-muted); font-weight: 400; }
 .map-spotlight__name a { color: inherit; text-decoration: none; }
@@ -1342,3 +1359,21 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 :root[data-textsize="lg"] .map-parking__nav { font-size: 15px; }
 :root[data-textsize="lg"] .map-pin-label { font-size: 15.5px; max-width: 170px; }
 :root[data-textsize="lg"] .map-park-popup { font-size: 15px; }
+
+/* ── 卡片瘦身（2026-07 Owner：卡片佔太多畫面）── */
+.map-minicard__offers { margin-top: 6px; }
+.map-minicard__offers li {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.map-minicard__parking .map-parking__text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.map-minicard__actions { margin-top: 8px; }
+/* 頭列的兩行 meta 在窄幅仍溢出時：優先保店名（name 不縮） */
+.map-minicard__head .map-minicard__info { min-width: 0; flex: 1; }
+.map-minicard__head .map-minicard__name { margin: 0 0 2px; }
