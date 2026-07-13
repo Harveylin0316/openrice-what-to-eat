@@ -300,6 +300,15 @@ function distanceLabel(lat, lng) {
     return formatDistance(d);
 }
 
+// 步行時間（Google 式決策資訊）：距離對長輩偏抽象，「走路約 N 分」直觀得多。
+// 只在步行合理範圍（≤1.6km）顯示；80m/分 × 1.25 繞路係數，與停車 walkMin 同一套算法。
+function walkLabel(lat, lng) {
+    if (!userLocation) return '';
+    const m = calculateDistance(userLocation.lat, userLocation.lng, lat, lng) * 1000;
+    if (!(m > 0) || m > 1600) return '';
+    return `走路約 ${Math.max(1, Math.round(m * 1.25 / 80))} 分`;
+}
+
 function navigationUrl(lat, lng, name) {
     // 開 Google Maps「路線」畫面即可（不指定 travelmode、不 dir_action=navigate）：
     // 用戶自己選開車 / 大眾運輸 / 步行，看各自路線與時間，不被強制丟進步行導航模式。
@@ -581,7 +590,12 @@ function bindPinCommon(marker, pin, offsetX, isDeal) {
         className: `map-pin-label${isDeal ? ' map-pin-label--deal' : ''}`,
     });
     const trackProps = { or_id: pin.id, name: pin.n, tier: pin.t };
-    marker.on('click', () => {
+    marker.on('click', (e) => {
+        // circleMarker 灰點吃 canvas 命中誤差 → 走最近點消歧；divIcon 釘是 DOM 命中、本來就準
+        if (marker.setRadius && e) {
+            openDotHit(nearestDotAt(tapLatLngOf(e)) || { kind: 'pin', obj: pin });
+            return;
+        }
         track('map_pin_click', trackProps);
         showMiniCard(pin);
     });
@@ -690,6 +704,44 @@ function showExtCard(poi) {
     updateCardOpenState();
 }
 
+// 密集灰點消歧：Leaflet canvas 命中取「繪製順序最上層」而非離指尖最近，
+// 兩點相貼時精準點 A 也會開出 B（高齡 UX 審視確認的痛點）。改用點擊落點
+// 在容差內找「螢幕距離最近」的灰點——同時考慮未合作灰點與暫無優惠合作店。
+// 注意：circleMarker 的 e.latlng 會被 Leaflet 吸附成 marker 自身中心，
+// 真實手指落點必須從 e.originalEvent 還原（tapLatLngOf）。
+function tapLatLngOf(e) {
+    if (!map || !e) return null;
+    if (e.originalEvent) {
+        try { return map.mouseEventToLatLng(e.originalEvent); } catch (err) { /* fallthrough */ }
+    }
+    return e.latlng || null;
+}
+function nearestDotAt(latlng) {
+    if (!map || !latlng) return null;
+    const pt = map.latLngToContainerPoint(latlng);
+    const TOL = 24; // px 容差：與 canvas tolerance 同量級
+    let best = null, bestD = Infinity;
+    const consider = (kind, obj, lat, lng) => {
+        const q = map.latLngToContainerPoint([lat, lng]);
+        const d = Math.hypot(q.x - pt.x, q.y - pt.y);
+        if (d <= TOL && d < bestD) { bestD = d; best = { kind, obj }; }
+    };
+    if (extLayer && map.hasLayer(extLayer)) {
+        extLayer.eachLayer(m => consider('ext', m._poi, m._poi.lat, m._poi.lng));
+    }
+    for (const pin of allPins) {
+        if (pin.t !== 'none') continue;
+        const m = pinMarkers.get(pin.id);
+        if (m && map.hasLayer(m)) consider('pin', pin, pin.lat, pin.lng); // 已散開才在 map 上
+    }
+    return best;
+}
+function openDotHit(hit) {
+    if (!hit) return;
+    if (hit.kind === 'ext') { track('map_ext_pin_click', { name: hit.obj.n }); showExtCard(hit.obj); }
+    else { track('map_pin_click', { or_id: hit.obj.id, name: hit.obj.n, tier: hit.obj.t }); showMiniCard(hit.obj); }
+}
+
 function buildExtLayer(L) {
     if (!extPois.length || !map) return;
     extLayer = L.layerGroup();
@@ -704,9 +756,8 @@ function buildExtLayer(L) {
             bubblingMouseEvents: false, // 同 buildMarker：不讓點擊冒泡到地圖 click 把卡關掉
         });
         m._poi = poi;
-        m.on('click', () => {
-            track('map_ext_pin_click', { name: poi.n });
-            showExtCard(poi);
+        m.on('click', (e) => {
+            openDotHit(nearestDotAt(tapLatLngOf(e)) || { kind: 'ext', obj: poi });
         });
         extMarkers.push(m);
     }
@@ -1247,6 +1298,7 @@ function showMiniCard(pin) {
     const skipRecenter = programmaticMove;
     setSelectedRing(pin.lat, pin.lng);
     setSelectedPin(pin);
+    pushViewed(pin.id); // 記錄「最近看過」
 
     const hours = expandHours(pin.h);
     const opening = hours ? getOpeningStatus(hours) : null;
@@ -1266,7 +1318,7 @@ function showMiniCard(pin) {
                 ? `<a href="${escapeHtml(orLink(pin))}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(pin.n)}<span class="map-minicard__more"> ›</span></a>`
                 : escapeHtml(pin.n)}</h3>
             <p class="map-minicard__meta">
-                ${pin.r ? `⭐ ${formatRating(pin.r)}${pin.rc ? ` (${pin.rc})` : ''}　` : ''}${escapeHtml(pin.d || '')}${dist ? `　·　${dist}` : ''}${pin.bud ? `　·　💰 ${escapeHtml(pin.bud)}` : ''}
+                ${pin.r ? `⭐ ${formatRating(pin.r)}${pin.rc ? ` (${pin.rc})` : ''}　` : ''}${escapeHtml(pin.d || '')}${dist ? `　·　${dist}${(w => w ? `（${w}）` : '')(walkLabel(pin.lat, pin.lng))}` : ''}${pin.bud ? `　·　💰 ${escapeHtml(pin.bud)}` : ''}
             </p>
             ${opening && opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</p>` : ''}
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
@@ -1781,7 +1833,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
                 ? `<a href="${escapeHtml(orLink(r))}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(r.name)}<span class="map-minicard__more"> ›</span></a>`
                 : escapeHtml(r.name)}</h3>
             <p class="map-minicard__meta">
-                ${r.rating ? `⭐ ${formatRating(r.rating)}${r.review_count ? ` (${r.review_count})` : ''}　` : ''}${escapeHtml(r.district || '')}${dist ? `　·　${dist}` : ''}${r.budget ? `　·　💰 ${escapeHtml(r.budget)}` : ''}
+                ${r.rating ? `⭐ ${formatRating(r.rating)}${r.review_count ? ` (${r.review_count})` : ''}　` : ''}${escapeHtml(r.district || '')}${dist ? `　·　${dist}${(w => w ? `（${w}）` : '')(hasCoords ? walkLabel(coords.lat, coords.lng) : '')}` : ''}${r.budget ? `　·　💰 ${escapeHtml(r.budget)}` : ''}
             </p>
             ${opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</p>` : ''}
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
@@ -1934,6 +1986,17 @@ const SEARCH_ICON = { category: '🍴', district: '🏙️', landmark: '📍', r
 
 // ---- 最近搜尋（Google 式：聚焦空白搜尋框時出現）----
 const RECENT_KEY = 'rr_map_recent';
+// 最近看過的店（長輩高頻時刻：「剛剛那家叫什麼？」）——開卡即記錄，聚焦空白搜尋框時列出
+const VIEWED_KEY = 'rr_map_viewed';
+function getViewed() {
+    try { return JSON.parse(localStorage.getItem(VIEWED_KEY) || '[]').slice(0, 4); } catch (e) { return []; }
+}
+function pushViewed(id) {
+    try {
+        const list = [id, ...getViewed().filter(x => x !== id)].slice(0, 4);
+        localStorage.setItem(VIEWED_KEY, JSON.stringify(list));
+    } catch (e) { /* ignore */ }
+}
 function getRecent() {
     try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]').slice(0, 5); } catch (e) { return []; }
 }
@@ -2111,11 +2174,15 @@ function wireSearch() {
     });
     clearBtn.addEventListener('click', () => { closeSearch({ clear: true }); input.focus(); });
 
-    // Google 式：聚焦空白搜尋框 → 顯示最近搜尋
+    // Google 式：聚焦空白搜尋框 → 最近看過的店（直接開卡）＋最近搜尋
     input.addEventListener('focus', () => {
         if (input.value.trim()) return;
+        const viewed = getViewed()
+            .map(id => allPins.find(p => p.id === id))
+            .filter(Boolean)
+            .map(p => ({ kind: 'restaurant', name: p.n, sub: `最近看過・${p.d || ''}`, pin: p }));
         const recent = getRecent().map(q => ({ kind: 'recent', name: q, sub: '' }));
-        if (recent.length) renderSearchResults(recent);
+        if (viewed.length || recent.length) renderSearchResults([...viewed, ...recent]);
     });
 }
 
@@ -2448,6 +2515,7 @@ export async function initMapPage() {
             get pins() { return allPins; },
             get extPois() { return extPois; },
             get extLayerShown() { return !!(extLayer && map && map.hasLayer(extLayer)); },
+            nearestDotAt, // debug：消歧驗證用
             openPin(id) {
                 const pin = allPins.find(p => p.id === id);
                 if (pin) showMiniCard(pin);
