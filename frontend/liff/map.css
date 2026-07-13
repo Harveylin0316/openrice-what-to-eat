@@ -1276,3 +1276,69 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 .map-minicard__actions { flex-wrap: wrap; }
 .map-minicard__actions .map-btn--full { flex: 1 1 100%; } /* 提高特異性壓過 --primary 的 flex:1 1 auto */
 .map-btn--labeled { flex: 1 1 auto; padding: 0 10px; font-size: 14px; }
+
+/* ── r37：大字模式 + 實時藍點鈕 ── */
+/* Aa 鈕：外觀鈕正上方（骰子→定位→外觀→字級，由下往上一排） */
+.map-textsize-btn {
+  position: absolute;
+  right: 16px;
+  bottom: calc(250px + var(--lm-safe-bottom)); /* 外觀鈕(192+48)上方 */
+  z-index: 500;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--lm-border);
+  border-radius: 50%;
+  background: var(--lm-surface);
+  color: var(--lm-text-body);
+  font-size: 17px;
+  font-weight: 700;
+  box-shadow: var(--lm-shadow-chip);
+  cursor: pointer;
+}
+.map-textsize-btn:active { transform: scale(0.94); }
+.map-textsize-btn.is-active {
+  background: var(--lm-accent);
+  border-color: var(--lm-accent);
+  color: #fff;
+}
+.map-textsize-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--lm-shadow-chip), 0 0 0 3px rgba(228, 78, 37, 0.4);
+}
+.map-root.is-sheet-open .map-textsize-btn,
+.map-root.is-card-open .map-textsize-btn { display: none; }
+@media (min-width: 768px) {
+  .map-root .map-textsize-btn { right: calc(50% - 240px + 16px); }
+}
+
+/* 大字模式：50-60 歲一鍵放大全 app 關鍵字級（約 +15%），localStorage 記憶 */
+:root[data-textsize="lg"] .map-chip { font-size: 16px; }
+:root[data-textsize="lg"] .map-chip--sm,
+:root[data-textsize="lg"] .map-sort-chip { font-size: 15px; }
+:root[data-textsize="lg"] .map-search__input { font-size: 18px; }
+:root[data-textsize="lg"] .map-search__item-name { font-size: 16px; }
+:root[data-textsize="lg"] .map-search__item-sub { font-size: 15px; }
+:root[data-textsize="lg"] .map-minicard__name { font-size: 19px; }
+:root[data-textsize="lg"] .map-spotlight__name { font-size: 22px; }
+:root[data-textsize="lg"] .map-spotlight__evidence { font-size: 15px; }
+:root[data-textsize="lg"] .map-minicard__meta { font-size: 16px; }
+:root[data-textsize="lg"] .map-minicard__offers { font-size: 16px; }
+:root[data-textsize="lg"] .map-minicard__ext-note { font-size: 15px; }
+:root[data-textsize="lg"] .map-tag { font-size: 14px; }
+:root[data-textsize="lg"] .map-badge { font-size: 15px; }
+:root[data-textsize="lg"] .map-btn { font-size: 16px; }
+:root[data-textsize="lg"] .map-btn--labeled { font-size: 16px; }
+:root[data-textsize="lg"] .map-sheet__summary { font-size: 16px; }
+:root[data-textsize="lg"] .map-sheet__item-name { font-size: 17px; }
+:root[data-textsize="lg"] .map-sheet__item-meta { font-size: 16px; }
+:root[data-textsize="lg"] .map-sheet__legend { font-size: 15px; }
+:root[data-textsize="lg"] .map-sheet__footnote { font-size: 14px; }
+:root[data-textsize="lg"] .map-sheet__empty { font-size: 15px; }
+:root[data-textsize="lg"] .map-toast { font-size: 16px; }
+:root[data-textsize="lg"] .map-parking__text { font-size: 15px; }
+:root[data-textsize="lg"] .map-parking__nav { font-size: 15px; }
+:root[data-textsize="lg"] .map-pin-label { font-size: 15.5px; max-width: 170px; }
+:root[data-textsize="lg"] .map-park-popup { font-size: 15px; }

@@ -396,6 +396,26 @@ function applyTheme(mode, persist) {
         btn.setAttribute('aria-label', dark ? '切換為淺色外觀' : '切換為深色外觀');
     }
 }
+// 大字模式（50-60 歲核心可及性）：documentElement data-textsize="lg" → map.css 放大整組 UI 字級。
+// 記憶在 localStorage（rr_textsize），index.html 開機內聯先套用避免閃動。
+function isLargeText() { return document.documentElement.dataset.textsize === 'lg'; }
+function applyTextSize(large, persist) {
+    document.documentElement.dataset.textsize = large ? 'lg' : '';
+    if (persist) { try { localStorage.setItem('rr_textsize', large ? 'lg' : ''); } catch (e) { /* private mode */ } }
+    const btn = document.getElementById('textSizeToggle');
+    if (btn) {
+        btn.classList.toggle('is-active', large);
+        btn.setAttribute('aria-pressed', String(large));
+    }
+    if (typeof runLabelCollision === 'function') setTimeout(runLabelCollision, 50); // 標籤變大重算碰撞
+}
+function toggleTextSize() {
+    const next = !isLargeText();
+    applyTextSize(next, true);
+    showPillMessage(next ? '已切換大字模式 🔍' : '已恢復標準字級', 2000);
+    track('map_textsize_toggle', { large: next });
+}
+
 function toggleTheme() {
     const next = isDarkTheme() ? 'light' : 'dark';
     applyTheme(next, true);
@@ -440,6 +460,7 @@ function ensureMapRoot() {
             <button type="button" class="map-chip map-chip--cat" data-cat="咖啡" aria-pressed="false">☕ 咖啡廳</button>
         </div>
         <button type="button" class="map-chip map-chip--clear" id="clearFilters" hidden>✕ 清除篩選</button>
+        <button type="button" class="map-textsize-btn" id="textSizeToggle" aria-label="切換大字模式" aria-pressed="false">Aa</button>
         <button type="button" class="map-theme-btn" id="themeToggle" aria-label="切換深色／淺色外觀" aria-pressed="false">🌙</button>
         <button type="button" class="map-locate-btn" id="chipLocate" aria-label="定位到我的位置">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -1893,6 +1914,31 @@ function closeSpotlight() {
 
 // ---- 定位 ----
 
+// 實時藍點：首次定位成功後持續跟隨（Google 式「邊走邊找」）。
+// 只更新點位、不動鏡頭（鏡頭主導權在用戶）；頁面退到背景暫停省電、回前景恢復。
+let geoWatchId = null;
+function startLocationWatch() {
+    if (!navigator.geolocation || geoWatchId != null) return;
+    geoWatchId = navigator.geolocation.watchPosition(
+        pos => {
+            userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            showUserMarker();
+        },
+        () => { /* 靜默：首次定位已有 locateUser 的提示，跟隨失敗不再吵 */ },
+        { enableHighAccuracy: false, maximumAge: 10000, timeout: 20000 }
+    );
+}
+function stopLocationWatch() {
+    if (geoWatchId != null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(geoWatchId);
+        geoWatchId = null;
+    }
+}
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopLocationWatch();
+    else if (userLocation && document.body.classList.contains('is-map-page')) startLocationWatch();
+});
+
 function locateUser({ silent = false } = {}) {
     return new Promise(resolve => {
         if (!navigator.geolocation) {
@@ -1904,6 +1950,7 @@ function locateUser({ silent = false } = {}) {
             pos => {
                 userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                 showUserMarker();
+                startLocationWatch(); // 之後藍點持續跟著人走
                 // zoom 16：店名標籤開啟、cluster 部分散開，落地即可掃視
                 if (map) map.flyTo([userLocation.lat, userLocation.lng], 16, { duration: 0.8 });
                 track('map_locate', { success: true });
@@ -1931,7 +1978,7 @@ function locateUser({ silent = false } = {}) {
 function showUserMarker() {
     const L = window.L;
     if (!map || !userLocation) return;
-    if (userMarker) map.removeLayer(userMarker);
+    if (userMarker) { userMarker.setLatLng([userLocation.lat, userLocation.lng]); return; }
     userMarker = L.marker([userLocation.lat, userLocation.lng], {
         icon: L.divIcon({
             className: 'map-user-pin',
@@ -2248,6 +2295,12 @@ function wireControls() {
     // 深色模式切換（初始 icon 反映目前主題；主題已由 index.html 內聯開機設好 data-theme）
     const clearBtn = document.getElementById('clearFilters');
     if (clearBtn) clearBtn.addEventListener('click', clearAllFilters);
+
+    const textSizeToggle = document.getElementById('textSizeToggle');
+    if (textSizeToggle) {
+        textSizeToggle.addEventListener('click', toggleTextSize);
+        applyTextSize(isLargeText(), false); // 開機內聯已設 data-textsize，這裡同步鈕的狀態
+    }
 
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
