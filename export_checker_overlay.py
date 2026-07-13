@@ -29,6 +29,22 @@ OUTPUT = os.path.join(BASE_DIR, 'frontend', 'liff', 'data', 'partner_overlay.jso
 
 # 只下架「確定永久歇業/搬遷」；temp_closed / closed_unverified 不動（checker 自述會誤判）
 CLOSED_STATUS = ('closed', 'closed_moved')
+# OpenRice 頁面自己的狀態文字＝永久關閉 → 一併下架（原本只看 Google，漏掉 OR 已標結業的店，
+# 2026-07-13 實測有 53 家 partner OpenRice 已結業/搬遷卻仍在地圖上）。
+# 保守：只認「已結業/已搬遷」，不下架「裝修中(temp)/已易手(仍營業)」避免誤殺。
+CLOSED_STATUS_TEXT = ('已結業', '已搬遷')
+
+# 手動下架名單（stopgap）：OpenRice 頁面尚未更新狀態(status=10 仍顯示營業)、Google 也沒掃到，
+# 但已確認實際結業。來源端（checker 重掃）補上後可移除對應項。
+FORCE_CLOSED = {
+    652565,  # 天菜咖哩（大安區）：已結業，OpenRice 頁面仍顯示營業（用戶 2026-07-13 回報）
+}
+
+
+def is_permanently_closed(r):
+    return (r['poi_id'] in FORCE_CLOSED
+            or (r['google_status'] or '') in CLOSED_STATUS
+            or (r['status_text'] or '') in CLOSED_STATUS_TEXT)
 
 # 已確認過期的優惠壓制名單（stopgap）：checker db 的 booking_offers 只加不減，店家撤下的
 # 優惠會殘留、每晚重生又流回地圖（2026-07-09 實際發生：551013 鹽牛舌被重生加回）。
@@ -56,7 +72,7 @@ def main():
     rows = con.execute("""
         SELECT r.poi_id, r.name_tc, r.lat, r.lng, r.overall_rating, r.door_photo_url,
                r.is_bookable, r.has_menu, r.has_offer, r.booking_menu_count, r.google_status,
-               r.short_url
+               r.short_url, r.status_text
         FROM restaurants r
         WHERE r.poi_id IN (SELECT poi_id FROM partners)
     """).fetchall()
@@ -75,7 +91,7 @@ def main():
     partners = {}
     for r in rows:
         pid = r['poi_id']
-        if (r['google_status'] or '') in CLOSED_STATUS:
+        if is_permanently_closed(r):
             closed.append(pid)
             continue  # 要下架的店不必再帶欄位
 
