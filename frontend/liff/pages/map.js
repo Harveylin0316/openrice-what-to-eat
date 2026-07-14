@@ -781,17 +781,33 @@ function openDotHit(hit) {
 //      → 棕色，z14–16 顯示（.show-landmarks），z≥17 街道字接手就讓位
 //   2. landmarks.json 的連鎖品牌分店(brands，OSM 每月刷) → 灰藍小字，z≥16（.show-brands）
 
-function anchorMarker(L, p, wrapCls, labelCls) {
+function anchorMarker(L, p, wrapCls, labelCls, innerHtml) {
     return L.marker([p.lat, p.lng], {
         icon: L.divIcon({
             className: wrapCls,
-            html: `<span class="${labelCls}">${escapeHtml(p.n)}</span>`,
+            html: `<span class="${labelCls}">${innerHtml || escapeHtml(p.n)}</span>`,
             iconSize: [0, 0],
         }),
         interactive: false,        // 純視覺錨點，不吃點擊（點到的永遠是餐廳）
         zIndexOffset: -800,        // 壓在所有餐廳釘之下
         keyboard: false,
     });
+}
+
+// 有官方 logo 的連鎖品牌（r50 Owner：麥當勞/星巴克標上他們的 icon）：
+// 招牌文字前加圓形 logo 小標（Google 式品牌 POI，一眼認得）。
+// 檔案在 img/brands/（已去白邊、方形置中）；載入失敗 onerror 自動移除、退回純文字。
+const BRAND_ICONS = {
+    '麥當勞': 'mcdonalds.webp',
+    '星巴克': 'starbucks.webp',
+};
+function brandMarker(L, p) {
+    const ic = BRAND_ICONS[p.n];
+    const cls = 'map-brand-label' + (ic ? ' map-brand-label--iconed' : '');
+    const inner = ic
+        ? `<img class="map-brand-logo" src="${new URL(`../img/brands/${ic}`, import.meta.url)}" alt="" loading="lazy" decoding="async" onerror="this.remove()">${escapeHtml(p.n)}`
+        : null;
+    return anchorMarker(L, p, 'map-brand-wrap', cls, inner);
 }
 
 // 去重（先到先贏）：幾乎同點（≈300m）只留一個；名稱互含（台北101 vs 台北101/世貿、
@@ -860,7 +876,7 @@ function syncBrandLayer() {
     for (const p of brandPts) {
         const inside = box.contains([p.lat, p.lng]);
         if (inside && !p.on) {
-            if (!p.m) p.m = anchorMarker(window.L, p, 'map-brand-wrap', 'map-brand-label'); // 懶建
+            if (!p.m) p.m = brandMarker(window.L, p); // 懶建（麥當勞/星巴克帶 logo 小標）
             brandLayer.addLayer(p.m);
             p.on = true;
         } else if (!inside && p.on) {

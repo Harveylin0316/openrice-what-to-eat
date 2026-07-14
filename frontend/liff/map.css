@@ -168,6 +168,19 @@ body.is-map-page { overflow: hidden; }
 }
 .map-canvas.show-brands .map-brand-label { display: block; }
 .map-canvas.is-spotlight .map-brand-label { display: none; }
+/* 帶官方 logo 的品牌（麥當勞/星巴克，r50）：文字前加圓形 logo 小標——
+ * 白底圓形收掉方形圖的白邊視覺、細邊+微影浮於底圖；載入失敗 onerror 移除退回純文字。 */
+.map-canvas.show-brands .map-brand-label--iconed { display: inline-flex; align-items: center; gap: 3px; }
+.map-brand-logo {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  flex: 0 0 auto;
+}
 
 /* 贊助店圖釘：醒目星星釘，任何 zoom 都顯示（永不聚合），店名常駐 */
 .map-sponsor-pin {
@@ -1462,6 +1475,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 :root[data-textsize="lg"] .map-pin-label { font-size: 15.5px; max-width: 170px; }
 :root[data-textsize="lg"] .map-landmark-label { font-size: 14px; }
 :root[data-textsize="lg"] .map-brand-label { font-size: 13px; }
+:root[data-textsize="lg"] .map-brand-logo { width: 20px; height: 20px; }
 :root[data-textsize="lg"] .map-park-popup { font-size: 15px; }
 
 /* ── 卡片瘦身（2026-07 Owner：卡片佔太多畫面）── */
