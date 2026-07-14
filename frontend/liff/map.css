@@ -947,9 +947,9 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 .map-minicard__meta {
   margin: 0 0 2px;
   font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* r48：原 nowrap+ellipsis 會默默吃掉「走路 X 分 / 💰預算 / 地址尾巴」——
+   * 資訊寧可折一行也不能消失（實拍：稀疏卡與抽選卡的 meta 都被截）。 */
+  line-height: 1.45;
   color: var(--lm-text-muted);
 }
 .map-minicard__meta.is-open { color: var(--lm-success); }
@@ -1037,6 +1037,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 .map-parking__icon { flex: 0 0 auto; font-size: 14px; }
 /* 剩餘車位＝決策關鍵：獨立欄位不可壓縮（r46 Owner：常被長場名擠到看不見），場名自己截斷 */
 .map-parking__stat { flex: 0 0 auto; }
+.map-parking__walk { font-weight: 500; color: var(--lm-text-body); } /* 步行分鐘也是決策資訊：跟著 stat 不被場名截斷 */
 .map-parking__text { flex: 1 1 auto; min-width: 0; }
 .map-parking__loading { color: var(--lm-text-muted); }
 .map-parking__avail { font-weight: 700; white-space: nowrap; }
@@ -1307,6 +1308,10 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 :root[data-theme="dark"] .map-canvas .map-pin-label--deal { color: #FFB59A; } /* 板岩底提亮（#FF8A64 僅 1.7:1）*/ /* 優惠店名：深色上亮橘 */
 :root[data-theme="dark"] .map-canvas .map-pin-label--sponsor { color: #FFB59A; }
 :root[data-theme="dark"] .map-canvas .map-pin-label--star { color: #FFD86A; }
+/* 深色 badge：--lm-accent-subtle 在深色被覆寫成暗紅底，配 accent-press 只有 2.57:1
+ * → 改回亮 chip（與訂位優惠/出席回饋亮底一致，深色卡上 badge 全家同一語言） */
+:root[data-theme="dark"] .map-badge--menu,
+:root[data-theme="dark"] .map-badge--sponsored { background: #FDE9E2; color: #B93C1A; }
 /* 地標錨點：深色底改亮暖沙色 + 黑暈（同店名標籤的暈色策略） */
 :root[data-theme="dark"] .map-landmark-label {
   color: #CBB27E;

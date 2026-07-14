@@ -1656,8 +1656,8 @@ async function fillParking(pin, elId = 'miniCardParking') {
     const renderRow = (lot, availInner) => {
         el.innerHTML =
             '<span class="map-parking__icon" aria-hidden="true">🅿️</span>' +
-            `<span class="map-parking__stat">${availInner}</span>` +
-            `<span class="map-parking__text">${escapeHtml(lot.name)}${Number.isFinite(lot.walkMin) ? `・步行 ${lot.walkMin} 分` : ''}</span>` +
+            `<span class="map-parking__stat">${availInner}${Number.isFinite(lot.walkMin) ? `<span class="map-parking__walk">・步行 ${lot.walkMin} 分</span>` : ''}</span>` +
+            `<span class="map-parking__text">${escapeHtml(lot.name)}</span>` +
             `<a class="map-parking__nav" href="${navigationUrl(lot.lat, lot.lng, lot.name)}" target="_blank" rel="noopener" data-park-nav>導航</a>`;
         const nav = el.querySelector('[data-park-nav]');
         if (nav) nav.addEventListener('click', () => track('map_parking_nav_click', { or_id: pin.id, lot: lot.name }));
@@ -1983,7 +1983,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
                 ? `<a href="${escapeHtml(orLink(r))}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(r.name)}<span class="map-minicard__more"> ›</span></a>`
                 : escapeHtml(r.name)}</h3>
             <p class="map-minicard__meta">
-                ${r.rating ? `⭐ ${formatRating(r.rating)}${r.review_count ? ` (${r.review_count})` : ''}　` : ''}${escapeHtml(r.district || '')}${dist ? `　·　${dist}${(w => w ? `（${w}）` : '')(hasCoords ? walkLabel(coords.lat, coords.lng) : '')}` : ''}${r.budget ? `　·　💰 ${escapeHtml(r.budget)}` : ''}
+                ${r.rating ? `⭐ ${formatRating(r.rating)}${r.review_count ? ` (${r.review_count})` : ''} · ` : ''}${escapeHtml(r.district || '')}${dist ? ` · ${dist}${(w => w ? `（${w}）` : '')(hasCoords ? walkLabel(coords.lat, coords.lng) : '')}` : ''}${r.budget ? ` · 💰 ${escapeHtml(r.budget)}` : ''}
             </p>
             ${opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</p>` : ''}
             ${r.address ? `<p class="map-minicard__meta map-minicard__addr">📍 ${escapeHtml(addrLine(r.district || r.city, r.address))}</p>` : ''}
