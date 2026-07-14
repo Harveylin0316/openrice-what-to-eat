@@ -476,7 +476,7 @@ body.is-map-page { overflow: hidden; }
 .map-locate-btn {
   position: absolute;
   right: 16px;
-  bottom: calc(134px + var(--lm-safe-bottom)); /* 疊在骰子 FAB(64+58) 上方 */
+  bottom: calc(124px + var(--lm-safe-bottom)); /* 疊在骰子 FAB(64+48) 上方，間距 12 */
   z-index: 500;
   width: 48px;
   height: 48px;
@@ -827,8 +827,8 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   right: 16px;
   bottom: calc(64px + var(--lm-safe-bottom));
   z-index: 660;
-  width: 58px;
-  height: 58px;
+  width: 48px;  /* r44 Owner：與外觀/定位等 icon 鈕同尺寸（原 58 特大） */
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -839,7 +839,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   box-shadow: var(--lm-shadow-lg);
   cursor: pointer;
 }
-.map-fab__dice { font-size: 27px; line-height: 1; }
+.map-fab__dice { font-size: 22px; line-height: 1; }
 .map-fab:active { background: var(--lm-accent-press); transform: scale(0.94); }
 .map-fab__count {
   position: absolute;
@@ -1123,9 +1123,17 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 
 /* ---- 聚光燈卡 ---- */
 
+/* 聚光燈卡瘦身（r44 Owner：資訊多的店會佔滿整版）：
+ * 內容區設高度上限自己捲（同 r38 餐廳小卡），動作列固定在卡底不跟著捲；
+ * 照片從 16:9 大版位（390 寬≈219 高）降為 118px 橫幅，氣氛還在、版面讓給資訊。 */
+.map-spotlight__body {
+  max-height: min(45vh, 390px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
 .map-spotlight__img {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 118px;
   object-fit: cover;
   display: block;
 }
@@ -1324,7 +1332,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 .map-theme-btn {
   position: absolute;
   right: 16px;
-  bottom: calc(192px + var(--lm-safe-bottom)); /* 定位鈕(134+48)上方 */
+  bottom: calc(184px + var(--lm-safe-bottom)); /* 定位鈕(124+48)上方，間距 12 */
   z-index: 500;
   width: 48px;
   height: 48px;
@@ -1378,7 +1386,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 .map-textsize-btn {
   position: absolute;
   right: 16px;
-  bottom: calc(250px + var(--lm-safe-bottom)); /* 外觀鈕(192+48)上方 */
+  bottom: calc(244px + var(--lm-safe-bottom)); /* 外觀鈕(184+48)上方，間距 12 */
   z-index: 500;
   width: 48px;
   height: 48px;
