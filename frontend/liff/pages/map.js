@@ -1421,55 +1421,9 @@ function addrLine(d, ad) {
     return (city && !String(ad).startsWith(city)) ? city + ad : ad;
 }
 
-// ── 卡片「看更多」affordance（r45 Owner：內容可捲動但用戶不知道下面還有東西）──
-// 可捲動時在捲動區底浮一顆「上拉看完整資訊」膠囊（漸層墊底、不佔版面高度）；
-// 點膠囊或在卡片上滑 → 展開（.is-expanded 提高內容區上限）；展開後捲到頂再下滑收合。
-function wireCardMore(cardId, bodySel) {
-    const card = document.getElementById(cardId);
-    const body = card ? card.querySelector(bodySel) : null;
-    if (!card || !body) return;
-    card.classList.remove('is-expanded'); // 每次開卡都從預覽態開始
-    const expand = (on) => { card.classList.toggle('is-expanded', on); syncHint(); };
-    const syncHint = () => {
-        let hint = body.querySelector('.map-card-hint');
-        const need = !card.classList.contains('is-expanded') && body.scrollHeight > body.clientHeight + 4;
-        if (!need) { if (hint) hint.remove(); return; }
-        if (!hint) {
-            hint = document.createElement('div');
-            hint.className = 'map-card-hint';
-            hint.innerHTML = '<button type="button" class="map-card-hint__btn">⌃ 上拉看完整資訊</button>';
-            hint.querySelector('button').addEventListener('click', () => expand(true));
-            body.appendChild(hint);
-        }
-    };
-    if (!card._moreWired) {
-        card._moreWired = true;
-        // 粗手勢（passive，不干擾內容原生捲動）：上滑展開；展開且捲在頂端時下滑收合
-        card.addEventListener('touchstart', (e) => {
-            card._touchY = e.touches[0].clientY;
-            card._touchTop = body.scrollTop;
-        }, { passive: true });
-        card.addEventListener('touchmove', (e) => {
-            if (card._touchY == null) return;
-            const dy = e.touches[0].clientY - card._touchY;
-            if (dy < -36 && !card.classList.contains('is-expanded')) { expand(true); card._touchY = null; }
-            else if (dy > 48 && card.classList.contains('is-expanded') && body.scrollTop <= 0 && card._touchTop <= 0) {
-                expand(false); card._touchY = null;
-            }
-        }, { passive: true });
-        card.addEventListener('touchend', () => { card._touchY = null; }, { passive: true });
-        // 使用者自己捲到底了 → 膠囊功成身退（別蓋在最後一行/按鈕上）
-        body.addEventListener('scroll', () => {
-            const hint = body.querySelector('.map-card-hint');
-            if (!hint) return;
-            hint.classList.toggle('is-hidden', body.scrollTop + body.clientHeight >= body.scrollHeight - 12);
-        }, { passive: true });
-    }
-    syncHint();
-    // 圖片/停車行非同步載入（或載入失敗收起）都會改變內容高度 → 多判兩拍，避免膠囊殘留或漏出
-    setTimeout(syncHint, 400);
-    setTimeout(syncHint, 1500);
-}
+// （r47）r45 的「上拉看完整資訊」兩段式已移除：Owner 實用後嫌多一步驟很煩。
+// 卡片預設就給完整內容（上限 66vh，見 map.css .map-minicard__body / .map-spotlight__body），
+// 一般店全塞得下；極端多內容才自然捲動。
 
 function showMiniCard(pin) {
     closeSpotlight();
@@ -1550,7 +1504,6 @@ function showMiniCard(pin) {
     updateCardOpenState();
     if (!skipRecenter) panPinAboveCard(pin.lat, pin.lng); // 直接點 pin 時把它移到卡片上方
     fillParking(pin); // 非同步補「附近停車」一行，不擋卡片顯示
-    wireCardMore('mapMiniCard', '.map-minicard__body'); // 內容超出時給「上拉看更多」affordance
 }
 
 function closeMiniCard() {
@@ -2056,7 +2009,6 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
             track(evt, { or_id: r.or_id, name: r.name, sponsored: isSponsoredPick, source: 'spotlight' });
         });
     });
-    wireCardMore('mapSpotlight', '.map-spotlight__body'); // 內容超出時給「上拉看更多」affordance
 }
 
 function setSpotlightPin(lat, lng) {
