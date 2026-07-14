@@ -157,15 +157,23 @@ exports.handler = async (event) => {
     const baked = getBakedLots();
     const blob = await readAvailBlob();
     // 感測器覆蓋率：全部停車場中，有多少「回報了有效即時車位數」→ 量化「即時不明」的規模。
+    // 分來源（台北 / 新北 ntp:）統計，供驗證新北串接是否上線。
     let coverage = null;
     if (baked && blob && blob.map) {
-      let hasEntry = 0, validLive = 0;
+      const stat = () => ({ totalLots: 0, hasAvailEntry: 0, validLive: 0 });
+      const all = stat(), tpe = stat(), ntp = stat();
       for (const lot of baked) {
+        const isNtp = String(lot.id).startsWith('ntp:');
+        const bucket = isNtp ? ntp : tpe;
         const a = blob.map[lot.id];
-        if (a !== undefined) hasEntry++;
-        if (a != null && a >= 0) validLive++;
+        for (const s of [all, bucket]) {
+          s.totalLots++;
+          if (a !== undefined) s.hasAvailEntry++;
+          if (a != null && a >= 0) s.validLive++;
+        }
       }
-      coverage = { totalLots: baked.length, hasAvailEntry: hasEntry, validLive, pct: Math.round(validLive / baked.length * 100) };
+      const pct = (s) => (s.totalLots ? Math.round(s.validLive / s.totalLots * 100) : 0);
+      coverage = { ...all, pct: pct(all), taipei: { ...tpe, pct: pct(tpe) }, newTaipei: { ...ntp, pct: pct(ntp) } };
     }
     const [desc, avail] = await Promise.all([
       probe(DESC_URL, 9000, 'desc'),

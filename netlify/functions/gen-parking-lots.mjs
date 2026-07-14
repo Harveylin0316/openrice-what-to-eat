@@ -9,6 +9,11 @@ import { dirname, join } from 'node:path';
 const DESC_URL = 'https://tcgbusfs.blob.core.windows.net/blobtcmsv/TCMSV_alldesc.json';
 const OUT = join(dirname(fileURLToPath(import.meta.url)), 'parking-lots.json');
 
+// 新北市停車場（open data，data.ntpc.gov.tw）。URL 走環境變數 → 未設定則乾淨略過，
+// 台北資料不受影響（零回歸）。確認正式 dataset URL 後設 NTPC_PARKING_URL 即啟用。
+// 一份 dataset 通常同時含名稱/座標/總車位/即時空位；建置只取靜態欄位（名稱/座標/總位）。
+const NTPC_URL = process.env.NTPC_PARKING_URL || '';
+
 // TWD97 TM2 (EPSG:3826) → WGS84。與 parking.js 相同（已用往返測試驗證誤差 0.000m）。
 function twd97ToWGS84(x, y) {
   const a = 6378137.0, b = 6356752.314245;
@@ -28,7 +33,55 @@ function twd97ToWGS84(x, y) {
   return { lat: lat * 180 / Math.PI, lng: lon * 180 / Math.PI };
 }
 
-async function main() {
+// 多命名容錯取值：新北 open data 欄位命名與台北不同，逐一嘗試常見別名。
+function pick(o, keys) {
+  for (const k of keys) if (o[k] != null && o[k] !== '') return o[k];
+  return null;
+}
+
+// 座標自動判定：值落在台灣經緯度範圍（經 119~122、緯 21~26）→ 已是 WGS84 直用（含欄位順序顛倒）；
+// 否則視為 TWD97 TM2 轉換。免去「新北到底是哪種座標系」的驗證需求。
+function toWGS84(a, b) {
+  const inLng = (v) => v > 119 && v < 123, inLat = (v) => v > 21 && v < 26.5;
+  if (inLng(a) && inLat(b)) return { lat: b, lng: a }; // (lng, lat)
+  if (inLng(b) && inLat(a)) return { lat: a, lng: b }; // (lat, lng)
+  return twd97ToWGS84(a, b);
+}
+
+// 新北 open data 回傳可能是陣列，或包在 data/result.records/records 裡。
+function rowsOf(json) {
+  if (Array.isArray(json)) return json;
+  return (json && (json.data || (json.result && json.result.records) || json.records)) || [];
+}
+
+async function fetchNtpcLots() {
+  if (!NTPC_URL) { console.log('ℹ️ 未設 NTPC_PARKING_URL，略過新北停車靜態資料'); return []; }
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 15000);
+  let json;
+  try {
+    const res = await fetch(NTPC_URL, { signal: ctrl.signal });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    json = await res.json();
+  } finally { clearTimeout(t); }
+  const rows = rowsOf(json);
+  const lots = [];
+  for (const r of rows) {
+    const id = pick(r, ['id', 'ID', 'PARKINGID', 'PARKID', 'StationID', 'stationid', 'ParkId', 'CarParkID', '站點代碼', '停車場代碼']);
+    const name = pick(r, ['name', 'NAME', 'PARKINGNAME', 'ParkName', 'CarParkName', '停車場名稱', '場站名稱', '名稱']);
+    const total = Number(pick(r, ['totalcar', 'TOTALSPACE', 'totalspace', 'TotalSpace', 'PARKINGSPACE', '總車位', '汽車格位總數'])) || 0;
+    const rawX = Number(pick(r, ['lng', 'LNG', 'longitude', 'Longitude', '經度', 'wgsX', 'GIS_X', 'tw97x', 'X', 'PX']));
+    const rawY = Number(pick(r, ['lat', 'LAT', 'latitude', 'Latitude', '緯度', 'wgsY', 'GIS_Y', 'tw97y', 'Y', 'PY']));
+    if (id == null || !isFinite(rawX) || !isFinite(rawY) || (!rawX && !rawY)) continue;
+    const { lat, lng } = toWGS84(rawX, rawY);
+    if (!isFinite(lat) || !isFinite(lng)) continue;
+    lots.push({ id: 'ntp:' + String(id), name: name || '新北停車場', total, lat, lng });
+  }
+  console.log(`✅ 新北停車場：${lots.length} 筆`);
+  return lots;
+}
+
+async function fetchTaipeiLots() {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 15000);
   let json;
@@ -48,9 +101,18 @@ async function main() {
     if (!isFinite(lat) || !isFinite(lng)) continue;
     lots.push({ id: String(p.id), name: p.name, total: Number(p.totalcar) || 0, lat, lng });
   }
-  if (!lots.length) throw new Error('轉出 0 筆，放棄覆蓋（保留既有檔）');
+  return lots;
+}
+
+async function main() {
+  const taipei = await fetchTaipeiLots();
+  if (!taipei.length) throw new Error('台北轉出 0 筆，放棄覆蓋（保留既有檔）');
+  // 新北失敗不擋（隔離）：抓不到就只出台北，功能不回歸。
+  let ntpc = [];
+  try { ntpc = await fetchNtpcLots(); } catch (e) { console.error('⚠️ 新北停車靜態抓取失敗（略過）：', e.message || e); }
+  const lots = taipei.concat(ntpc);
   writeFileSync(OUT, JSON.stringify({ at: Date.now(), count: lots.length, lots }));
-  console.log(`✅ parking-lots.json：${lots.length} 筆`);
+  console.log(`✅ parking-lots.json：${lots.length} 筆（台北 ${taipei.length} + 新北 ${ntpc.length}）`);
 }
 
 main().catch((e) => {

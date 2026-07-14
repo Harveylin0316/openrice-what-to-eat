@@ -1633,7 +1633,8 @@ async function fillParking(pin, elId = 'miniCardParking') {
     parkingAbort = new AbortController();
     const signal = parkingAbort.signal;
     el.hidden = false;
-    // 停車資訊目前只涵蓋台北市：非台北市的店直接不顯示這行（誠實不清單噪音）
+    // 停車資訊涵蓋台北市（新北 open data 串接就緒，待 NTPC_PARKING_URL 設定＋資料驗證後，
+    // 這裡改為 /台北市|新北市/ 同步啟用——先收回避免資料未流通時新北店顯示「查無停車場」）
     const inTaipei = /台北市/.test(pin.d || '');
     const ver = (typeof window !== 'undefined' && window.__V) ? window.__V : '?';
     el.innerHTML = `<span class="map-parking__loading">🅿️ 查附近停車…</span>`;
