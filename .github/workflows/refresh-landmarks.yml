@@ -9,6 +9,9 @@ on:
   schedule:
     - cron: '0 20 1 * *'    # 每月 1 日 20:00 UTC = 04:00 台北
   workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths: ['fetch_landmarks.py']   # 腳本一改（品牌清單/範圍）馬上重抓
 
 permissions:
   contents: write
