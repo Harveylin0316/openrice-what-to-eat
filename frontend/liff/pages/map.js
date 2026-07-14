@@ -2577,7 +2577,10 @@ export async function initMapPage() {
         clusterGroup = L.markerClusterGroup({
             chunkedLoading: true,
             disableClusteringAtZoom: 17,
-            maxClusterRadius: 60,
+            // 聚合半徑依 zoom 遞減（Owner 反饋：太快把餐廳收進圈圈，2-3 顆的小圈能攤開就攤開）：
+            // 全城視野(≤14)維持 60px 防重疊成一坨；z15 收斂；z16 街區層級只剩「真的會疊到」
+            // （彩釘 24-30px）才合併，其餘全數展開直接看得到店。
+            maxClusterRadius: (zoom) => (zoom >= 16 ? 26 : zoom === 15 ? 42 : 60),
             showCoverageOnHover: false,
         });
         for (const pin of allPins) {
