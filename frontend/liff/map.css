@@ -1123,6 +1123,37 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 
 /* ---- 聚光燈卡 ---- */
 
+/* 卡片「看更多」提示（r45 Owner：內容可捲但用戶不知道）：
+ * 漸層+膠囊 sticky 浮在捲動區底、不佔版面高度；點膠囊或上滑手勢展開（.is-expanded） */
+.map-card-hint {
+  position: sticky;
+  bottom: -1px;
+  height: 40px;
+  margin-top: -40px; /* 蓋在內容最後一截上，不增加捲動高度 */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--lm-surface) 78%);
+  pointer-events: none;
+}
+.map-card-hint.is-hidden { visibility: hidden; }
+.map-card-hint__btn {
+  pointer-events: auto;
+  margin-bottom: 5px;
+  padding: 4px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--lm-text-body);
+  background: var(--lm-surface);
+  border: 1px solid var(--lm-border);
+  border-radius: 999px;
+  box-shadow: var(--lm-shadow-chip);
+  cursor: pointer;
+}
+/* 展開態：上限拉高到近全版（仍保留頂部一截地圖），內容幾乎都攤得開 */
+.map-minicard.is-expanded .map-minicard__body { max-height: min(78vh, 640px); }
+.map-spotlight.is-expanded .map-spotlight__body { max-height: min(72vh, 560px); }
+
 /* 聚光燈卡瘦身（r44 Owner：資訊多的店會佔滿整版）：
  * 內容區設高度上限自己捲（同 r38 餐廳小卡），動作列固定在卡底不跟著捲；
  * 照片從 16:9 大版位（390 寬≈219 高）降為 118px 橫幅，氣氛還在、版面讓給資訊。 */
@@ -1447,6 +1478,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 :root[data-textsize="lg"] .map-pin-label { font-size: 15.5px; max-width: 170px; }
 :root[data-textsize="lg"] .map-landmark-label { font-size: 14px; }
 :root[data-textsize="lg"] .map-brand-label { font-size: 13px; }
+:root[data-textsize="lg"] .map-card-hint__btn { font-size: 14px; }
 :root[data-textsize="lg"] .map-park-popup { font-size: 15px; }
 
 /* ── 卡片瘦身（2026-07 Owner：卡片佔太多畫面）── */

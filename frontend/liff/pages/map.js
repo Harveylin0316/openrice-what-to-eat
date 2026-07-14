@@ -1415,6 +1415,56 @@ function updateCardOpenState() {
     document.getElementById('mapRoot').classList.toggle('is-card-open', anyOpen);
 }
 
+// ── 卡片「看更多」affordance（r45 Owner：內容可捲動但用戶不知道下面還有東西）──
+// 可捲動時在捲動區底浮一顆「上拉看完整資訊」膠囊（漸層墊底、不佔版面高度）；
+// 點膠囊或在卡片上滑 → 展開（.is-expanded 提高內容區上限）；展開後捲到頂再下滑收合。
+function wireCardMore(cardId, bodySel) {
+    const card = document.getElementById(cardId);
+    const body = card ? card.querySelector(bodySel) : null;
+    if (!card || !body) return;
+    card.classList.remove('is-expanded'); // 每次開卡都從預覽態開始
+    const expand = (on) => { card.classList.toggle('is-expanded', on); syncHint(); };
+    const syncHint = () => {
+        let hint = body.querySelector('.map-card-hint');
+        const need = !card.classList.contains('is-expanded') && body.scrollHeight > body.clientHeight + 4;
+        if (!need) { if (hint) hint.remove(); return; }
+        if (!hint) {
+            hint = document.createElement('div');
+            hint.className = 'map-card-hint';
+            hint.innerHTML = '<button type="button" class="map-card-hint__btn">⌃ 上拉看完整資訊</button>';
+            hint.querySelector('button').addEventListener('click', () => expand(true));
+            body.appendChild(hint);
+        }
+    };
+    if (!card._moreWired) {
+        card._moreWired = true;
+        // 粗手勢（passive，不干擾內容原生捲動）：上滑展開；展開且捲在頂端時下滑收合
+        card.addEventListener('touchstart', (e) => {
+            card._touchY = e.touches[0].clientY;
+            card._touchTop = body.scrollTop;
+        }, { passive: true });
+        card.addEventListener('touchmove', (e) => {
+            if (card._touchY == null) return;
+            const dy = e.touches[0].clientY - card._touchY;
+            if (dy < -36 && !card.classList.contains('is-expanded')) { expand(true); card._touchY = null; }
+            else if (dy > 48 && card.classList.contains('is-expanded') && body.scrollTop <= 0 && card._touchTop <= 0) {
+                expand(false); card._touchY = null;
+            }
+        }, { passive: true });
+        card.addEventListener('touchend', () => { card._touchY = null; }, { passive: true });
+        // 使用者自己捲到底了 → 膠囊功成身退（別蓋在最後一行/按鈕上）
+        body.addEventListener('scroll', () => {
+            const hint = body.querySelector('.map-card-hint');
+            if (!hint) return;
+            hint.classList.toggle('is-hidden', body.scrollTop + body.clientHeight >= body.scrollHeight - 12);
+        }, { passive: true });
+    }
+    syncHint();
+    // 圖片/停車行非同步載入（或載入失敗收起）都會改變內容高度 → 多判兩拍，避免膠囊殘留或漏出
+    setTimeout(syncHint, 400);
+    setTimeout(syncHint, 1500);
+}
+
 function showMiniCard(pin) {
     closeSpotlight();
     const card = document.getElementById('mapMiniCard');
@@ -1458,9 +1508,9 @@ function showMiniCard(pin) {
         <div class="map-minicard__badges">
             ${isStar ? '<span class="map-badge map-badge--star">🌟 今日之星</span>' : ''}${pin.sp ? '<span class="map-badge map-badge--sponsored">精選推薦</span>' : ''}${dealBadgesHtml(pin, { compact: true })}
         </div>
+        <div class="map-minicard__parking" id="miniCardParking" hidden></div>
         ${detailLines.length ? `<ul class="map-minicard__offers">${detailLines.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}
         ${isStar ? '<p class="map-minicard__star-note">每天換一間，明天就不是它了</p>' : ''}
-        <div class="map-minicard__parking" id="miniCardParking" hidden></div>
         <div class="map-minicard__actions">
             ${orLink(pin) ? `<a class="map-btn map-btn--primary map-btn--full" data-track="booking" data-liff-internal href="${escapeHtml(orLink(pin))}" target="_blank" rel="noopener">${pin.b ? '立即訂位' : '看餐廳頁'}</a>` : ''}
             ${pin.ph ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="phone" href="tel:${escapeHtml(pin.ph)}">📞 電話</a>` : ''}
@@ -1493,6 +1543,7 @@ function showMiniCard(pin) {
     updateCardOpenState();
     if (!skipRecenter) panPinAboveCard(pin.lat, pin.lng); // 直接點 pin 時把它移到卡片上方
     fillParking(pin); // 非同步補「附近停車」一行，不擋卡片顯示
+    wireCardMore('mapMiniCard', '.map-minicard__body'); // 內容超出時給「上拉看更多」affordance
 }
 
 function closeMiniCard() {
@@ -1971,10 +2022,10 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
                 ${r.rating ? `⭐ ${formatRating(r.rating)}${r.review_count ? ` (${r.review_count})` : ''}　` : ''}${escapeHtml(r.district || '')}${dist ? `　·　${dist}${(w => w ? `（${w}）` : '')(hasCoords ? walkLabel(coords.lat, coords.lng) : '')}` : ''}${r.budget ? `　·　💰 ${escapeHtml(r.budget)}` : ''}
             </p>
             ${opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</p>` : ''}
+            <div class="map-spotlight__parking map-minicard__parking" id="spotlightParking" hidden></div>
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
             ${detailLines.length ? `<ul class="map-minicard__offers">${detailLines.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}
         </div>
-        <div class="map-spotlight__parking map-minicard__parking" id="spotlightParking" hidden></div>
     `;
 
     // 「幫我決定」的卡也要有停車資訊（與餐廳小卡一致）。有 pin 用 pin（已含 d/座標），否則用 r 組出來。
@@ -1993,6 +2044,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
             track(evt, { or_id: r.or_id, name: r.name, sponsored: isSponsoredPick, source: 'spotlight' });
         });
     });
+    wireCardMore('mapSpotlight', '.map-spotlight__body'); // 內容超出時給「上拉看更多」affordance
 }
 
 function setSpotlightPin(lat, lng) {
