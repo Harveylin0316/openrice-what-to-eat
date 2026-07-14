@@ -30,7 +30,7 @@ async function fetchNtpcAvail() {
   for (const r of rowsOf(json)) {
     const id = pick(r, ['id', 'ID', 'PARKINGID', 'PARKID', 'StationID', 'stationid', 'ParkId', 'CarParkID', '站點代碼', '停車場代碼']);
     if (id == null) continue;
-    const a = Number(pick(r, ['availablecar', 'AVAILABLESPACE', 'availablespace', 'AvailableSpace', 'FREEQUANTITY', '剩餘車位', '空位數', '汽車剩餘位數']));
+    const a = Number(pick(r, ['AVAILABLECAR', 'availablecar', 'AVAILABLESPACE', 'availablespace', 'AvailableSpace', 'FREEQUANTITY', '剩餘車位', '空位數', '汽車剩餘位數']));
     map['ntp:' + String(id)] = isFinite(a) ? a : -9; // -9＝無即時（沿用台北慣例）
   }
   return map;
