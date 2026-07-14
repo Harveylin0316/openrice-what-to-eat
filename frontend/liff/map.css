@@ -531,22 +531,29 @@ body.is-map-page { overflow: hidden; }
 
 /* ---- Bottom sheet：收合＝統計把手列，展開＝與地圖連動的清單 ---- */
 
+/* 清單抽屜（r50 Google 式三段）：收合(peek 52px) / 半開(55dvh) / 全開(頂到搜尋欄下)。
+ * sheet 常駐全高、三個檔位純 translateY —— 拖拽時只動 transform 不改高度，
+ * 60fps 不觸發重排（140+ 列清單 resize 會卡）。手勢控制在 map.js（wireSheetDrag）。 */
 .map-sheet {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 650;
-  height: min(55dvh, 480px);
+  height: calc(100vh - 64px);   /* 舊 webview fallback */
+  height: calc(100dvh - 64px);  /* 全開時頂到搜尋欄(12+46)下方，搜尋照樣可用 */
   background: var(--lm-surface);
   border-radius: var(--lm-radius) var(--lm-radius) 0 0;
   box-shadow: var(--lm-shadow-lg);
-  transform: translateY(calc(100% - 52px - var(--lm-safe-bottom)));
+  transform: translateY(calc(100% - 52px - var(--lm-safe-bottom)));                /* peek */
   transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
 }
-.map-root.is-sheet-open .map-sheet { transform: translateY(0); }
+.map-root.is-sheet-open .map-sheet { transform: translateY(calc(100% - min(55dvh, 480px))); } /* half */
+.map-root.is-sheet-full .map-sheet { transform: translateY(0); }                               /* full */
+/* 半開：清單不自己捲，上滑＝拉抬 sheet（Google 式）；全開才開放內部捲動 */
+.map-root.is-sheet-full .map-sheet__list { overflow-y: auto; }
 
 @media (prefers-reduced-motion: reduce) {
   .map-sheet { transition: none; }
@@ -554,7 +561,8 @@ body.is-map-page { overflow: hidden; }
 
 @media (min-width: 768px) {
   .map-sheet { left: 50%; right: auto; width: 480px; transform: translate(-50%, calc(100% - 52px)); }
-  .map-root.is-sheet-open .map-sheet { transform: translate(-50%, 0); }
+  .map-root.is-sheet-open .map-sheet { transform: translate(-50%, calc(100% - min(55dvh, 480px))); }
+  .map-root.is-sheet-full .map-sheet { transform: translate(-50%, 0); }
 }
 
 .map-sheet__handle {
@@ -626,11 +634,11 @@ body.is-map-page { overflow: hidden; }
 .map-sheet__list {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  overflow-y: hidden; /* r50：半開時上滑＝拉抬 sheet（Google 式）；全開才開放捲動（見 .is-sheet-full 規則） */
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain; /* 捲動到底/頂不外漏給 LINE 的縮小手勢 */
   margin: 0;
-  padding: 0 8px 8px;
+  padding: 0 8px calc(8px + var(--lm-safe-bottom));
   list-style: none;
   border-top: 1px solid var(--lm-border);
 }

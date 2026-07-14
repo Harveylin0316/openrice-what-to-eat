@@ -245,6 +245,7 @@ let activeFilters = { deals: false, open: false, bookable: false, budget: null, 
 let sheetSort = 'smart';         // 清單排序：smart(綜合) | distance(距離) | rating(評分) | deal(優惠)
 let favLayer = null;             // 收藏店的金色 ♥ 標記層
 let sheetOpen = false;
+let sheetState = 'peek';        // 清單抽屜三段（r50 Google 式）：peek(收合) | half(半開) | full(全開)
 let savedSheetView = null;      // 清單→店家卡後保留的視角/捲動位置，重開清單時還原
 let programmaticMove = false;   // 區分程式 flyTo 與使用者拖動（拖動會清掉 savedSheetView）
 
@@ -798,8 +799,9 @@ function anchorMarker(L, p, wrapCls, labelCls, innerHtml) {
 // 招牌文字前加圓形 logo 小標（Google 式品牌 POI，一眼認得）。
 // 檔案在 img/brands/（已去白邊、方形置中）；載入失敗 onerror 自動移除、退回純文字。
 const BRAND_ICONS = {
-    '麥當勞': 'mcdonalds.webp',
-    '星巴克': 'starbucks.webp',
+    // 待 Owner 官方 logo 進 img/brands/ 後填回（先清空：圖檔不在 repo 會對每個標記發 404）：
+    // '麥當勞': 'mcdonalds.webp',
+    // '星巴克': 'starbucks.webp',
 };
 function brandMarker(L, p) {
     const ic = BRAND_ICONS[p.n];
@@ -1205,13 +1207,19 @@ function updateCountPill() {
 
 const SHEET_MAX_ROWS = 60;
 
-function setSheetOpen(open) {
-    sheetOpen = open;
+// 三段狀態機（r50）：peek(52px 把手) / half(55dvh) / full(頂到搜尋欄下)。
+// setSheetOpen 保持舊語意（true=half / false=peek），全開只由拖拽手勢進入（Google 式）。
+function setSheetState(state) {
+    const was = sheetState;
+    if (state === was) return;
+    sheetState = state;
+    sheetOpen = state !== 'peek';
     const root = document.getElementById('mapRoot');
     const handle = document.getElementById('sheetHandle');
-    root.classList.toggle('is-sheet-open', open);
-    handle.setAttribute('aria-expanded', String(open));
-    if (open) {
+    root.classList.toggle('is-sheet-open', state !== 'peek');
+    root.classList.toggle('is-sheet-full', state === 'full');
+    handle.setAttribute('aria-expanded', String(state !== 'peek'));
+    if (state !== 'peek' && was === 'peek') {
         closeMiniCard();
         closeSpotlight();
         // 從清單點過店家 → 回來時還原當時的視角與捲動位置，逛到一半不歸零
@@ -1226,7 +1234,13 @@ function setSheetOpen(open) {
             if (selectedPinId != null) highlightSheetRow(selectedPinId, true); // 捲到剛看過的那家
         }
     }
-    track(open ? 'map_sheet_open' : 'map_sheet_close', {});
+    if (state === 'peek') track('map_sheet_close', {});
+    else if (was === 'peek') track('map_sheet_open', {});
+    if (state === 'full') track('map_sheet_full', {});
+}
+
+function setSheetOpen(open) {
+    setSheetState(open ? 'half' : 'peek');
 }
 
 function renderBudgetChips() {
@@ -2497,50 +2511,93 @@ function wireControls() {
     document.getElementById('miniCardClose').addEventListener('click', closeMiniCard);
     document.getElementById('spotlightClose').addEventListener('click', closeSpotlight);
 
-    // bottom sheet：點擊切換 + 手勢上下滑
+    // bottom sheet（r50 Google 式三段抽屜）：把手點擊在 peek↔half 間切換（full 點擊回 half）；
+    // 觸控拖拽手指連續跟隨（sheet 常駐全高、只動 translateY，不重排），放手依「位置+甩動速度」
+    // 吸附到 peek/half/full。半開時清單 overflow hidden：上滑＝拉抬 sheet；全開清單才自己捲、
+    // 捲到頂再下拉＝收回。拖拽中 preventDefault：不給頁面捲動、也不讓 LINE 下拉縮小 LIFF。
     const handle = document.getElementById('sheetHandle');
-    let dragStartY = null;
-    let dragToggled = false; // 手勢已切換過 → 抑制隨後的 click 再切回來
-    handle.addEventListener('click', () => {
-        if (dragToggled) { dragToggled = false; return; }
-        setSheetOpen(!sheetOpen);
-    });
-    handle.addEventListener('pointerdown', e => { dragStartY = e.clientY; dragToggled = false; });
-    handle.addEventListener('pointermove', e => {
-        if (dragStartY == null) return;
-        const dy = e.clientY - dragStartY;
-        if (dy < -30 && !sheetOpen) { setSheetOpen(true); dragToggled = true; dragStartY = null; }
-        else if (dy > 30 && sheetOpen) { setSheetOpen(false); dragToggled = true; dragStartY = null; }
-    });
-    handle.addEventListener('pointerup', () => { dragStartY = null; });
-
-    // 清單展開時的下拉手勢：頂端下拉 = 收合清單，
-    // 並 preventDefault 擋住 LINE「下拉縮小 LIFF」的原生手勢（用戶回報：往下滑會退出縮小）
     const sheetEl = document.getElementById('mapSheet');
     const listEl = document.getElementById('sheetList');
-    let sheetTouchY = null;
-    let sheetGestureDone = false;
-    sheetEl.addEventListener('touchstart', e => {
-        sheetTouchY = e.touches[0].clientY;
-        sheetGestureDone = false;
+    let dragToggled = false; // 手勢剛結束 → 抑制隨後合成的 click 又切一次
+    handle.addEventListener('click', () => {
+        if (dragToggled) { dragToggled = false; return; }
+        setSheetState(sheetState === 'peek' ? 'half' : sheetState === 'half' ? 'peek' : 'half');
+    });
+
+    const sheetTyNow = () => {
+        const t = getComputedStyle(sheetEl).transform;
+        if (!t || t === 'none') return 0;
+        return new DOMMatrixReadOnly(t).m42;
+    };
+    let peekSafeInset = null; // 開機必在 peek：反推 safe-area-inset-bottom 的實際 px（CSS env 無法直接讀）
+    const sheetDetents = () => {
+        const H = sheetEl.getBoundingClientRect().height;
+        if (peekSafeInset == null) peekSafeInset = Math.max(0, H - 52 - sheetTyNow());
+        return {
+            full: 0,
+            half: Math.max(0, H - Math.min(window.innerHeight * 0.55, 480)),
+            peek: H - 52 - peekSafeInset,
+        };
+    };
+
+    let sheetDrag = null; // {y0,x0,ty0,lastY,lastT,vy,engaged}
+    sheetEl.addEventListener('touchstart', (e) => {
+        if (window.matchMedia('(min-width: 768px)').matches) return; // 桌面用點擊即可
+        sheetDrag = {
+            y0: e.touches[0].clientY, x0: e.touches[0].clientX,
+            ty0: sheetTyNow(), lastY: e.touches[0].clientY, lastT: performance.now(),
+            vy: 0, engaged: false,
+        };
     }, { passive: true });
-    sheetEl.addEventListener('touchmove', e => {
-        if (sheetTouchY == null || !sheetOpen) return;
-        const dy = e.touches[0].clientY - sheetTouchY;
-        const inList = listEl.contains(e.target);
-        const atTop = !inList || listEl.scrollTop <= 0;
-        const atBottom = !inList || (listEl.scrollTop + listEl.clientHeight >= listEl.scrollHeight - 1);
-        if (dy > 0 && atTop) {
-            e.preventDefault(); // 不讓 LINE 把整個 LIFF 拉下去
-            if (dy > 55 && !sheetGestureDone) {
-                sheetGestureDone = true;
-                setSheetOpen(false); // 頂端下拉超過門檻 = 使用者想關清單
+    sheetEl.addEventListener('touchmove', (e) => {
+        if (!sheetDrag) return;
+        const y = e.touches[0].clientY, x = e.touches[0].clientX;
+        const now = performance.now();
+        sheetDrag.vy = (y - sheetDrag.lastY) / Math.max(1, now - sheetDrag.lastT); // px/ms
+        sheetDrag.lastY = y; sheetDrag.lastT = now;
+        const dy = y - sheetDrag.y0, dx = x - sheetDrag.x0;
+        if (!sheetDrag.engaged) {
+            if (Math.abs(dy) < 8 || Math.abs(dy) < Math.abs(dx)) return; // 斜滑/橫滑不搶（chips 可橫捲）
+            // 全開且手在清單裡：讓清單自己捲；只有「捲到頂還往下拉」才接管（=要收抽屜）
+            if (sheetState === 'full' && listEl.contains(e.target) && !(listEl.scrollTop <= 0 && dy > 0)) {
+                sheetDrag = null;
+                return;
             }
-        } else if (dy < 0 && atBottom) {
-            e.preventDefault(); // 底端上拉的橡皮筋也不外漏
+            sheetDrag.engaged = true;
         }
+        e.preventDefault();
+        const d = sheetDetents();
+        const ty = Math.min(d.peek, Math.max(d.full, sheetDrag.ty0 + dy));
+        sheetEl.style.transition = 'none';
+        sheetEl.style.transform = `translateY(${ty}px)`;
     }, { passive: false });
-    sheetEl.addEventListener('touchend', () => { sheetTouchY = null; }, { passive: true });
+    const endSheetDrag = () => {
+        if (!sheetDrag) return;
+        const { engaged, vy } = sheetDrag;
+        sheetDrag = null;
+        if (!engaged) return;
+        dragToggled = true;
+        setTimeout(() => { dragToggled = false; }, 350);
+        const d = sheetDetents();
+        const ty = sheetTyNow();
+        const entries = [['full', d.full], ['half', d.half], ['peek', d.peek]]; // ty 由小到大
+        let target;
+        if (Math.abs(vy) > 0.5) {
+            // 快甩：往甩的方向取「最近的下一檔」（40px 容差：剛越過檔位一點點仍算該檔，
+            // 避免從 full 下拉稍過 half 就直衝 peek）
+            const dir = vy > 0 ? 1 : -1;
+            const cands = entries.filter(([, v]) => (dir > 0 ? v >= ty - 40 : v <= ty + 40));
+            const pickFrom = cands.length ? cands : entries;
+            target = (dir > 0 ? pickFrom[0] : pickFrom[pickFrom.length - 1])[0];
+        } else { // 慢放：吸附最近檔
+            target = entries.reduce((b, e) => (Math.abs(e[1] - ty) < Math.abs(b[1] - ty) ? e : b))[0];
+        }
+        sheetEl.style.transition = '';
+        sheetEl.style.transform = ''; // 交還 CSS class 的檔位 transform（同態時 class 沒變，位置也正確）
+        setSheetState(target);
+    };
+    sheetEl.addEventListener('touchend', endSheetDrag, { passive: true });
+    sheetEl.addEventListener('touchcancel', endSheetDrag, { passive: true });
 
     renderBudgetChips();
 
