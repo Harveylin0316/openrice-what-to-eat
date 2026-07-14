@@ -1415,6 +1415,12 @@ function updateCardOpenState() {
     document.getElementById('mapRoot').classList.toggle('is-card-open', anyOpen);
 }
 
+// 完整地址：pin.ad 從行政區開頭（「中山區敬業三路…」）→ 補上 d 裡的城市；已含城市則原樣
+function addrLine(d, ad) {
+    const city = (d || '').split('·')[0] || '';
+    return (city && !String(ad).startsWith(city)) ? city + ad : ad;
+}
+
 // ── 卡片「看更多」affordance（r45 Owner：內容可捲動但用戶不知道下面還有東西）──
 // 可捲動時在捲動區底浮一顆「上拉看完整資訊」膠囊（漸層墊底、不佔版面高度）；
 // 點膠囊或在卡片上滑 → 展開（.is-expanded 提高內容區上限）；展開後捲到頂再下滑收合。
@@ -1490,7 +1496,7 @@ function showMiniCard(pin) {
     const walk = walkLabel(pin.lat, pin.lng);
     const metaTop = [
         pin.r ? `⭐ ${formatRating(pin.r)}${pin.rc ? ` (${pin.rc})` : ''}` : '',
-        tags.length ? escapeHtml(tags[0]) : '',
+        tags.length ? escapeHtml(tags.slice(0, 2).join('・')) : '', // 兩個標籤都秀（r46：資訊太少）
         dist ? `${dist}${walk ? `（${walk}）` : ''}` : '',
     ].filter(Boolean).join(' · ');
     body.innerHTML = `
@@ -1505,6 +1511,7 @@ function showMiniCard(pin) {
         ${metaTop ? `<p class="map-minicard__meta">${metaTop}</p>` : ''}
         <p class="map-minicard__meta">${opening && opening.label
             ? `<span class="${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</span>` : ''}${opening && opening.label && pin.bud ? ' · ' : ''}${pin.bud ? `💰 ${escapeHtml(pin.bud)}` : ''}</p>
+        ${pin.ad ? `<p class="map-minicard__meta map-minicard__addr">📍 ${escapeHtml(addrLine(pin.d, pin.ad))}</p>` : ''}
         <div class="map-minicard__badges">
             ${isStar ? '<span class="map-badge map-badge--star">🌟 今日之星</span>' : ''}${pin.sp ? '<span class="map-badge map-badge--sponsored">精選推薦</span>' : ''}${dealBadgesHtml(pin, { compact: true })}
         </div>
@@ -1691,10 +1698,13 @@ async function fillParking(pin, elId = 'miniCardParking') {
         const level = a < 15 ? 'low' : 'ok';
         return `<span class="map-parking__avail map-parking__avail--${level}">剩 ${a} 位</span>`;
     };
+    // 剩餘車位是這行的決策關鍵 → 獨立元素排最前、不可壓縮；場名長就自己吃截斷
+    // （r46 Owner：剩 N 位常被長場名擠到看不見）
     const renderRow = (lot, availInner) => {
         el.innerHTML =
             '<span class="map-parking__icon" aria-hidden="true">🅿️</span>' +
-            `<span class="map-parking__text">${escapeHtml(lot.name)}・${Number.isFinite(lot.walkMin) ? `步行 ${lot.walkMin} 分・` : ''}${availInner}</span>` +
+            `<span class="map-parking__stat">${availInner}</span>` +
+            `<span class="map-parking__text">${escapeHtml(lot.name)}${Number.isFinite(lot.walkMin) ? `・步行 ${lot.walkMin} 分` : ''}</span>` +
             `<a class="map-parking__nav" href="${navigationUrl(lot.lat, lot.lng, lot.name)}" target="_blank" rel="noopener" data-park-nav>導航</a>`;
         const nav = el.querySelector('[data-park-nav]');
         if (nav) nav.addEventListener('click', () => track('map_parking_nav_click', { or_id: pin.id, lot: lot.name }));
@@ -1797,6 +1807,7 @@ function pinToRestaurant(pin) {
         dl: pin.dl,
         review_count: pin.rc,
         phone: pin.ph,
+        address: pin.ad,
         bookable: pin.b,
         _tier: pin.t,
         _hm: pin.hm, _ho: pin.ho, _mc: pin.mc, _sp: pin.sp,
@@ -2022,6 +2033,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
                 ${r.rating ? `⭐ ${formatRating(r.rating)}${r.review_count ? ` (${r.review_count})` : ''}　` : ''}${escapeHtml(r.district || '')}${dist ? `　·　${dist}${(w => w ? `（${w}）` : '')(hasCoords ? walkLabel(coords.lat, coords.lng) : '')}` : ''}${r.budget ? `　·　💰 ${escapeHtml(r.budget)}` : ''}
             </p>
             ${opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</p>` : ''}
+            ${r.address ? `<p class="map-minicard__meta map-minicard__addr">📍 ${escapeHtml(addrLine(r.district || r.city, r.address))}</p>` : ''}
             <div class="map-spotlight__parking map-minicard__parking" id="spotlightParking" hidden></div>
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
             ${detailLines.length ? `<ul class="map-minicard__offers">${detailLines.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}

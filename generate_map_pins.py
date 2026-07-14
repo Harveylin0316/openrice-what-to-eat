@@ -159,6 +159,8 @@ def build_pin(r, ov=None, coord_override=None):
         pin['rc'] = r['review_count']  # 評論則數：星數旁顯示 (N)，長輩判斷可信度的依據
     if r.get('phone'):
         pin['ph'] = r['phone']  # 電話：卡片「📞 電話」鈕（50-60 歲慣用打電話訂位）
+    if r.get('address'):
+        pin['ad'] = r['address']  # 地址：卡片顯示（開車族/長輩找店必需，r46）
     if r.get('budget'):
         pin['bud'] = r['budget']
         bc = map_budget_to_category(r['budget'])

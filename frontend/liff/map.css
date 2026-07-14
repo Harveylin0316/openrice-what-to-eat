@@ -917,7 +917,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 .map-minicard__body {
   display: block;
   padding: 12px 14px;
-  max-height: min(55vh, 460px); /* 卡片高度保底：內容再多也留住地圖（Owner：卡片佔比太高） */
+  max-height: min(58vh, 500px); /* 卡片高度保底：內容再多也留住地圖（r46 從 55vh 微調：Owner 覺得預覽資訊太少） */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -930,8 +930,8 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   padding-right: 40px; /* 避開右上 ✕ 關閉鈕 */
 }
 .map-minicard__img {
-  width: 56px;
-  height: 56px;
+  width: 76px;  /* r46：56px 太小看不出店的樣子（Owner：資訊太少），+20px 換視覺資訊 */
+  height: 76px;
   flex: 0 0 auto;
   object-fit: cover;
   border-radius: var(--lm-radius-sm);
@@ -1035,6 +1035,8 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   line-height: 1.35;
 }
 .map-parking__icon { flex: 0 0 auto; font-size: 14px; }
+/* 剩餘車位＝決策關鍵：獨立欄位不可壓縮（r46 Owner：常被長場名擠到看不見），場名自己截斷 */
+.map-parking__stat { flex: 0 0 auto; }
 .map-parking__text { flex: 1 1 auto; min-width: 0; }
 .map-parking__loading { color: var(--lm-text-muted); }
 .map-parking__avail { font-weight: 700; white-space: nowrap; }
