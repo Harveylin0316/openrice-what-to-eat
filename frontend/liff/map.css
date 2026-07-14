@@ -127,6 +127,27 @@ body.is-map-page { overflow: hidden; }
 /* 碰撞隱藏（Google 式）：重疊到高優先店名的次要店名藏起來（點還在，見 runLabelCollision） */
 .map-canvas .map-pin-label.is-collided { display: none !important; }
 
+/* 地標錨點（r40）：商圈/捷運站名直接標在地圖上（buildLandmarkLayer）。
+ * Google 的商圈地名是暖棕黃系、比店名淡一階——是「座標」不是「內容」，
+ * 所以字級略小、不吃點擊；z14–16 顯示（.show-landmarks 由 map.js 切）。 */
+.map-landmark-wrap { background: transparent; border: none; }
+.map-landmark-label {
+  display: none;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: #8A6E3F; /* Google 式暖棕黃地名色，白暈上 4.6:1 */
+  pointer-events: none;
+  text-shadow:
+    -1px -1px 2px #fff, 1px -1px 2px #fff, -1px 1px 2px #fff, 1px 1px 2px #fff,
+    0 0 3px #fff, 0 0 4px #fff;
+}
+.map-canvas.show-landmarks .map-landmark-label { display: block; }
+.map-canvas.is-spotlight .map-landmark-label { display: none; } /* 聚光燈時全部讓位 */
+
 /* 贊助店圖釘：醒目星星釘，任何 zoom 都顯示（永不聚合），店名常駐 */
 .map-sponsor-pin {
   width: 36px;
@@ -201,14 +222,15 @@ body.is-map-page { overflow: hidden; }
   align-items: center;
   justify-content: center;
   border: 2px solid #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  /* r40 主角化：灰點降噪後彩釘再加一點浮起感（陰影深一階），層級差拉開 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
   box-sizing: border-box;
 }
 .map-food-pin svg { width: 66%; height: 66%; display: block; }
 /* 優惠店(menu/offer)：大一號、邊框陰影更明顯，比回饋店突出 */
 .map-food-pin--lg {
   border-width: 2.5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
 }
 /* 選中強調（Google 式）：放大浮起 + 陰影加深 + 拉到最上層，平滑過渡 */
 .map-food-wrap { transition: transform 0.14s ease-out; will-change: transform; }
@@ -1163,13 +1185,35 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
 }
 
+/* 你的位置藍點（r40 質感）：白邊 + 投影浮起 + 緩慢呼吸光環。
+ * 光環是「定位進行中」的功能訊號（watchPosition 持續跟人走），非裝飾——
+ * 節奏放很慢（2.8s）、透明度低，不搶注意力；reduced-motion 退化成靜態光暈。 */
+.map-user-pin { background: transparent; border: none; }
 .map-user-pin__dot {
+  position: relative;
   width: 16px;
   height: 16px;
   border-radius: 50%;
   background: #2F80ED;
   border: 3px solid #fff;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.35);
+  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.35), 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+.map-user-pin__dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(47, 128, 237, 0.5);
+  pointer-events: none;
+  animation: map-user-pulse 2.8s ease-out infinite;
+}
+@keyframes map-user-pulse {
+  0%   { transform: scale(0.7); opacity: 0.8; }
+  65%  { transform: scale(2.1); opacity: 0; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-user-pin__dot::after { animation: none; transform: scale(1.2); opacity: 0.35; }
 }
 
 /* ---- cluster 配色（覆蓋 MarkerCluster.Default 的螢光綠）
@@ -1232,6 +1276,13 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 :root[data-theme="dark"] .map-canvas .map-pin-label--deal { color: #FFB59A; } /* 板岩底提亮（#FF8A64 僅 1.7:1）*/ /* 優惠店名：深色上亮橘 */
 :root[data-theme="dark"] .map-canvas .map-pin-label--sponsor { color: #FFB59A; }
 :root[data-theme="dark"] .map-canvas .map-pin-label--star { color: #FFD86A; }
+/* 地標錨點：深色底改亮暖沙色 + 黑暈（同店名標籤的暈色策略） */
+:root[data-theme="dark"] .map-landmark-label {
+  color: #CBB27E;
+  text-shadow:
+    -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000, 1px 1px 2px #000,
+    0 0 3px #000, 0 0 4px #000;
+}
 /* Leaflet popup（停車圖層）：預設白底 → 深色 */
 :root[data-theme="dark"] .leaflet-popup-content-wrapper,
 :root[data-theme="dark"] .leaflet-popup-tip { background: var(--lm-surface); color: var(--lm-text); box-shadow: var(--lm-shadow-md); }
@@ -1358,6 +1409,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 :root[data-textsize="lg"] .map-parking__text { font-size: 15px; }
 :root[data-textsize="lg"] .map-parking__nav { font-size: 15px; }
 :root[data-textsize="lg"] .map-pin-label { font-size: 15.5px; max-width: 170px; }
+:root[data-textsize="lg"] .map-landmark-label { font-size: 14px; }
 :root[data-textsize="lg"] .map-park-popup { font-size: 15px; }
 
 /* ── 卡片瘦身（2026-07 Owner：卡片佔太多畫面）── */
