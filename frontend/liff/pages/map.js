@@ -218,6 +218,7 @@ let extLayerCatKey = undefined; // extLayer 目前成員反映的 catFilter labe
 let landmarkLayer = null;       // 地標錨點標籤層（商圈/捷運站/夜市/廟宇/百貨，低 zoom 的空間錨點）
 let landmarkKept = [];          // 已放上地圖的錨點（去重用：先到先贏，商圈優先於策展地標）
 let brandLayer = null;          // 連鎖品牌錨點層（麥當勞/星巴克…，r41：認路靠招牌）
+let brandPts = [];              // 品牌招牌原始點（r42：視窗裁剪，只掛視野內的 marker）
 // 灰點（未合作店）品類比對關鍵字：資料只有「國別菜系」(cu) 太粗，改比對「店名 + cu」是否含關鍵字。
 // 盡力而為（店名多半含菜式，如「22:02火鍋」「柒息地串燒居酒屋」），寧可精準少漏、避免明顯誤判。
 const EXT_CAT_KEYWORDS = {
@@ -830,16 +831,42 @@ function addLandmarkSpots(L, spots) {
 
 // landmarks.json brands（麥當勞/星巴克…分店座標）：認路靠招牌。
 // 已在 OpenRice 資料裡的分店不重標（z≥17 那裡本來就會出灰點＋全名標籤）。
+// r42 視窗裁剪：1,500 個 divIcon 全掛上去拖拽會鈍（每幀都要合成整個 marker pane），
+// 改成只放視野內（pad 0.3 緩衝）那 ~20-40 個，moveend 才更新成員、z<16 整層清空。
 function buildBrandLayer(L, brands) {
     if (!brands.length || !map) return;
-    const markers = [];
+    brandPts = [];
     for (const b of brands) {
         if (!Number.isFinite(b.lat) || !Number.isFinite(b.lng)) continue;
         const dup = extPois.some(pp => pp.n.includes(b.n) &&
             Math.abs(pp.lat - b.lat) < 0.0006 && Math.abs(pp.lng - b.lng) < 0.0007); // ≈70m
-        if (!dup) markers.push(anchorMarker(L, b, 'map-brand-wrap', 'map-brand-label'));
+        if (!dup) brandPts.push({ n: b.n, lat: b.lat, lng: b.lng, m: null, on: false });
     }
-    brandLayer = L.layerGroup(markers).addTo(map);
+    brandLayer = L.layerGroup().addTo(map);
+    map.on('moveend', syncBrandLayer);
+    map.on('zoomend', syncBrandLayer);
+    syncBrandLayer();
+}
+
+function syncBrandLayer() {
+    if (!brandLayer || !map) return;
+    if (map.getZoom() < 16) {
+        if (brandLayer.getLayers().length) brandLayer.clearLayers();
+        for (const p of brandPts) p.on = false;
+        return;
+    }
+    const box = map.getBounds().pad(0.3); // 緩衝一格：小幅拖拽不用等 moveend 才長出標籤
+    for (const p of brandPts) {
+        const inside = box.contains([p.lat, p.lng]);
+        if (inside && !p.on) {
+            if (!p.m) p.m = anchorMarker(window.L, p, 'map-brand-wrap', 'map-brand-label'); // 懶建
+            brandLayer.addLayer(p.m);
+            p.on = true;
+        } else if (!inside && p.on) {
+            brandLayer.removeLayer(p.m);
+            p.on = false;
+        }
+    }
 }
 
 function buildExtLayer(L) {
@@ -2679,7 +2706,8 @@ export async function initMapPage() {
             get extPois() { return extPois; },
             get extLayerShown() { return !!(extLayer && map && map.hasLayer(extLayer)); },
             get landmarkCount() { return landmarkLayer ? landmarkLayer.getLayers().length : 0; },
-            get brandCount() { return brandLayer ? brandLayer.getLayers().length : 0; },
+            get brandCount() { return brandLayer ? brandLayer.getLayers().length : 0; }, // 視野內
+            get brandTotal() { return brandPts.length; }, // 去重後全量
             nearestDotAt, // debug：消歧驗證用
             openPin(id) {
                 const pin = allPins.find(p => p.id === id);
