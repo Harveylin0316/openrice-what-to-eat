@@ -295,8 +295,9 @@ function escapeHtml(s) {
 
 // 評分顯示：資料庫有 3.342857 這種原始浮點數，一律取一位小數
 function formatRating(r) {
-    if (r == null) return '';
-    return String(Math.round(Number(r) * 10) / 10);
+    // 一律補到一位小數：4.0 星顯示「4.0」而非「4」（r49：整數評分店與旁邊 4.5 不一致，像缺資料）
+    if (!r || !isFinite(Number(r))) return '';
+    return Number(r).toFixed(1);
 }
 
 function distanceLabel(lat, lng) {
@@ -1455,7 +1456,9 @@ function showMiniCard(pin) {
     ].filter(Boolean).join(' · ');
     body.innerHTML = `
         <div class="map-minicard__head">
-            ${pin.img ? `<img class="map-minicard__img" src="${escapeHtml(pin.img)}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">` : ''}
+            ${pin.img
+                ? `<img class="map-minicard__img" src="${escapeHtml(pin.img)}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">`
+                : '<span class="map-minicard__img map-minicard__img--empty" aria-hidden="true">🍽️</span>'}
             <div class="map-minicard__info">
                 <h3 class="map-minicard__name">${orLink(pin)
                     ? `<a href="${escapeHtml(orLink(pin))}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(pin.n)}<span class="map-minicard__more"> ›</span></a>`

@@ -936,6 +936,14 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   object-fit: cover;
   border-radius: var(--lm-radius-sm);
 }
+/* 無照片店（8 家）：給中性佔位圖，標題列與有照片店一致（r49；比照清單 --empty 縮圖） */
+.map-minicard__img--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  background: var(--lm-bg);
+}
 .map-minicard__info { min-width: 0; flex: 1; }
 .map-minicard__name {
   margin: 2px 0 4px;
