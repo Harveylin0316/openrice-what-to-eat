@@ -1,0 +1,50 @@
+name: landmarks-refresh
+
+# 知名地標錨點資料更新：從 OpenStreetMap Overpass 抓台北的連鎖品牌分店
+# （麥當勞/星巴克…）與零售錨點（新光三越/SOGO…）→ landmarks.json → Netlify 部署。
+# 為什麼在 Actions 跑：開發沙箱的網路政策擋外部 API，而 Actions runner 有完整網路；
+# 地標一個月變不了幾個，排每月一次 + 手動觸發即可。
+
+on:
+  schedule:
+    - cron: '0 20 1 * *'    # 每月 1 日 20:00 UTC = 04:00 台北
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: landmarks-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout app repo (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch landmarks from Overpass
+        run: python3 fetch_landmarks.py
+
+      - name: Commit & push
+        run: |
+          git config user.name  "map-refresh-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/liff/data/landmarks.json
+          if git diff --cached --quiet; then
+            echo "地標資料無變化，跳過 commit"
+          else
+            STAMP=$(date -u +%Y-%m-%dT%H:%MZ)
+            git commit -m "資料刷新（landmarks $STAMP）：OSM 連鎖品牌/零售錨點"
+            git push origin main
+            echo "✅ 已推送，Netlify 自動部署"
+          fi
