@@ -1451,6 +1451,94 @@ function addrLine(d, ad) {
     return (city && !String(ad).startsWith(city)) ? city + ad : ad;
 }
 
+// ── 卡片照片帶（r53 Owner：照片小又少）──
+// pins 只帶 1 張門面照；完整照片清單（中位數 10 張/店）在獨立 lazy 檔 photos.json
+// （203KB/gzip 36KB，首次開卡才載、之後記憶體快取）。開卡先亮 pin.img 秒回，
+// 清單到手再補齊（最多 6 張）；點任一張 → 全螢幕檢視器橫滑瀏覽。
+let photosIndexPromise = null;
+function loadPhotosIndex() {
+    if (!photosIndexPromise) {
+        photosIndexPromise = fetch(new URL('../data/photos.json', import.meta.url))
+            .then(r => (r.ok ? r.json() : {}))
+            .catch(() => ({})); // 選配資料：載不到就維持單張
+    }
+    return photosIndexPromise;
+}
+
+function photoStripHtml(pin, stripId) {
+    if (!pin.img) return ''; // 無照片店不出照片帶（head 有佔位縮圖）
+    return `<div class="map-minicard__strip" id="${stripId}" data-pid="${pin.id}">
+        <img class="map-minicard__photo" src="${escapeHtml(pin.img)}" alt="" decoding="async" onerror="this.remove()">
+    </div>`;
+}
+
+async function fillPhotoStrip(pin, stripId) {
+    const strip = document.getElementById(stripId);
+    if (!strip) return;
+    const idx = await loadPhotosIndex();
+    // 換卡防錯位：載入期間使用者可能已開了別家的卡
+    if (!strip.isConnected || strip.dataset.pid !== String(pin.id)) return;
+    const urls = idx[String(pin.id)] || [];
+    const have = new Set([...strip.querySelectorAll('img')].map(i => i.getAttribute('src')));
+    for (const u of urls) {
+        if (have.has(u)) continue;
+        const img = document.createElement('img');
+        img.className = 'map-minicard__photo';
+        img.loading = 'lazy'; // 帶外照片捲到才抓
+        img.decoding = 'async';
+        img.alt = '';
+        img.onerror = () => img.remove();
+        img.src = u;
+        strip.appendChild(img);
+    }
+}
+
+function wirePhotoStrip(pin, stripId) {
+    const strip = document.getElementById(stripId);
+    if (!strip) return;
+    strip.addEventListener('click', (e) => {
+        const img = e.target.closest('img');
+        if (!img) return;
+        const all = [...strip.querySelectorAll('img')].map(i => i.src);
+        track('map_photo_open', { or_id: pin.id, name: pin.n, count: all.length });
+        openPhotoViewer(all, all.indexOf(img.src));
+    });
+    fillPhotoStrip(pin, stripId);
+}
+
+// 全螢幕照片檢視器：黑底、橫滑換張（scroll-snap）、✕/點背景/Escape 關閉
+function openPhotoViewer(urls, start = 0) {
+    let v = document.getElementById('photoViewer');
+    if (!v) {
+        v = document.createElement('div');
+        v.id = 'photoViewer';
+        v.className = 'map-photoviewer';
+        v.innerHTML = '<button type="button" class="map-photoviewer__close" aria-label="關閉照片">✕</button>'
+            + '<div class="map-photoviewer__track"></div>'
+            + '<div class="map-photoviewer__count" aria-live="polite"></div>';
+        v.addEventListener('click', (e) => {
+            // 點背景（含 slide 的黑邊）或 ✕ 關閉；點照片本身不關（可能想 pinch）
+            if (e.target.closest('.map-photoviewer__close') || !e.target.closest('img')) closePhotoViewer();
+        });
+        v.querySelector('.map-photoviewer__track').addEventListener('scroll', () => {
+            const t = v.querySelector('.map-photoviewer__track');
+            const i = Math.round(t.scrollLeft / Math.max(1, t.clientWidth)) + 1;
+            v.querySelector('.map-photoviewer__count').textContent = `${i} / ${t.children.length}`;
+        }, { passive: true });
+        document.body.appendChild(v);
+    }
+    const trackEl = v.querySelector('.map-photoviewer__track');
+    trackEl.innerHTML = urls.map(u =>
+        `<div class="map-photoviewer__slide"><img src="${escapeHtml(u)}" alt="" decoding="async"></div>`).join('');
+    v.hidden = false;
+    v.querySelector('.map-photoviewer__count').textContent = `${start + 1} / ${urls.length}`;
+    requestAnimationFrame(() => { trackEl.scrollLeft = trackEl.clientWidth * start; });
+}
+function closePhotoViewer() {
+    const v = document.getElementById('photoViewer');
+    if (v) v.hidden = true;
+}
+
 // （r47）r45 的「上拉看完整資訊」兩段式已移除：Owner 實用後嫌多一步驟很煩。
 // 卡片預設就給完整內容（上限 66vh，見 map.css .map-minicard__body / .map-spotlight__body），
 // 一般店全塞得下；極端多內容才自然捲動。
@@ -1484,10 +1572,9 @@ function showMiniCard(pin) {
         dist ? `${dist}${walk ? `（${walk}）` : ''}` : '',
     ].filter(Boolean).join(' · ');
     body.innerHTML = `
+        ${photoStripHtml(pin, 'miniCardStrip')}
         <div class="map-minicard__head">
-            ${pin.img
-                ? `<img class="map-minicard__img" src="${escapeHtml(pin.img)}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">`
-                : '<span class="map-minicard__img map-minicard__img--empty" aria-hidden="true">🍽️</span>'}
+            ${pin.img ? '' : '<span class="map-minicard__img map-minicard__img--empty" aria-hidden="true">🍽️</span>'}
             <div class="map-minicard__info">
                 <h3 class="map-minicard__name">${orLink(pin)
                     ? `<a href="${escapeHtml(orLink(pin))}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(pin.n)}<span class="map-minicard__more"> ›</span></a>`
@@ -1536,6 +1623,7 @@ function showMiniCard(pin) {
     updateCardOpenState();
     if (!skipRecenter) panPinAboveCard(pin.lat, pin.lng); // 直接點 pin 時把它移到卡片上方
     fillParking(pin); // 非同步補「附近停車」一行，不擋卡片顯示
+    wirePhotoStrip(pin, 'miniCardStrip'); // 照片帶：先亮門面照，多照片清單到手補齊
 }
 
 function closeMiniCard() {
@@ -2004,7 +2092,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
     const detailLines = dealDetailLines({ hm, mc, offers, bookable });
 
     body.innerHTML = `
-        ${heroImage ? `<img class="map-spotlight__img" src="${escapeHtml(heroImage)}" alt="" decoding="async" onerror="this.style.display='none'">` : ''}
+        ${photoStripHtml({ id: r.or_id, img: heroImage }, 'spotlightStrip')}
         <div class="map-spotlight__info">
             <div class="map-minicard__badges">
                 ${isDaikichi ? '<span class="map-badge map-badge--daikichi">✨ 大吉</span>' : ''}
@@ -2041,6 +2129,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
             track(evt, { or_id: r.or_id, name: r.name, sponsored: isSponsoredPick, source: 'spotlight' });
         });
     });
+    wirePhotoStrip({ id: r.or_id, n: r.name, img: heroImage }, 'spotlightStrip'); // 照片帶同小卡
 }
 
 function setSpotlightPin(lat, lng) {
@@ -2603,10 +2692,12 @@ function wireControls() {
     // Escape 依序關閉最上層的浮層
     document.addEventListener('keydown', e => {
         if (e.key !== 'Escape') return;
+        const viewer = document.getElementById('photoViewer');
         const searchResults = document.getElementById('mapSearchResults');
         const spotlight = document.getElementById('mapSpotlight');
         const minicard = document.getElementById('mapMiniCard');
-        if (searchResults && !searchResults.hidden) closeSearch();
+        if (viewer && !viewer.hidden) closePhotoViewer();
+        else if (searchResults && !searchResults.hidden) closeSearch();
         else if (spotlight && !spotlight.hidden) closeSpotlight();
         else if (minicard && !minicard.hidden) closeMiniCard();
         else if (sheetOpen) setSheetOpen(false);

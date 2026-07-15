@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="style.css">
     <!-- 生活地圖頁樣式（Leaflet 本體由 map.js 動態載入）。?v 破 webview 快取：
          改到 map.css 時，跟下方 __V 一起 bump，讓新樣式確實下發到用戶（不吃舊快取）。 -->
-    <link rel="stylesheet" href="map.css?v=r52">
+    <link rel="stylesheet" href="map.css?v=r53">
     <!-- 圖磚 CDN 先握手（DNS+TLS）：首張地圖圖磚更快出現（tileLayer 在 Leaflet 載完才連太晚） -->
     <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin>
     <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com">
@@ -56,7 +56,7 @@
         } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
 
         // __V：關鍵路徑破快取版本（單一來源，body 開機腳本讀這個）。
-        window.__V = 'r52';
+        window.__V = 'r53';
         // modulepreload：JS 模組鏈原本逐層發現（router→map→shared→constants 串行 4 層 RTT），
         // 首繪前全部並行預抓+預編譯 → 實測 pins 就緒時間大幅提前。舊 webview 不支援也只是忽略提示。
         try {

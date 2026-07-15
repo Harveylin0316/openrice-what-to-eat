@@ -957,6 +957,100 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   object-fit: cover;
   border-radius: var(--lm-radius-sm);
 }
+/* ── 卡片照片帶（r53 Owner：照片小又少）──
+ * 76px 單縮圖 → 108px 橫滑照片帶（最多 6 張，lazy 檔補齊）。144px 寬 × 卡內寬 362px
+ * ≈ 2.5 張視野，第三張露邊＝天然「還可以滑」暗示。點任一張開全螢幕檢視器。 */
+.map-minicard__strip {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 10px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain; /* 滑到底不外漏成頁面手勢 */
+  border-radius: var(--lm-radius-sm);
+  scrollbar-width: none;
+}
+.map-minicard__strip::-webkit-scrollbar { display: none; }
+.map-minicard__strip:empty { display: none; } /* 所有照片都載失敗（onerror 移除）→ 收掉整條，不留空白 */
+.map-minicard__photo {
+  height: 108px;
+  width: 144px;
+  flex: 0 0 auto;
+  object-fit: cover;
+  border-radius: var(--lm-radius-sm);
+  background: var(--lm-bg); /* 載入前的 skeleton 底 */
+  scroll-snap-align: start;
+  cursor: pointer;
+}
+/* 只有一張照片的店：窄條太小氣 → 撐滿卡寬變大橫幅（多照片到手會自動變回條狀） */
+.map-minicard__photo:only-child { width: 100%; }
+/* 矮屏（≤670px 高）：照片帶降高，保住「停車/地址零互動可見」 */
+@media (max-height: 670px) {
+  .map-minicard__photo { height: 88px; width: 118px; }
+}
+/* 抽選卡：body 無 padding（原全幅 banner 位），照片帶自己補邊距 */
+.map-spotlight__body > .map-minicard__strip { margin: 10px 10px 0; }
+
+/* 全螢幕照片檢視器：黑底、橫滑換張、✕/點背景/Escape 關閉 */
+.map-photoviewer {
+  position: fixed;
+  inset: 0;
+  z-index: 3000; /* 蓋過卡片(700)/控制鈕，LIFF 內最上層 */
+  background: rgba(10, 10, 12, 0.94);
+}
+.map-photoviewer[hidden] { display: none; }
+.map-photoviewer__track {
+  display: flex;
+  height: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.map-photoviewer__track::-webkit-scrollbar { display: none; }
+.map-photoviewer__slide {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+  padding: 48px 8px calc(56px + var(--lm-safe-bottom));
+  box-sizing: border-box;
+}
+.map-photoviewer__slide img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+.map-photoviewer__close {
+  position: absolute;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  right: 10px;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+.map-photoviewer__count {
+  position: absolute;
+  bottom: calc(18px + var(--lm-safe-bottom));
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
 /* 無照片店（8 家）：給中性佔位圖，標題列與有照片店一致（r49；比照清單 --empty 縮圖） */
 .map-minicard__img--empty {
   display: flex;

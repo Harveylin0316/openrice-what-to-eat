@@ -20,6 +20,9 @@ from datetime import datetime, timezone
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SOURCE = os.path.join(BASE_DIR, 'restaurants_database.json')
 OUTPUT = os.path.join(BASE_DIR, 'frontend', 'liff', 'data', 'map_pins.json')
+# 照片清單（r53 卡片照片帶）：{or_id: [url,...]} 獨立 lazy 檔——中位數每店 10 張，
+# 烤進 pins 會肥 +190KB 拖慢首屏；開卡才需要 → 另檔、首次開卡時載入一次。
+PHOTOS_OUTPUT = os.path.join(BASE_DIR, 'frontend', 'liff', 'data', 'photos.json')
 # 對照層（來自 closure-checker，見 export_checker_overlay.py）：歇業下架 + booking 加法升級。
 # 選配：缺檔時退回純主檔行為（Netlify build 也吃這份 committed 快照）。
 OVERLAY = os.path.join(BASE_DIR, 'frontend', 'liff', 'data', 'partner_overlay.json')
@@ -313,6 +316,24 @@ def main():
     print(f"   tiers: {tier_counts}")
     print(f"   skipped: disabled={skipped_disabled}, no-coords={skipped_nocoords}, "
           f"outside-allowlist={skipped_city}, closed={skipped_closed}")
+
+    # 照片清單（卡片照片帶用）：door 照優先 + images 去重，每店最多 6 張；
+    # 只收 ≥2 張的店（單張的前端已有 pin.img，不用進這份檔）。
+    pin_ids = {p['id'] for p in pins}
+    by_id = {r.get('or_id'): r for r in restaurants}
+    photos = {}
+    for pid in pin_ids:
+        r = by_id.get(pid)
+        if not r:
+            continue
+        urls = list(dict.fromkeys(
+            [u for u in [r.get('door_photo_url')] + (r.get('images') or []) if u]))[:6]
+        if len(urls) >= 2:
+            photos[str(pid)] = urls
+    with open(PHOTOS_OUTPUT, 'w', encoding='utf-8') as f:
+        json.dump(photos, f, ensure_ascii=False, separators=(',', ':'))
+    pk = os.path.getsize(PHOTOS_OUTPUT) / 1024
+    print(f"✅ photos.json：{len(photos)} 家有多照片（{pk:.0f} KB）")
     return 0
 
 
