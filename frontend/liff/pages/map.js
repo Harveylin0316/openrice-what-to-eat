@@ -800,7 +800,7 @@ function anchorMarker(L, p, wrapCls, labelCls, innerHtml) {
 // 檔案在 img/brands/（已去白邊、方形置中）；載入失敗 onerror 自動移除、退回純文字。
 const BRAND_ICONS = {
     '麥當勞': 'mcdonalds.svg', // 依 Owner 提供的紅底方塊版重繪之向量檔（r51）
-    // '星巴克': 'starbucks.svg', // 待 fetch-brand-logos workflow 抓官方檔 commit 後啟用（先關避免 404）
+    '星巴克': 'starbucks.svg', // 官方檔（fetch-brand-logos workflow 自 Wikimedia 抓，r52）
 };
 function brandMarker(L, p) {
     const ic = BRAND_ICONS[p.n];
