@@ -799,9 +799,8 @@ function anchorMarker(L, p, wrapCls, labelCls, innerHtml) {
 // 招牌文字前加圓形 logo 小標（Google 式品牌 POI，一眼認得）。
 // 檔案在 img/brands/（已去白邊、方形置中）；載入失敗 onerror 自動移除、退回純文字。
 const BRAND_ICONS = {
-    // 待 Owner 官方 logo 進 img/brands/ 後填回（先清空：圖檔不在 repo 會對每個標記發 404）：
-    // '麥當勞': 'mcdonalds.webp',
-    // '星巴克': 'starbucks.webp',
+    '麥當勞': 'mcdonalds.svg', // 依 Owner 提供的紅底方塊版重繪之向量檔（r51）
+    // '星巴克': 'starbucks.svg', // 待 fetch-brand-logos workflow 抓官方檔 commit 後啟用（先關避免 404）
 };
 function brandMarker(L, p) {
     const ic = BRAND_ICONS[p.n];
