@@ -94,6 +94,7 @@ jobs:
           git config user.name  "map-refresh-bot"
           git config user.email "actions@users.noreply.github.com"
           git add frontend/liff/data/map_pins.json \
+                  frontend/liff/data/photos.json \
                   frontend/liff/data/partner_overlay.json \
                   frontend/liff/data/external_pois.json \
                   .github/last-checker-db.sha
