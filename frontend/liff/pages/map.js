@@ -2353,6 +2353,159 @@ function closeSearch({ clear = false } = {}) {
     if (input) input.blur();
 }
 
+// ── 觸控手勢升級（r54：對齊 Google Maps 手感）──
+// 1) 雙擊按住上下拖＝單手縮放：下拉放大、上推縮小（Google 方向），錨定第一擊位置，
+//    放開吸附整數級。tap-tap「放開」仍走 Leaflet 內建雙擊放大——只有「按住拖」才接管。
+// 2) 兩指輕點（<250ms、無位移）＝縮小一級；有位移就讓給內建捏合。
+// 3) 長按（550ms 不動）＝以該點為清單排序錨（重用搜尋落點的 pin＋錨機制），地圖不跳動。
+function wireMapGestures() {
+    const el = map.getContainer();
+    // 雙擊放大改由本控制器全權處理：內建 doubleClickZoom 會與瀏覽器合成 dblclick
+    // 疊發（實測 +2 級），關掉後 tap-tap 放開由我們恰好 +1。
+    map.doubleClickZoom.disable();
+    const toPoint = (t) => {
+        const r = el.getBoundingClientRect();
+        return [t.clientX - r.left, t.clientY - r.top];
+    };
+    let tapStart = null;    // 單指按下 {t,x,y}（判「快速輕點」用）
+    let lastTap = null;     // 上一次快速輕點放開 {t,x,y}（判雙擊用）
+    let dzCandidate = null; // 雙擊第二擊按住中，尚未判定 {x,y}
+    let dz = null;          // 拖曳縮放進行中 {y0,z0,anchor,applied}
+    let twoTap = null;      // 兩指輕點候選
+    let lpTimer = null;
+
+    const cancelLp = () => { if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; } };
+    const endDragZoom = () => {
+        if (!dz) return;
+        map.options.zoomSnap = 1;
+        map.setZoom(Math.round(dz.applied)); // 放開吸附整數級
+        dz = null;
+        track('map_dragzoom', {});
+    };
+
+    el.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            const t = e.touches[0];
+            const now = performance.now();
+            if (lastTap && now - lastTap.t < 320
+                && Math.hypot(t.clientX - lastTap.x, t.clientY - lastTap.y) < 36) {
+                // 雙擊第二擊：先停掉地圖拖曳（放開若沒拖，內建 dblclick 放大不受影響）
+                dzCandidate = { x: t.clientX, y: t.clientY };
+                map.dragging.disable();
+            } else {
+                tapStart = { t: now, x: t.clientX, y: t.clientY };
+                cancelLp();
+                lpTimer = setTimeout(() => {
+                    lpTimer = null;
+                    onMapLongPress(...toPoint(t));
+                }, 550);
+            }
+            twoTap = null;
+        } else if (e.touches.length === 2) {
+            cancelLp(); tapStart = null;
+            if (dzCandidate) { dzCandidate = null; map.dragging.enable(); }
+            const [a, b] = e.touches;
+            twoTap = { t0: performance.now(), ax: a.clientX, ay: a.clientY, bx: b.clientX, by: b.clientY, moved: false };
+        } else {
+            cancelLp(); twoTap = null; tapStart = null;
+        }
+    }, { passive: true });
+
+    el.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1) {
+            const t = e.touches[0];
+            if (dz) {
+                e.preventDefault();
+                const target = Math.max(map.getMinZoom(),
+                    Math.min(map.getMaxZoom(), dz.z0 + (t.clientY - dz.y0) / 100)); // 100px ≈ 1 級
+                // 量化 0.2 級才真的套用：markercluster 每次 zoomend 都要重算，全連續會抖
+                if (Math.abs(target - dz.applied) >= 0.2) {
+                    dz.applied = target;
+                    map.setZoomAround(dz.anchor, target, { animate: false });
+                }
+                return;
+            }
+            if (dzCandidate) {
+                if (Math.hypot(t.clientX - dzCandidate.x, t.clientY - dzCandidate.y) > 8) {
+                    e.preventDefault(); // 接管：這是拖曳縮放不是拖地圖
+                    map.options.zoomSnap = 0; // 手勢期間允許連續縮放
+                    dz = {
+                        y0: t.clientY, z0: map.getZoom(), applied: map.getZoom(),
+                        anchor: map.containerPointToLatLng(toPoint({ clientX: dzCandidate.x, clientY: dzCandidate.y })),
+                    };
+                    dzCandidate = null;
+                }
+                return;
+            }
+            cancelLp(); // 動了就不是長按
+        } else {
+            cancelLp();
+            if (twoTap && !twoTap.moved) {
+                const [a, b] = e.touches;
+                if (Math.hypot(a.clientX - twoTap.ax, a.clientY - twoTap.ay) > 12
+                    || Math.hypot(b.clientX - twoTap.bx, b.clientY - twoTap.by) > 12) {
+                    twoTap.moved = true; // 是捏合，讓給內建 touchZoom
+                }
+            }
+        }
+    }, { passive: false });
+
+    el.addEventListener('touchend', (e) => {
+        cancelLp();
+        if (dz) { endDragZoom(); map.dragging.enable(); return; }
+        if (dzCandidate) {
+            // tap-tap 放開＝雙擊放大：自己做恰好 +1（朝點擊位置），並吃掉事件防合成 dblclick 疊發
+            e.preventDefault();
+            const pt = toPoint({ clientX: dzCandidate.x, clientY: dzCandidate.y });
+            map.setZoomAround(map.containerPointToLatLng(pt), Math.min(map.getMaxZoom(), map.getZoom() + 1));
+            dzCandidate = null;
+            map.dragging.enable();
+            lastTap = null;
+            return;
+        }
+        const now = performance.now();
+        if (tapStart && e.touches.length === 0 && e.changedTouches.length === 1) {
+            const t = e.changedTouches[0];
+            const quick = now - tapStart.t < 300
+                && Math.hypot(t.clientX - tapStart.x, t.clientY - tapStart.y) < 12;
+            lastTap = quick ? { t: now, x: t.clientX, y: t.clientY } : null;
+            tapStart = null;
+        }
+        if (twoTap && e.touches.length === 0) {
+            if (!twoTap.moved && now - twoTap.t0 < 250) {
+                const mid = map.containerPointToLatLng(
+                    toPoint({ clientX: (twoTap.ax + twoTap.bx) / 2, clientY: (twoTap.ay + twoTap.by) / 2 }));
+                map.setZoomAround(mid, map.getZoom() - 1);
+                track('map_twofinger_zoomout', {});
+            }
+            twoTap = null;
+        }
+    }, { passive: false }); // preventDefault 抑制 tap-tap 的合成 dblclick
+
+    el.addEventListener('touchcancel', () => {
+        cancelLp();
+        if (dz) endDragZoom();
+        if (dzCandidate) dzCandidate = null;
+        map.dragging.enable();
+        twoTap = null; tapStart = null;
+    }, { passive: true });
+
+    // 長按不要跳出系統選單/文字選取
+    el.addEventListener('contextmenu', (e) => e.preventDefault());
+}
+
+// 長按地圖＝「以這裡為中心」：放落點 pin + 清單改以該點排序（Google 長按放針的在地化——
+// 我們的針直接接上「附近有什麼好康」）。地圖不移動、不縮放，只給錨。
+function onMapLongPress(cx, cy) {
+    if (!map) return;
+    const ll = map.containerPointToLatLng([cx, cy]);
+    try { if (navigator.vibrate) navigator.vibrate(15); } catch (e) { /* iOS 不支援 */ }
+    setSearchFocus('這裡', ll.lat, ll.lng);
+    if (sheetOpen) renderSheetList();
+    showPillMessage('已標記「這裡」📍 清單改以此處由近到遠，上拉清單看看', 4000);
+    track('map_longpress_anchor', {});
+}
+
 // 搜尋落點（Google 式）：地點選中後放一支 pin + 清單以此為錨排序
 function setSearchFocus(name, lat, lng) {
     clearSearchFocus();
@@ -2840,6 +2993,7 @@ export async function initMapPage() {
             if (!programmaticMove) savedSheetView = null;
         });
         map.on('click', () => { closeMiniCard(); closeSearch(); });
+        wireMapGestures(); // r54：雙擊拖縮/兩指輕點縮小/長按定錨（Google 手感）
 
         // 店名標籤分層（密集區防標籤互疊）：
         //   z16 先亮「加碼優惠」店名（紅/金 pin），z17 全亮；低 zoom 不顯示避免雜訊

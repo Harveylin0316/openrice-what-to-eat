@@ -75,6 +75,14 @@ async function initLiffBackground() {
                 console.warn('取用戶資料失敗/逾時，略過:', e);
             }
         }
+        // 關掉 LINE「下拉縮小/關閉 LIFF」手勢（r54 Owner：長按往下拉常誤退出）。
+        // 地圖是全螢幕手勢應用（拖曳/長按/拉抬清單都是垂直手勢），與這個系統手勢天生打架；
+        // 離開走右上角 ✕，跟 Google Maps 一樣不會「滑一滑就不見」。
+        try {
+            if (liff.isInClient() && typeof liff.setVerticalSwipeEnabled === 'function') {
+                liff.setVerticalSwipeEnabled(false);
+            }
+        } catch (e) { /* 舊版 LINE 不支援：維持原生行為 */ }
         setUserContext({
             line_id: liffProfile?.userId || null,
             is_in_line: liff.isInClient(),
