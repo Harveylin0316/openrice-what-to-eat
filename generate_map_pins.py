@@ -326,8 +326,11 @@ def main():
         r = by_id.get(pid)
         if not r:
             continue
+        # overlay 的照片牆（checker refresh_photos.py 抓的最新清單）優先，主檔 door+images 墊後補位
+        # ——主檔是舊爬蟲產物，141/928 家只有 1 張（Owner 反映蔣老爹中山店 OR 明明很多張）
+        ov_ph = (overlay['partners'].get(pid) or {}).get('phs') or []
         urls = list(dict.fromkeys(
-            [u for u in [r.get('door_photo_url')] + (r.get('images') or []) if u]))[:6]
+            [u for u in ov_ph + [r.get('door_photo_url')] + (r.get('images') or []) if u]))[:6]
         if len(urls) >= 2:
             photos[str(pid)] = urls
     with open(PHOTOS_OUTPUT, 'w', encoding='utf-8') as f:

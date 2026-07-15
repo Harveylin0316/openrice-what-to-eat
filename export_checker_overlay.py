@@ -87,6 +87,19 @@ def main():
             continue  # 已確認過期，見 SUPPRESSED_OFFERS
         offer_titles.setdefault(r['poi_id'], []).append(r['title'])
 
+    # 照片牆（poi_photos 表，refresh_photos.py 產）：{poi_id: [url,...]}。表未建時安靜略過。
+    photos_by_poi = {}
+    try:
+        for pr in con.execute('SELECT poi_id, urls FROM poi_photos'):
+            try:
+                u = json.loads(pr['urls'] if isinstance(pr, sqlite3.Row) else pr[1])
+                if isinstance(u, list) and u:
+                    photos_by_poi[pr['poi_id'] if isinstance(pr, sqlite3.Row) else pr[0]] = u[:6]
+            except (TypeError, ValueError):
+                continue
+    except sqlite3.OperationalError:
+        pass  # 老 db 還沒跑過 refresh_photos.py
+
     closed = []
     partners = {}
     for r in rows:
@@ -108,6 +121,8 @@ def main():
             entry['r'] = r['overall_rating']
         if r['door_photo_url']:
             entry['img'] = r['door_photo_url']
+        if photos_by_poi.get(pid):
+            entry['phs'] = photos_by_poi[pid]  # 照片牆（最新、最多 6 張），photos.json 優先用它
         # OpenRice 短網址 deeplink（帶推薦碼、可追蹤）；缺則前端退回主檔長網址
         if r['short_url'] and r['short_url'].startswith('https://s.openrice.com/'):
             entry['dl'] = r['short_url']
