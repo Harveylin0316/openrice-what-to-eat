@@ -1472,6 +1472,16 @@ function photoStripHtml(pin, stripId) {
     </div>`;
 }
 
+// OpenRice 同一張店面照會有 photo/ 與 doorphoto/ 兩份路徑＋不同尾綴 variant（mx/px…），
+// 字串不同但肉眼一樣。抽穩定照片 ID 去重，避免封面 seed 與清單首圖看起來重複。
+function photoKey(u) {
+    const s = String(u || '').split('?')[0];
+    const m = s.match(/\/([A-Za-z0-9])\/([A-Za-z0-9]{2,4})\/([0-9A-Za-z]+)\.(?:jpg|jpeg|png|webp)$/i);
+    if (!m) return s;
+    const stem = m[3].length > 4 ? m[3].slice(0, -2) : m[3]; // 去尾 2 碼 variant
+    return `${m[1]}/${m[2]}/${stem}`.toLowerCase();
+}
+
 async function fillPhotoStrip(pin, stripId) {
     const strip = document.getElementById(stripId);
     if (!strip) return;
@@ -1479,9 +1489,10 @@ async function fillPhotoStrip(pin, stripId) {
     // 換卡防錯位：載入期間使用者可能已開了別家的卡
     if (!strip.isConnected || strip.dataset.pid !== String(pin.id)) return;
     const urls = idx[String(pin.id)] || [];
-    const have = new Set([...strip.querySelectorAll('img')].map(i => i.getAttribute('src')));
+    const have = new Set([...strip.querySelectorAll('img')].map(i => photoKey(i.getAttribute('src'))));
     for (const u of urls) {
-        if (have.has(u)) continue;
+        if (have.has(photoKey(u))) continue;
+        have.add(photoKey(u));
         const img = document.createElement('img');
         img.className = 'map-minicard__photo';
         img.loading = 'lazy'; // 帶外照片捲到才抓

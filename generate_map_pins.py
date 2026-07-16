@@ -14,8 +14,39 @@ deal_tier 推導（好康強度，決定 pin 樣式與排序）：
 
 import json
 import os
+import re
 import sys
 from datetime import datetime, timezone
+
+# OpenRice 同一張店面照常存兩份路徑（photo/ 與 doorphoto/）＋不同尾綴 variant（mx/px/sd…），
+# 字串不同但肉眼一樣。抽出穩定照片 ID（資料夾與尾 2 碼 variant 都無視）供去重，
+# 避免卡片照片帶「前兩張重複」（Owner 回報，2026-07）。非 OR 網址回退整串當 key。
+_OR_PHOTO_RE = re.compile(r'/([A-Za-z0-9])/([A-Za-z0-9]{2,4})/([0-9A-Za-z]+)\.(?:jpg|jpeg|png|webp)$', re.I)
+
+
+def photo_dedup_key(url):
+    u = (url or '').split('?')[0]
+    m = _OR_PHOTO_RE.search(u)
+    if not m:
+        return u
+    a, b, stem = m.group(1), m.group(2), m.group(3)
+    if len(stem) > 4:  # 去掉尾端 2 碼 variant（mx/px/sd…），留穩定照片 ID
+        stem = stem[:-2]
+    return f'{a}/{b}/{stem}'.lower()
+
+
+def dedup_photos(urls):
+    """按 canonical 照片 ID 去重，保留首次出現順序（門面照/封面優先權不變）。"""
+    seen, out = set(), []
+    for u in urls:
+        if not u:
+            continue
+        k = photo_dedup_key(u)
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(u)
+    return out
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SOURCE = os.path.join(BASE_DIR, 'restaurants_database.json')
@@ -329,8 +360,8 @@ def main():
         # overlay 的照片牆（checker refresh_photos.py 抓的最新清單）優先，主檔 door+images 墊後補位
         # ——主檔是舊爬蟲產物，141/928 家只有 1 張（Owner 反映蔣老爹中山店 OR 明明很多張）
         ov_ph = (overlay['partners'].get(pid) or {}).get('phs') or []
-        urls = list(dict.fromkeys(
-            [u for u in [r.get('door_photo_url')] + ov_ph + (r.get('images') or []) if u]))[:8]
+        # 按 canonical 照片 ID 去重（photo/ 與 doorphoto/ 同一張只留一份），再截 8 張
+        urls = dedup_photos([r.get('door_photo_url')] + ov_ph + (r.get('images') or []))[:8]
         if len(urls) >= 2:
             photos[str(pid)] = urls
     with open(PHOTOS_OUTPUT, 'w', encoding='utf-8') as f:
