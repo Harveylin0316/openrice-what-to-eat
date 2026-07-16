@@ -94,11 +94,25 @@ def main():
             try:
                 u = json.loads(pr['urls'] if isinstance(pr, sqlite3.Row) else pr[1])
                 if isinstance(u, list) and u:
-                    photos_by_poi[pr['poi_id'] if isinstance(pr, sqlite3.Row) else pr[0]] = u[:6]
+                    photos_by_poi[pr['poi_id'] if isinstance(pr, sqlite3.Row) else pr[0]] = u[:8]
             except (TypeError, ValueError):
                 continue
     except sqlite3.OperationalError:
         pass  # 老 db 還沒跑過 refresh_photos.py
+
+    # 優惠餐點照（booking_menus/booking_offers 的 photo_url）：本來就在 db 卻沒人用——
+    # 對「好康地圖」比一般照片更對題（用戶想看的就是優惠那道菜）。附加在照片牆後面。
+    for table in ('booking_menus', 'booking_offers'):
+        try:
+            for pr in con.execute(
+                    f"SELECT poi_id, photo_url FROM {table} "
+                    f"WHERE photo_url IS NOT NULL AND photo_url != '' ORDER BY poi_id"):
+                pid, u = pr['poi_id'], pr['photo_url']
+                cur = photos_by_poi.setdefault(pid, [])
+                if u not in cur and len(cur) < 8:
+                    cur.append(u)
+        except sqlite3.OperationalError:
+            continue
 
     closed = []
     partners = {}
