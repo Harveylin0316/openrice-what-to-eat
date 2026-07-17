@@ -273,7 +273,7 @@ function dealDetailLines({ hm, mc, offers }) {
 // 回饋條件集中在一個固定區塊，避免 badge、優惠清單與 CTA 各講一小段而讓人拼湊規則。
 function rewardEligibilityHtml(bookable) {
     if (!bookable) return '';
-    return `<p class="map-reward-note"><strong>回饋資格</strong><span>從本頁完成線上訂位並到店用餐，每人回饋 NT$3</span></p>`;
+    return `<p class="map-reward-note"><strong>回饋資格</strong><span>本頁訂位並到店用餐，每人回饋 NT$3</span></p>`;
 }
 let sponsoredRestaurants = [];
 
