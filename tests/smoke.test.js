@@ -1,0 +1,116 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+
+const root = path.resolve(__dirname, '..');
+
+function readJson(relativePath) {
+  return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
+}
+
+test('critical LIFF cache-buster versions stay aligned', () => {
+  const html = fs.readFileSync(path.join(root, 'frontend/liff/index.html'), 'utf8');
+  const cssVersion = html.match(/map\.css\?v=(r\d+)/)?.[1];
+  const jsVersion = html.match(/window\.__V\s*=\s*'(r\d+)'/)?.[1];
+
+  assert.ok(cssVersion, 'map.css version is missing');
+  assert.ok(jsVersion, 'window.__V is missing');
+  assert.equal(cssVersion, jsVersion);
+  assert.match(html, /router\.js\?v=' \+ window\.__V/);
+});
+
+test('generated map data has valid counts, unique ids and coordinates', () => {
+  const map = readJson('frontend/liff/data/map_pins.json');
+  assert.equal(map.count, map.pins.length);
+  assert.ok(map.pins.length > 0);
+
+  const ids = new Set();
+  for (const pin of map.pins) {
+    assert.ok(pin.id != null, 'pin id is required');
+    assert.equal(ids.has(String(pin.id)), false, `duplicate pin id: ${pin.id}`);
+    ids.add(String(pin.id));
+    assert.ok(Number.isFinite(Number(pin.lat)), `invalid latitude: ${pin.id}`);
+    assert.ok(Number.isFinite(Number(pin.lng)), `invalid longitude: ${pin.id}`);
+    assert.ok(Number(pin.lat) >= -90 && Number(pin.lat) <= 90);
+    assert.ok(Number(pin.lng) >= -180 && Number(pin.lng) <= 180);
+  }
+});
+
+test('generated overlay and external POI metadata match their payloads', () => {
+  const overlay = readJson('frontend/liff/data/partner_overlay.json');
+  const external = readJson('frontend/liff/data/external_pois.json');
+  const photos = readJson('frontend/liff/data/photos.json');
+
+  assert.equal(overlay.partner_count, Object.keys(overlay.partners).length);
+  assert.equal(overlay.closed_count, overlay.closed.length);
+  assert.equal(external.count, external.pois.length);
+  assert.ok(Object.keys(photos).length > 0);
+});
+
+test('admin API fails closed and ignores keys outside X-API-Key header', async () => {
+  const originalKey = process.env.ADMIN_API_KEY;
+  delete process.env.ADMIN_API_KEY;
+  const admin = require('../netlify/functions/admin');
+
+  const base = { httpMethod: 'GET', path: '/api/admin/statistics', headers: {} };
+  const noConfig = await admin.handler(base, {});
+  assert.equal(noConfig.statusCode, 401);
+
+  process.env.ADMIN_API_KEY = 'smoke-test-secret';
+  const queryKey = await admin.handler({ ...base, queryStringParameters: { apiKey: 'smoke-test-secret' } }, {});
+  assert.equal(queryKey.statusCode, 401);
+  const bodyKey = await admin.handler({ ...base, body: JSON.stringify({ apiKey: 'smoke-test-secret' }) }, {});
+  assert.equal(bodyKey.statusCode, 401);
+  const wrongHeader = await admin.handler({ ...base, headers: { 'x-api-key': 'wrong' } }, {});
+  assert.equal(wrongHeader.statusCode, 401);
+  const validHeader = await admin.handler({ ...base, path: '/api/admin/not-a-route', headers: { 'x-api-key': 'smoke-test-secret' } }, {});
+  assert.equal(validHeader.statusCode, 404);
+
+  if (originalKey === undefined) delete process.env.ADMIN_API_KEY;
+  else process.env.ADMIN_API_KEY = originalKey;
+});
+
+test('admin page sends keys in headers, uses session storage and escapes rendered data', () => {
+  const html = fs.readFileSync(path.join(root, 'frontend/admin/index.html'), 'utf8');
+  assert.match(html, /headers\.set\('X-API-Key', apiKey\)/);
+  assert.doesNotMatch(html, /\?apiKey=/);
+  assert.doesNotMatch(html, /localStorage\.setItem\('admin_api_key'/);
+  assert.match(html, /sessionStorage\.setItem\('admin_api_key'/);
+  assert.match(html, /escapeHtml\(user\.displayName/);
+  assert.match(html, /escapeHtml\(prize\.name/);
+  const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
+  assert.ok(scripts.length > 0);
+  for (const script of scripts) new vm.Script(script[1]);
+});
+
+test('server code does not log secret values or authorization headers', () => {
+  const files = ['netlify/functions/admin.js', 'supabase/client.js'];
+  for (const file of files) {
+    const source = fs.readFileSync(path.join(root, file), 'utf8');
+    assert.doesNotMatch(source, /SUPABASE_(?:URL|KEY)\.substring/);
+    assert.doesNotMatch(source, /console\.(?:log|error)\([^\n]*headers\b/);
+  }
+});
+
+test('parking API rejects invalid coordinate and bbox requests without network access', async () => {
+  const parking = require('../netlify/functions/parking');
+  const empty = await parking.handler({ queryStringParameters: { lat: '', lng: '' } });
+  assert.equal(empty.statusCode, 400);
+  const invalidBbox = await parking.handler({ queryStringParameters: { bbox: 'bad' } });
+  assert.equal(invalidBbox.statusCode, 400);
+});
+
+test('restaurant filter-options route responds successfully', async () => {
+  const restaurants = require('../netlify/functions/restaurants');
+  const response = await restaurants.handler({
+    httpMethod: 'GET',
+    path: '/api/restaurants/filter-options',
+    queryStringParameters: {},
+  });
+  const body = JSON.parse(response.body);
+  assert.equal(response.statusCode, 200);
+  assert.equal(body.success, true);
+  assert.ok(body.options);
+});

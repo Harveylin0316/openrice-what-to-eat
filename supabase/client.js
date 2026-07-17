@@ -5,8 +5,8 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
 console.log('Supabase 客戶端初始化:');
-console.log('  SUPABASE_URL:', SUPABASE_URL ? `已設定 (${SUPABASE_URL.substring(0, 30)}...)` : '未設定');
-console.log('  SUPABASE_KEY:', SUPABASE_KEY ? `已設定 (${SUPABASE_KEY.substring(0, 20)}...)` : '未設定');
+console.log('  SUPABASE_URL:', SUPABASE_URL ? '已設定' : '未設定');
+console.log('  SUPABASE_KEY:', SUPABASE_KEY ? '已設定' : '未設定');
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.warn('Supabase 環境變數未設定，將使用文件系統後備方案');
@@ -24,7 +24,6 @@ async function supabaseRequest(endpoint, options = {}) {
   }
 
   const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
-  console.log('Supabase 請求 URL:', url);
   console.log('Supabase 請求方法:', options.method || 'GET');
   
   const headers = {
@@ -42,13 +41,10 @@ async function supabaseRequest(endpoint, options = {}) {
   });
 
   console.log('Supabase 響應狀態:', response.status, response.statusText);
-  console.log('Supabase 響應 headers:', Object.fromEntries(response.headers.entries()));
 
   if (!response.ok) {
     const error = await response.text();
     console.error('Supabase API 錯誤:', response.status, error);
-    console.error('請求 URL:', url);
-    console.error('請求 headers:', headers);
     throw new Error(`Supabase API 錯誤: ${response.status} - ${error}`);
   }
 
@@ -59,7 +55,6 @@ async function supabaseRequest(endpoint, options = {}) {
   }
 
   const result = await response.json();
-  console.log('Supabase 響應內容:', result);
   console.log('響應類型:', Array.isArray(result) ? '數組' : typeof result);
   console.log('響應長度:', Array.isArray(result) ? result.length : 'N/A');
   

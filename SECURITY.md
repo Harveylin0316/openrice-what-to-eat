@@ -59,3 +59,11 @@ GOOGLE_API_KEY=your_actual_api_key_here
 - ✅ 使用環境變數或配置文件（並加入 .gitignore）
 - ✅ 定期輪換 API Key
 - ✅ 在 Google Cloud Console 中設定 API Key 限制（IP、HTTP referrer 等）
+
+## Admin API
+
+- 正式環境必須設定 `ADMIN_API_KEY`；未設定時 Admin API 會拒絕所有請求。
+- API key 只能透過 `X-API-Key` request header 傳送，不可放在 URL query string 或 request body。
+- 管理頁只在 `sessionStorage` 暫存 key，關閉分頁後即清除；不要改回長期保存的 `localStorage`。
+- 顯示 LINE 使用者或獎品資料前必須做 HTML escaping，避免 stored XSS 讀取管理憑證。
+- 不要在 server logs 中輸出 key、URL/key 片段或完整管理資料。
