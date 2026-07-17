@@ -10,6 +10,42 @@ function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
 }
 
+function netlifyRedirects() {
+  const toml = fs.readFileSync(path.join(root, 'netlify.toml'), 'utf8');
+  return toml.split('[[redirects]]').slice(1).map(block => ({
+    from: block.match(/\bfrom\s*=\s*"([^"]+)"/)?.[1],
+    to: block.match(/\bto\s*=\s*"([^"]+)"/)?.[1],
+    status: Number(block.match(/\bstatus\s*=\s*(\d+)/)?.[1]),
+    force: block.match(/\bforce\s*=\s*(true|false)/)?.[1] === 'true',
+  }));
+}
+
+test('public entry points redirect to LIFF while API and LIFF routes win first', () => {
+  const redirects = netlifyRedirects();
+  const rootRedirect = redirects.find(rule => rule.from === '/');
+  const indexRedirect = redirects.find(rule => rule.from === '/index.html');
+  const catchAllIndex = redirects.findIndex(rule => rule.from === '/*');
+
+  assert.deepEqual(rootRedirect, { from: '/', to: '/liff/', status: 301, force: true });
+  assert.deepEqual(indexRedirect, { from: '/index.html', to: '/liff/', status: 301, force: true });
+  assert.ok(catchAllIndex >= 0);
+  assert.equal(redirects[catchAllIndex].to, '/liff/');
+  assert.equal(redirects[catchAllIndex].status, 301);
+
+  for (const pathPrefix of ['/api/restaurants/*', '/api/parking/*', '/api/lottery/*', '/api/admin/*', '/api/webhook', '/api/track', '/liff/*']) {
+    const routeIndex = redirects.findIndex(rule => rule.from === pathPrefix);
+    assert.ok(routeIndex >= 0, `missing preserved route: ${pathPrefix}`);
+    assert.ok(routeIndex < catchAllIndex, `${pathPrefix} must precede the public catch-all`);
+  }
+});
+
+test('legacy root HTML is a redirect shell and no longer contains the old recommender UI', () => {
+  const html = fs.readFileSync(path.join(root, 'frontend/web/index.html'), 'utf8');
+  assert.match(html, /location\.replace\('\/liff\/'/);
+  assert.match(html, /http-equiv="refresh" content="0; url=\/liff\/"/);
+  assert.doesNotMatch(html, /推薦我|附近餐廳|restaurantList/);
+});
+
 test('critical LIFF cache-buster versions stay aligned', () => {
   const html = fs.readFileSync(path.join(root, 'frontend/liff/index.html'), 'utf8');
   const cssVersion = html.match(/map\.css\?v=(r\d+)/)?.[1];

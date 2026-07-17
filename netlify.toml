@@ -95,6 +95,26 @@
   status = 200
   force = true
 
+# 公開入口統一導向 LIFF 好康地圖。force=true 是必要的：publish 目錄本身有
+# index.html，若不強制，Netlify static-file shadowing 會繼續顯示舊版首頁。
+[[redirects]]
+  from = "/"
+  to = "/liff/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/index.html"
+  to = "/liff/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/index"
+  to = "/liff/"
+  status = 301
+  force = true
+
 # LIFF App SPA 路由支持
 # 將所有 /liff/* 請求重定向到 /liff/index.html，以支持子目錄路由
 # 例如：/liff/home, /liff/favorites 等都會返回 /liff/index.html
@@ -103,10 +123,9 @@
   to = "/liff/index.html"
   status = 200
 
-# SPA 路由支持（所有非 API 和非靜態資源請求都返回 index.html）
-# 注意：Netlify 會按照順序匹配規則，所以靜態資源會自動被正確處理
-# 只有不匹配其他規則的路徑才會被重定向到 index.html
+# 其他不存在的公開網址也回到 LIFF；不使用 force，保留 /admin/ 與既有靜態資源。
+# API 與 /liff/* 的規則必須放在這條 catch-all 前面（Netlify 採第一條命中規則）。
 [[redirects]]
   from = "/*"
-  to = "/index.html"
-  status = 200
+  to = "/liff/"
+  status = 301
