@@ -106,12 +106,12 @@ function getFavs() {
 }
 function isFav(id) { return getFavs().has(id); }
 function favCount() { return getFavs().size; }
-function toggleFav(id) {
+function toggleFav(id, source = 'unknown') {
     const s = getFavs();
     const nowFav = !s.has(id);
     if (nowFav) s.add(id); else s.delete(id);
     try { localStorage.setItem(FAV_KEY, JSON.stringify([...s])); } catch (e) { /* ignore */ }
-    track('map_favorite_toggle', { or_id: id, favorite: nowFav });
+    track('map_favorite_toggle', { or_id: id, favorite: nowFav, source });
     return nowFav;
 }
 
@@ -163,8 +163,8 @@ function buildFlexMessage(pin, url) {
     return { type: 'flex', altText: `${pin.n}｜${deal || '好康地圖'}`, contents: bubble };
 }
 
-async function shareRestaurant(pin) {
-    track('map_share_click', { or_id: pin.id, name: pin.n, tier: pin.t });
+async function shareRestaurant(pin, source = 'unknown') {
+    track('map_share_click', { or_id: pin.id, name: pin.n, tier: pin.t, source });
     const url = shareDeepLink(pin);
     const liff = window.liff;
     // 在 LINE 內且支援 → shareTargetPicker 選好友/群組送出 Flex 卡
@@ -578,7 +578,7 @@ function makeLabelClickable(marker, pin, trackProps) {
             el.addEventListener('click', (ev) => {
                 ev.stopPropagation();
                 track('map_pin_click', trackProps);
-                showMiniCard(pin);
+                showMiniCard(pin, 'pin_label');
             });
         }
     });
@@ -647,7 +647,7 @@ function bindPinCommon(marker, pin, offsetX, isDeal) {
             return;
         }
         track('map_pin_click', trackProps);
-        showMiniCard(pin);
+        showMiniCard(pin, 'map_pin');
     });
     makeLabelClickable(marker, pin, trackProps);
     return marker;
@@ -723,7 +723,7 @@ function buildStarMarker(L, pin) {
     const trackProps = { or_id: pin.id, name: pin.n, star: true };
     marker.on('click', () => {
         track('map_star_pin_click', { or_id: pin.id, name: pin.n });
-        showMiniCard(pin);
+        showMiniCard(pin, 'daily_star');
     });
     makeLabelClickable(marker, pin, trackProps);
     return marker;
@@ -732,13 +732,14 @@ function buildStarMarker(L, pin) {
 // ---- 無優惠餐廳（灰空心點）：對照出「有優惠店」的價值 ----
 // 對用戶只講價值（有無優惠/訂位），不講內部視角的「合作」
 
-function showExtCard(poi) {
+function showExtCard(poi, source = 'map_pin') {
     closeSpotlight();
     // 若上一張餐廳卡的「查附近停車」還在飛，先取消：否則它會寫進已被本卡 innerHTML 換掉的節點（浪費請求）
     if (parkingAbort) parkingAbort.abort();
     const card = document.getElementById('mapMiniCard');
     const body = document.getElementById('miniCardBody');
     if (!card || !body) return;
+    track('map_restaurant_view', { name: poi.n, partner: false, bookable: false, source });
     setSelectedRing(poi.lat, poi.lng);
     body.innerHTML = `
         <div class="map-minicard__info">
@@ -793,8 +794,8 @@ function nearestDotAt(latlng) {
 }
 function openDotHit(hit) {
     if (!hit) return;
-    if (hit.kind === 'ext') { track('map_ext_pin_click', { name: hit.obj.n }); showExtCard(hit.obj); }
-    else { track('map_pin_click', { or_id: hit.obj.id, name: hit.obj.n, tier: hit.obj.t }); showMiniCard(hit.obj); }
+    if (hit.kind === 'ext') { track('map_ext_pin_click', { name: hit.obj.n }); showExtCard(hit.obj, 'map_pin'); }
+    else { track('map_pin_click', { or_id: hit.obj.id, name: hit.obj.n, tier: hit.obj.t }); showMiniCard(hit.obj, 'map_pin'); }
 }
 
 // ---- 地標錨點（r40/r41）：商圈/捷運站/夜市/廟宇/百貨/連鎖招牌直接標在地圖上 ----
@@ -999,7 +1000,7 @@ function syncExtLabels() {
                         el.addEventListener('click', (ev) => {
                             ev.stopPropagation();
                             track('map_ext_pin_click', { name: m._poi.n, via: 'label' });
-                            showExtCard(m._poi);
+                            showExtCard(m._poi, 'pin_label');
                         });
                     }
                 });
@@ -1084,7 +1085,7 @@ function buildSponsorMarker(L, pin) {
     const trackProps = { or_id: pin.id, name: pin.n, tier: pin.t, sponsor_pin: true };
     marker.on('click', () => {
         track('map_pin_click', trackProps);
-        showMiniCard(pin);
+        showMiniCard(pin, 'daily_star');
     });
     makeLabelClickable(marker, pin, trackProps);
     return marker;
@@ -1374,7 +1375,7 @@ function renderSheetList() {
             setSheetOpen(false);
             programmaticMove = true;
             map.flyTo([pin.lat, pin.lng], Math.max(map.getZoom(), 16), { duration: 0.6 });
-            showMiniCard(pin);
+            showMiniCard(pin, 'sheet');
         });
     });
 }
@@ -1581,11 +1582,15 @@ function closePhotoViewer() {
 // 卡片預設就給完整內容（上限 66vh，見 map.css .map-minicard__body / .map-spotlight__body），
 // 一般店全塞得下；極端多內容才自然捲動。
 
-function showMiniCard(pin) {
+function showMiniCard(pin, source = 'unknown') {
     closeSpotlight();
     const card = document.getElementById('mapMiniCard');
     const body = document.getElementById('miniCardBody');
     if (!card || !body) return;
+    track('map_restaurant_view', {
+        or_id: pin.id, name: pin.n, tier: pin.t, partner: true,
+        bookable: !!pin.b, has_deal: !!(pin.hm || pin.ho), source,
+    });
     // flyTo 類路徑（清單/搜尋/深連結/骰子）會自行把 pin 帶到視野中央，別再補平移；
     // 直接點 pin（無 programmaticMove）才做「上移露出卡片上方」的校正。
     const skipRecenter = programmaticMove;
@@ -1642,13 +1647,13 @@ function showMiniCard(pin) {
     body.querySelectorAll('a[data-track]').forEach(a => {
         a.addEventListener('click', () => {
             const evt = { booking: 'map_booking_click', phone: 'map_phone_click' }[a.dataset.track] || 'map_navigation_click';
-            track(evt, { or_id: pin.id, name: pin.n, tier: pin.t, source: 'minicard' });
+            track(evt, { or_id: pin.id, name: pin.n, tier: pin.t, source });
         });
     });
 
     const favBtn = body.querySelector('[data-fav]');
     if (favBtn) favBtn.addEventListener('click', () => {
-        const nowFav = toggleFav(pin.id);
+        const nowFav = toggleFav(pin.id, source);
         favBtn.classList.toggle('is-fav', nowFav);
         favBtn.setAttribute('aria-pressed', String(nowFav));
         favBtn.textContent = nowFav ? '❤️ 已收藏' : '🤍 收藏';
@@ -1656,7 +1661,7 @@ function showMiniCard(pin) {
         afterFavChange();
     });
     const shareBtn = body.querySelector('[data-share]');
-    if (shareBtn) shareBtn.addEventListener('click', () => shareRestaurant(pin));
+    if (shareBtn) shareBtn.addEventListener('click', () => shareRestaurant(pin, source));
 
     card.hidden = false;
     updateCardOpenState();
@@ -2134,6 +2139,10 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
         bud: r.budget, r: r.rating, t: hm ? 'menu' : ho ? 'offer' : bookable ? 'cashback' : 'none',
         hm: !!hm, ho: !!ho, b: !!bookable, img: heroImage, dl: r.dl, url: r.url,
     };
+    track('map_restaurant_view', {
+        or_id: r.or_id, name: r.name, tier: actionPin.t, partner: true,
+        bookable: !!bookable, has_deal: !!(hm || ho), source: 'dice',
+    });
 
     body.innerHTML = `
         ${photoStripHtml({ id: r.or_id, img: heroImage }, 'spotlightStrip')}
@@ -2173,12 +2182,12 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
     links.querySelectorAll('a[data-track]').forEach(a => {
         a.addEventListener('click', () => {
             const evt = { booking: 'map_booking_click', phone: 'map_phone_click' }[a.dataset.track] || 'map_navigation_click';
-            track(evt, { or_id: r.or_id, name: r.name, sponsored: isSponsoredPick, source: 'spotlight' });
+            track(evt, { or_id: r.or_id, name: r.name, sponsored: isSponsoredPick, source: 'dice' });
         });
     });
     const favBtn = links.querySelector('[data-spotlight-fav]');
     if (favBtn) favBtn.addEventListener('click', () => {
-        const nowFav = toggleFav(actionPin.id);
+        const nowFav = toggleFav(actionPin.id, 'dice');
         favBtn.classList.toggle('is-fav', nowFav);
         favBtn.setAttribute('aria-pressed', String(nowFav));
         favBtn.textContent = nowFav ? '❤️ 已收藏' : '🤍 收藏';
@@ -2186,7 +2195,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
         afterFavChange();
     });
     const shareBtn = links.querySelector('[data-spotlight-share]');
-    if (shareBtn) shareBtn.addEventListener('click', () => shareRestaurant(actionPin));
+    if (shareBtn) shareBtn.addEventListener('click', () => shareRestaurant(actionPin, 'dice'));
     wirePhotoStrip({ id: r.or_id, n: r.name, img: heroImage }, 'spotlightStrip'); // 照片帶同小卡
 }
 
@@ -2628,7 +2637,11 @@ function clearSearchFocus() {
 }
 
 function selectSearchResult(m) {
-    track('map_search_select', { kind: m.kind, name: m.name });
+    track('map_search_select', {
+        kind: m.kind,
+        or_id: m.kind === 'restaurant' ? m.pin?.id : null,
+        name: (m.kind === 'restaurant' || m.kind === 'ext') ? m.name : null,
+    });
     if (m.kind === 'recent') { // 最近搜尋：回填文字重新搜
         const input = document.getElementById('mapSearchInput');
         input.value = m.name;
@@ -2664,10 +2677,10 @@ function selectSearchResult(m) {
         showPillMessage(`已篩出「${m.name}」相關 ${m.sub}，按 ✕ 解除`, 4000);
     } else if (m.kind === 'restaurant') {
         map.flyTo([m.pin.lat, m.pin.lng], 17, { duration: 0.8 });
-        showMiniCard(m.pin);
+        showMiniCard(m.pin, 'search');
     } else if (m.kind === 'ext') {
         map.flyTo([m.poi.lat, m.poi.lng], 17, { duration: 0.8 });
-        showExtCard(m.poi);
+        showExtCard(m.poi, 'search');
     } else {
         // 地點（行政區/地標）＝ Google 式落點體驗：
         // 放 pin 標記該點 → 飛過去 → 自動彈出「附近有什麼」清單（以落點為錨排序）
@@ -2698,7 +2711,11 @@ function wireSearch() {
         debounceTimer = setTimeout(() => {
             const matches = searchMatches(input.value);
             renderSearchResults(matches, input.value);
-            if (input.value.trim()) track('map_search', { query: input.value.trim(), hits: matches.length });
+            if (input.value.trim()) track('map_search', {
+                query_length: input.value.trim().length,
+                hits: matches.length,
+                zero_result: matches.length === 0,
+            });
         }, 180);
     });
     input.addEventListener('keydown', e => {
@@ -3154,11 +3171,11 @@ export async function initMapPage() {
             nearestDotAt, // debug：消歧驗證用
             openPin(id) {
                 const pin = allPins.find(p => p.id === id);
-                if (pin) showMiniCard(pin);
+                if (pin) showMiniCard(pin, 'debug');
             },
             openExt(name) {
                 const poi = extPois.find(p => p.n === name);
-                if (poi) showExtCard(poi);
+                if (poi) showExtCard(poi, 'debug');
             },
             isFav, favCount,
             buildFlexMessage,
@@ -3179,7 +3196,7 @@ export async function initMapPage() {
                 if (pin) {
                     programmaticMove = true;
                     map.setView([pin.lat, pin.lng], 17);
-                    showMiniCard(pin);
+                    showMiniCard(pin, 'shared');
                     track('map_open_shared', { or_id: rid });
                 }
             }

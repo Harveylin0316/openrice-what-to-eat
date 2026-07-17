@@ -3,6 +3,7 @@
 // payload: { event_name, properties, session_id, line_id?, is_in_line?, os?, language? }
 
 let supabaseRequest = null;
+const crypto = require('crypto');
 try {
   ({ supabaseRequest } = require('./supabase/client'));
 } catch (err) {
@@ -10,17 +11,15 @@ try {
 }
 
 exports.handler = async (event) => {
-  // 只接受 POST
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: corsHeaders(), body: '' };
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
+  const headers = corsHeaders();
 
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json',
-  };
+  if ((event.body || '').length > 16384) {
+    return { statusCode: 413, headers, body: JSON.stringify({ error: 'payload too large' }) };
+  }
 
   let payload;
   try {
@@ -34,7 +33,7 @@ exports.handler = async (event) => {
     line_id = null, is_in_line = null, os = null, language = null,
   } = payload;
 
-  if (!event_name || !session_id) {
+  if (!isSafeToken(event_name, 80) || !isSafeToken(session_id, 120)) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'event_name and session_id required' }) };
   }
 
@@ -45,14 +44,15 @@ exports.handler = async (event) => {
   }
 
   try {
-    const userAgent = event.headers['user-agent'] || event.headers['User-Agent'] || null;
+    const requestHeaders = event.headers || {};
+    const userAgent = requestHeaders['user-agent'] || requestHeaders['User-Agent'] || null;
     await supabaseRequest('user_events', {
       method: 'POST',
       body: JSON.stringify({
-        line_id,
+        line_id: line_id ? `sha256:${crypto.createHash('sha256').update(String(line_id)).digest('hex')}` : null,
         session_id,
         event_name,
-        properties,
+        properties: sanitize(properties),
         is_in_line,
         os,
         language,
@@ -65,3 +65,27 @@ exports.handler = async (event) => {
     return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
   }
 };
+
+function corsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json',
+  };
+}
+
+function isSafeToken(value, max) {
+  return typeof value === 'string' && value.length > 0 && value.length <= max && /^[a-zA-Z0-9_.:-]+$/.test(value);
+}
+
+function sanitize(value, depth = 0) {
+  if (depth > 4) return '[truncated]';
+  if (value == null || typeof value === 'boolean' || typeof value === 'number') return value;
+  if (typeof value === 'string') return value.slice(0, 500);
+  if (Array.isArray(value)) return value.slice(0, 50).map(v => sanitize(v, depth + 1));
+  if (typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).slice(0, 80).map(([k, v]) => [String(k).slice(0, 80), sanitize(v, depth + 1)]));
+  }
+  return String(value).slice(0, 100);
+}
