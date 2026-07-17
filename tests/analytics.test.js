@@ -24,6 +24,7 @@ test('buildAnalytics produces user funnel, conversion and restaurant performance
   assert.equal(data.overview.bookingUsers, 1);
   assert.equal(data.overview.userConversionRate, 0.5);
   assert.equal(data.overview.bookingSessions, 1);
+  assert.equal(data.overview.restaurantViews, 2);
   assert.deepEqual(data.overview.funnel.map(x => x.users), [2, 2, 2, 1]);
   assert.equal(data.restaurants[0].name, '好店');
   assert.equal(data.restaurants[0].views, 2);

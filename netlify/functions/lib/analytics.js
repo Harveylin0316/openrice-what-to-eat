@@ -66,7 +66,7 @@ function periodSummary(events) {
       state.booked = true; user.booked = true;
       bookingClicksByUser.set(uid, (bookingClicksByUser.get(uid) || 0) + 1);
     }
-    if (e.event_name === 'map_restaurant_view') views += 1;
+    if (VIEW_EVENTS.has(e.event_name)) views += 1;
     if (isBooking(e)) bookings += 1;
     if (e.event_name === 'map_share_click') shares += 1;
     if (e.event_name === 'map_favorite_toggle' && props(e).favorite === true) favoriteAdds += 1;
