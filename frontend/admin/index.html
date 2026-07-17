@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>抽獎系統後台管理</title>
+    <title>OpenRice 好康地圖營運後台</title>
     <style>
         * {
             margin: 0;
@@ -258,11 +258,54 @@
             color: #4caf50;
             margin-top: 10px;
         }
+
+        .admin-subtitle { color: #706a65; margin: -20px 0 28px; }
+        .analytics-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+        .range-group { display: flex; background: #f2efec; padding: 3px; border-radius: 8px; }
+        .range-btn { border: 0; background: transparent; padding: 8px 14px; border-radius: 6px; cursor: pointer; }
+        .range-btn.active { background: white; color: #d94820; box-shadow: 0 1px 4px #0002; font-weight: 700; }
+        .dashboard-grid { display: grid; gap: 16px; }
+        .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 20px; }
+        .kpi-card, .panel, .insight-card { border: 1px solid #e8e3de; border-radius: 10px; background: #fff; padding: 18px; }
+        .kpi-label { color: #766f69; font-size: .86rem; }
+        .kpi-value { display: block; margin: 8px 0 4px; color: #282421; font-size: 1.8rem; font-weight: 800; }
+        .change { color: #777; font-size: .8rem; }
+        .change.up { color: #18864b; } .change.down { color: #c53d2d; }
+        .panel { margin-bottom: 20px; overflow-x: auto; }
+        .panel h3 { margin-bottom: 14px; }
+        .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .insights { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 20px; }
+        .insight-card { border-left: 4px solid #567; }
+        .insight-card.warning { border-left-color: #d94820; background: #fffaf7; }
+        .insight-card.opportunity { border-left-color: #18864b; background: #f7fff9; }
+        .insight-card p { color: #625c57; line-height: 1.5; margin-top: 8px; }
+        .insight-action { font-size: .86rem; font-weight: 700; }
+        .funnel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .funnel-step { background: #fff5ef; border-radius: 8px; padding: 14px; position: relative; }
+        .funnel-step strong { display: block; font-size: 1.5rem; color: #d94820; }
+        .bar-chart { display: flex; align-items: end; min-height: 180px; gap: 4px; border-bottom: 1px solid #ddd; }
+        .bar-day { flex: 1; display: flex; gap: 2px; align-items: end; min-width: 5px; }
+        .bar { flex: 1; min-height: 2px; background: #ff8d62; border-radius: 3px 3px 0 0; }
+        .bar.booking { background: #5633a8; }
+        .journey { padding: 12px 0; border-bottom: 1px solid #eee; }
+        .journey:last-child { border: 0; }
+        .journey-meta { color: #777; font-size: .82rem; }
+        .steps { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+        .step { background: #f3f0ee; padding: 3px 7px; border-radius: 10px; font-size: .78rem; }
+        .step.booked { background: #e3f6e9; color: #176d3d; }
+        .privacy-note { color: #777; font-size: .82rem; margin-top: 14px; }
+        @media (max-width: 800px) {
+            body { padding: 8px; } .container { padding: 18px; }
+            .kpi-grid, .two-col, .insights { grid-template-columns: 1fr 1fr; }
+            .tabs { overflow-x: auto; } .tab { white-space: nowrap; padding: 12px 16px; }
+        }
+        @media (max-width: 520px) { .kpi-grid, .two-col, .insights, .funnel { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎁 抽獎系統後台管理</h1>
+        <h1>OpenRice 好康地圖營運後台</h1>
+        <p class="admin-subtitle">從匿名行為找出流量、探索到訂位的成長機會</p>
         
         <!-- 認證區域 -->
         <div class="auth-section">
@@ -274,13 +317,29 @@
         
         <!-- 標籤頁 -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('prizes')">獎品管理</button>
-            <button class="tab" onclick="switchTab('users')">用戶管理</button>
-            <button class="tab" onclick="switchTab('statistics')">統計資料</button>
+            <button class="tab active" onclick="switchTab('analytics', this)">行為分析</button>
+            <button class="tab" onclick="switchTab('prizes', this)">抽獎獎品</button>
+            <button class="tab" onclick="switchTab('users', this)">抽獎用戶</button>
+            <button class="tab" onclick="switchTab('statistics', this)">抽獎統計</button>
+        </div>
+
+        <div id="analyticsTab" class="tab-content active">
+            <div class="section-header"><div><h2>好康地圖成長儀表板</h2><p class="privacy-note">以 session 為主，訂位指標代表「點擊前往訂位」，不是已完成訂位。</p></div></div>
+            <div class="analytics-toolbar">
+                <div class="range-group" aria-label="分析期間">
+                    <button class="range-btn" data-days="7" onclick="setAnalyticsDays(7, this)">7 天</button>
+                    <button class="range-btn active" data-days="30" onclick="setAnalyticsDays(30, this)">30 天</button>
+                    <button class="range-btn" data-days="90" onclick="setAnalyticsDays(90, this)">90 天</button>
+                </div>
+                <button class="btn" onclick="loadAnalytics()">重新整理</button>
+                <button class="btn btn-secondary" onclick="exportAnalytics()">匯出匿名事件 CSV</button>
+                <span id="analyticsUpdated" class="privacy-note"></span>
+            </div>
+            <div id="analyticsContent"><p style="color:#999">請先設定 API Key</p></div>
         </div>
         
         <!-- 獎品管理 -->
-        <div id="prizesTab" class="tab-content active">
+        <div id="prizesTab" class="tab-content">
             <div class="section-header">
                 <h2>獎品列表</h2>
                 <button class="btn" onclick="showAddPrizeModal()">新增獎品</button>
@@ -353,6 +412,8 @@
     <script>
         let apiKey = '';
         let currentPrizeId = null;
+        let analyticsDays = 30;
+        const loadedTabs = new Set();
 
         function adminFetch(url, options = {}) {
             const headers = new Headers(options.headers || {});
@@ -378,10 +439,7 @@
                 sessionStorage.setItem('admin_api_key', apiKey);
                 document.getElementById('authStatus').textContent = '✓ 已設定';
                 document.getElementById('authStatus').className = 'success';
-                console.log('開始載入所有資料...');
-                loadPrizes();
-                loadUsers();
-                loadStatistics();
+                loadAnalytics();
             } else {
                 console.warn('API Key 為空，無法載入資料');
             }
@@ -397,23 +455,97 @@
                 document.getElementById('authStatus').textContent = '✓ 已設定';
                 document.getElementById('authStatus').className = 'success';
                 console.log('從 sessionStorage 載入 API Key');
-                console.log('開始載入所有資料...');
-                loadPrizes();
-                loadUsers();
-                loadStatistics();
+                loadAnalytics();
             } else {
                 console.log('沒有保存的 API Key，請手動設定');
             }
         });
         
         // 切換標籤頁
-        function switchTab(tabName) {
+        function switchTab(tabName, button) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            event.target.classList.add('active');
+            button.classList.add('active');
             document.getElementById(tabName + 'Tab').classList.add('active');
+            if (tabName === 'analytics') loadAnalytics();
+            if (tabName === 'prizes' && !loadedTabs.has(tabName)) { loadedTabs.add(tabName); loadPrizes(); }
+            if (tabName === 'users' && !loadedTabs.has(tabName)) { loadedTabs.add(tabName); loadUsers(); }
+            if (tabName === 'statistics' && !loadedTabs.has(tabName)) { loadedTabs.add(tabName); loadStatistics(); }
         }
+
+        function setAnalyticsDays(days, button) {
+            analyticsDays = days;
+            document.querySelectorAll('.range-btn').forEach(x => x.classList.remove('active'));
+            button.classList.add('active');
+            loadAnalytics();
+        }
+
+        const fmt = value => new Intl.NumberFormat('zh-TW').format(value || 0);
+        const fmtPct = value => `${((value || 0) * 100).toFixed(1)}%`;
+        function changeHtml(value) {
+            if (value == null || !Number.isFinite(value)) return '<span class="change">尚無前期基準</span>';
+            const cls = value >= 0 ? 'up' : 'down';
+            return `<span class="change ${cls}">${value >= 0 ? '上升' : '下降'} ${Math.abs(value * 100).toFixed(1)}%</span>`;
+        }
+        function sourceLabel(value) {
+            return ({ direct: '直接開啟', shared_restaurant: '餐廳分享連結', dice: '骰子', search: '搜尋', sheet: '餐廳列表', map_pin: '地圖餐廳點', pin_label: '店名標籤' })[value] || value || '未知';
+        }
+
+        async function loadAnalytics() {
+            const root = document.getElementById('analyticsContent');
+            if (!apiKey) { root.innerHTML = '<p style="color:#999">請先設定 API Key</p>'; return; }
+            root.innerHTML = '<p style="color:#777">正在整理匿名行為與洞察…</p>';
+            try {
+                const response = await adminFetch(`/api/admin/analytics?days=${analyticsDays}`);
+                if (response.status === 401) throw new Error('API Key 不正確');
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || data.error || `HTTP ${response.status}`);
+                renderAnalytics(data.analytics);
+                document.getElementById('analyticsUpdated').textContent = `更新於 ${new Date(data.analytics.generatedAt).toLocaleString('zh-TW')}`;
+            } catch (error) {
+                root.innerHTML = `<div class="error">載入失敗：${escapeHtml(error.message)}</div>`;
+            }
+        }
+
+        async function exportAnalytics() {
+            if (!apiKey) return;
+            const response = await adminFetch(`/api/admin/analytics/export?days=${analyticsDays}`);
+            if (!response.ok) { alert('匯出失敗'); return; }
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob); const a = document.createElement('a');
+            a.href = url; a.download = `map-analytics-${analyticsDays}d.csv`; a.click(); URL.revokeObjectURL(url);
+        }
+
+        function renderAnalytics(a) {
+            const o = a.overview, maxVisitors = Math.max(1, ...a.daily.map(x => x.visitors)), maxBookings = Math.max(1, ...a.daily.map(x => x.bookingSessions));
+            const kpis = [
+                ['匿名訪客', o.visitors, o.changes.visitors], ['Sessions', o.sessions, o.changes.sessions],
+                ['前往訂位 Sessions', o.bookingSessions, o.changes.bookingSessions], ['訂位點擊轉換率', fmtPct(o.sessionConversionRate), o.changes.conversionRate],
+                ['餐廳曝光', o.restaurantViews, null], ['分享次數', o.shareClicks, null], ['新增收藏', o.favoriteAdds, null], ['平均停留', o.avgSessionSeconds == null ? '資料累積中' : `${o.avgSessionSeconds} 秒`, null],
+            ];
+            document.getElementById('analyticsContent').innerHTML = `
+                <div class="dashboard-grid kpi-grid">${kpis.map(x => `<div class="kpi-card"><span class="kpi-label">${x[0]}</span><strong class="kpi-value">${typeof x[1] === 'number' ? fmt(x[1]) : x[1]}</strong>${changeHtml(x[2])}</div>`).join('')}</div>
+                <div class="dashboard-grid insights">${a.insights.map(x => `<article class="insight-card ${escapeHtml(x.level)}"><h3>${escapeHtml(x.title)}</h3><p>${escapeHtml(x.body)}</p><p class="insight-action">建議：${escapeHtml(x.action)}</p></article>`).join('')}</div>
+                <section class="panel"><h3>核心漏斗（不重複 Sessions）</h3><div class="funnel">${o.funnel.map((x, i) => `<div class="funnel-step"><span>${escapeHtml(x.label)}</span><strong>${fmt(x.sessions)}</strong><small>${i ? `承接率 ${fmtPct(x.sessions / Math.max(1, o.funnel[i - 1].sessions))}` : '100%'}</small></div>`).join('')}</div></section>
+                <section class="panel"><h3>每日趨勢</h3><div class="bar-chart" title="橘色：訪客；紫色：前往訂位 Sessions">${a.daily.map(x => `<div class="bar-day" title="${x.date}｜訪客 ${x.visitors}｜訂位 ${x.bookingSessions}"><i class="bar" style="height:${Math.max(2, x.visitors / maxVisitors * 170)}px"></i><i class="bar booking" style="height:${Math.max(2, x.bookingSessions / maxBookings * 170)}px"></i></div>`).join('')}</div><p class="privacy-note">橘色＝匿名訪客；紫色＝前往訂位 Sessions。滑過柱狀查看單日數字。</p></section>
+                <div class="dashboard-grid two-col">
+                    <section class="panel"><h3>功能使用與訂位關聯</h3>${renderFeatureTable(a.features)}</section>
+                    <section class="panel"><h3>流量來源</h3>${renderSourceTable(a.sources)}</section>
+                </div>
+                <section class="panel"><h3>餐廳查看與行動</h3>${renderRestaurantTable(a.restaurants)}</section>
+                <div class="dashboard-grid two-col">
+                    <section class="panel"><h3>平台表現</h3>${renderPlatformTable(a.platforms)}</section>
+                    <section class="panel"><h3>最近匿名旅程</h3>${renderJourneys(a.journeys)}</section>
+                </div>
+                <p class="privacy-note">資料品質：${fmt(a.dataQuality.eventCount)} 個事件，匿名訪客 ID 覆蓋率 ${fmtPct(a.dataQuality.visitorCoverage)}。${escapeHtml(a.dataQuality.note)}</p>`;
+        }
+
+        function renderFeatureTable(rows) { return `<table><thead><tr><th>功能</th><th>使用 Sessions</th><th>訂位 Sessions</th><th>轉換率</th><th>相對整體</th></tr></thead><tbody>${rows.map(x => `<tr><td>${escapeHtml(x.name)}</td><td>${fmt(x.sessions)}</td><td>${fmt(x.bookings)}</td><td>${fmtPct(x.conversionRate)}</td><td>${x.lift == null ? '—' : `${x.lift >= 0 ? '+' : ''}${(x.lift * 100).toFixed(0)}%`}</td></tr>`).join('') || '<tr><td colspan="5">資料累積中</td></tr>'}</tbody></table>`; }
+        function renderSourceTable(rows) { return `<table><thead><tr><th>來源</th><th>Sessions</th><th>訂位</th><th>轉換率</th></tr></thead><tbody>${rows.map(x => `<tr><td>${escapeHtml(sourceLabel(x.source))}</td><td>${fmt(x.sessions)}</td><td>${fmt(x.bookings)}</td><td>${fmtPct(x.conversionRate)}</td></tr>`).join('') || '<tr><td colspan="4">資料累積中</td></tr>'}</tbody></table>`; }
+        function renderRestaurantTable(rows) { return `<table><thead><tr><th>餐廳</th><th>查看 Sessions</th><th>前往訂位 Sessions</th><th>查看→訂位</th><th>收藏</th><th>分享</th><th>主要入口</th></tr></thead><tbody>${rows.slice(0, 30).map(x => `<tr><td>${escapeHtml(x.name)}</td><td>${fmt(x.views)}</td><td>${fmt(x.bookings)}</td><td>${fmtPct(x.bookingRate)}</td><td>${fmt(x.favorites)}</td><td>${fmt(x.shares)}</td><td>${escapeHtml(sourceLabel(x.mainSource))}</td></tr>`).join('') || '<tr><td colspan="7">資料累積中</td></tr>'}</tbody></table>`; }
+        function renderPlatformTable(rows) { return `<table><thead><tr><th>平台</th><th>Sessions</th><th>訂位</th><th>轉換率</th></tr></thead><tbody>${rows.map(x => `<tr><td>${escapeHtml(x.label)}</td><td>${fmt(x.sessions)}</td><td>${fmt(x.bookings)}</td><td>${fmtPct(x.conversionRate)}</td></tr>`).join('') || '<tr><td colspan="4">資料累積中</td></tr>'}</tbody></table>`; }
+        function renderJourneys(rows) { return rows.slice(0, 12).map(x => `<div class="journey"><div><strong>訪客 …${escapeHtml(x.visitor)}</strong>${x.booked ? ' <span class="badge badge-enabled">前往訂位</span>' : ''}</div><div class="journey-meta">${new Date(x.startedAt).toLocaleString('zh-TW')} · ${escapeHtml(sourceLabel(x.source))} · ${escapeHtml(x.platform)} · ${x.durationSeconds} 秒${x.restaurants.length ? ` · ${escapeHtml(x.restaurants.join('、'))}` : ''}</div><div class="steps">${x.steps.map(s => `<span class="step ${s === '訂位' ? 'booked' : ''}">${escapeHtml(s)}</span>`).join('')}</div></div>`).join('') || '<p>資料累積中</p>'; }
         
         // 載入獎品列表
         async function loadPrizes() {

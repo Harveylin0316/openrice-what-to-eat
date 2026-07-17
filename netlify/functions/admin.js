@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { buildAnalytics, eventsToCsv } = require('./lib/analytics');
 
 // 嘗試導入 Supabase 客戶端
 // 注意：Netlify Functions 在打包時會分析所有 require，所以只使用構建後的正確路徑
@@ -229,6 +230,29 @@ exports.handler = async (event, context) => {
     }
     
     const queryParams = event.queryStringParameters || {};
+
+    // 好康地圖匿名行為分析。讀取兩個期間，才能顯示與前期比較。
+    if ((path === '/analytics' || path === '/analytics/export') && method === 'GET') {
+      if (!supabase || typeof supabase.supabaseRequest !== 'function') {
+        return { statusCode: 503, headers: corsHeaders, body: JSON.stringify({ error: '行為資料庫尚未連線' }) };
+      }
+      const days = Math.min(90, Math.max(7, Number.parseInt(queryParams.days, 10) || 30));
+      const lookbackDays = path.endsWith('/export') ? days : days * 2;
+      const since = new Date(Date.now() - lookbackDays * 86400000).toISOString();
+      const events = await fetchUserEvents(since);
+      if (path.endsWith('/export')) {
+        return {
+          statusCode: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="map-analytics-${days}d.csv"` },
+          body: `\uFEFF${eventsToCsv(events)}`,
+        };
+      }
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'private, max-age=60' },
+        body: JSON.stringify({ success: true, analytics: buildAnalytics(events, { days }) }),
+      };
+    }
     
     // 獎品管理
     if (path.startsWith('/prizes')) {
@@ -696,3 +720,16 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
+async function fetchUserEvents(since, maxRows = 50000) {
+  const pageSize = 1000;
+  const rows = [];
+  for (let offset = 0; offset < maxRows; offset += pageSize) {
+    const endpoint = `user_events?select=id,line_id,session_id,event_name,properties,is_in_line,os,language,created_at&created_at=gte.${encodeURIComponent(since)}&order=created_at.asc&limit=${pageSize}&offset=${offset}`;
+    const page = await supabase.supabaseRequest(endpoint);
+    if (!Array.isArray(page)) throw new Error('行為資料格式錯誤');
+    rows.push(...page);
+    if (page.length < pageSize) break;
+  }
+  return rows;
+}
