@@ -15,7 +15,9 @@
 3. 在 Console 中執行以下代碼來獲取當前獎品資料：
 
 ```javascript
-fetch('/api/admin/prizes?apiKey=YOUR_API_KEY')
+fetch('/api/admin/prizes', {
+  headers: { 'X-API-Key': 'YOUR_API_KEY' }
+})
   .then(r => r.json())
   .then(data => {
     const prizesJson = JSON.stringify(data.prizes || []);

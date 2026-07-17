@@ -1,6 +1,7 @@
 // Netlify Function for admin API
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 // 嘗試導入 Supabase 客戶端
 // 注意：Netlify Functions 在打包時會分析所有 require，所以只使用構建後的正確路徑
@@ -33,8 +34,6 @@ try {
 } catch (err) {
   // 如果導入失敗，使用文件系統後備方案
   console.log('Supabase 客戶端未找到，將使用文件系統後備方案:', err.message);
-  console.error('Supabase 導入錯誤詳情:', err);
-  console.error('錯誤堆疊:', err.stack);
 }
 
 // 資料庫文件路徑（與 lottery.js 相同邏輯）
@@ -146,36 +145,33 @@ function saveDatabase(filename, data) {
 // CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, X-API-Key',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
 };
 
-// 簡單的認證檢查（可以改為更安全的認證方式）
+// Admin key 只接受 header，避免密鑰進入 URL、瀏覽器歷史與 proxy logs。
+// 正式密鑰未設定時 fail closed；不提供可被猜中的 fallback key。
 function checkAuth(event) {
-  // 從查詢參數或請求頭獲取 API Key
-  const apiKey = event.queryStringParameters?.apiKey || 
-                 event.headers['x-api-key'] || 
-                 (event.body ? (() => {
-                   try {
-                     return JSON.parse(event.body).apiKey;
-                   } catch (e) {
-                     return null;
-                   }
-                 })() : null);
-  
-  // 這裡可以設置環境變數 ADMIN_API_KEY
-  const validApiKey = process.env.ADMIN_API_KEY || 'default_admin_key_change_me';
+  const headers = event.headers || {};
+  const apiKey = headers['x-api-key'] || headers['X-API-Key'];
+  const validApiKey = process.env.ADMIN_API_KEY;
+
+  if (!apiKey || !validApiKey) return false;
+
+  const provided = Buffer.from(String(apiKey));
+  const expected = Buffer.from(String(validApiKey));
+  const match = provided.length === expected.length && crypto.timingSafeEqual(provided, expected);
   
   // 調試日誌（僅在開發環境）
   if (process.env.NETLIFY_DEV) {
     console.log('API Key 檢查:', {
       provided: apiKey ? '已提供' : '未提供',
-      validKey: validApiKey ? '已設定' : '未設定',
-      match: apiKey === validApiKey
+      validKey: '已設定',
+      match
     });
   }
   
-  return apiKey === validApiKey;
+  return match;
 }
 
 exports.handler = async (event, context) => {
@@ -253,14 +249,13 @@ exports.handler = async (event, context) => {
             console.log('從 Supabase 獲取所有獎品');
             console.log('Supabase 客戶端狀態:', supabase ? '已初始化' : '未初始化');
             console.log('檢查 Supabase 環境變數:');
-            console.log('  SUPABASE_URL:', process.env.SUPABASE_URL ? `已設定 (${process.env.SUPABASE_URL.substring(0, 20)}...)` : '未設定');
-            console.log('  SUPABASE_KEY:', process.env.SUPABASE_KEY ? `已設定 (${process.env.SUPABASE_KEY.substring(0, 20)}...)` : '未設定');
+            console.log('  SUPABASE_URL:', process.env.SUPABASE_URL ? '已設定' : '未設定');
+            console.log('  SUPABASE_KEY:', process.env.SUPABASE_KEY ? '已設定' : '未設定');
             
             try {
               console.log('調用 supabase.prizes.getAll()...');
               const prizes = await supabase.prizes.getAll();
               console.log('獲取到的獎品數量:', prizes ? prizes.length : 0);
-              console.log('獲取到的獎品:', JSON.stringify(prizes, null, 2));
               
               // 如果返回空陣列，記錄警告
               if (!prizes || prizes.length === 0) {
@@ -309,8 +304,8 @@ exports.handler = async (event, context) => {
             console.log('使用文件系統後備方案（Supabase 未初始化）');
             console.log('Supabase 客戶端狀態:', supabase ? '已初始化' : '未初始化');
             console.log('檢查 Supabase 環境變數:');
-            console.log('  SUPABASE_URL:', process.env.SUPABASE_URL ? `已設定 (${process.env.SUPABASE_URL.substring(0, 20)}...)` : '未設定');
-            console.log('  SUPABASE_KEY:', process.env.SUPABASE_KEY ? `已設定 (${process.env.SUPABASE_KEY.substring(0, 20)}...)` : '未設定');
+            console.log('  SUPABASE_URL:', process.env.SUPABASE_URL ? '已設定' : '未設定');
+            console.log('  SUPABASE_KEY:', process.env.SUPABASE_KEY ? '已設定' : '未設定');
             
             let db = null;
             const envPrizes = process.env.PRIZES_DATABASE;

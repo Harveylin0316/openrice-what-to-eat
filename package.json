@@ -1,0 +1,12 @@
+{
+  "name": "openrice-what-to-eat",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "check": "find frontend backend netlify/functions -name '*.js' -not -path '*/vendor/*' -not -path '*/node_modules/*' -print0 | xargs -0 -n1 node --check"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

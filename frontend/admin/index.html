@@ -353,14 +353,29 @@
     <script>
         let apiKey = '';
         let currentPrizeId = null;
+
+        function adminFetch(url, options = {}) {
+            const headers = new Headers(options.headers || {});
+            headers.set('X-API-Key', apiKey);
+            return fetch(url, { ...options, headers });
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
         
         // 設定 API Key
         function setApiKey() {
             apiKey = document.getElementById('apiKeyInput').value;
             console.log('設定 API Key:', apiKey ? '已設定' : '未設定');
             if (apiKey) {
-                // 保存到 localStorage
-                localStorage.setItem('admin_api_key', apiKey);
+                // 僅保留在目前分頁工作階段，關閉分頁後清除。
+                sessionStorage.setItem('admin_api_key', apiKey);
                 document.getElementById('authStatus').textContent = '✓ 已設定';
                 document.getElementById('authStatus').className = 'success';
                 console.log('開始載入所有資料...');
@@ -375,14 +390,13 @@
         // 頁面載入時檢查是否有保存的 API Key
         window.addEventListener('load', () => {
             console.log('頁面載入完成');
-            // 可以從 localStorage 讀取保存的 API Key
-            const savedApiKey = localStorage.getItem('admin_api_key');
+            const savedApiKey = sessionStorage.getItem('admin_api_key');
             if (savedApiKey) {
                 apiKey = savedApiKey;
                 document.getElementById('apiKeyInput').value = savedApiKey;
                 document.getElementById('authStatus').textContent = '✓ 已設定';
                 document.getElementById('authStatus').className = 'success';
-                console.log('從 localStorage 載入 API Key');
+                console.log('從 sessionStorage 載入 API Key');
                 console.log('開始載入所有資料...');
                 loadPrizes();
                 loadUsers();
@@ -412,10 +426,10 @@
             }
             
             try {
-                const url = `/api/admin/prizes?apiKey=${encodeURIComponent(apiKey)}`;
+                const url = '/api/admin/prizes';
                 console.log('發送請求到:', url);
                 
-                const response = await fetch(url);
+                const response = await adminFetch(url);
                 console.log('收到響應:', response.status, response.statusText);
                 
                 // 檢查 HTTP 狀態碼
@@ -484,9 +498,9 @@
                             
                             return `
                             <tr>
-                                <td>${prize.id}</td>
-                                <td>${prize.name}</td>
-                                <td>${prize.description || '-'}</td>
+                                <td>${escapeHtml(prize.id)}</td>
+                                <td>${escapeHtml(prize.name)}</td>
+                                <td>${escapeHtml(prize.description || '-')}</td>
                                 <td>${(prize.probability * 100).toFixed(1)}%</td>
                                 <td>${quantityText}</td>
                                 <td>
@@ -496,8 +510,8 @@
                                 </td>
                                 <td>
                                     <div class="actions">
-                                        <button class="btn btn-small" onclick="editPrize('${prize.id}')">編輯</button>
-                                        <button class="btn btn-small btn-secondary" onclick="deletePrize('${prize.id}')">刪除</button>
+                                <button class="btn btn-small" data-prize-action="edit" data-prize-id="${escapeHtml(prize.id)}">編輯</button>
+                                <button class="btn btn-small btn-secondary" data-prize-action="delete" data-prize-id="${escapeHtml(prize.id)}">刪除</button>
                                     </div>
                                 </td>
                             </tr>
@@ -507,6 +521,13 @@
                 </table>
             `;
         }
+
+        document.getElementById('prizesList').addEventListener('click', (event) => {
+            const button = event.target.closest('[data-prize-action]');
+            if (!button) return;
+            if (button.dataset.prizeAction === 'edit') editPrize(button.dataset.prizeId);
+            if (button.dataset.prizeAction === 'delete') deletePrize(button.dataset.prizeId);
+        });
         
         // 顯示新增獎品彈窗
         function showAddPrizeModal() {
@@ -526,7 +547,7 @@
             }
             
             try {
-                const response = await fetch(`/api/admin/prizes?apiKey=${encodeURIComponent(apiKey)}`);
+                const response = await adminFetch('/api/admin/prizes');
                 const data = await response.json();
                 
                 if (data.success) {
@@ -561,7 +582,7 @@
             }
             
             try {
-                const response = await fetch(`/api/admin/prizes/${prizeId}?apiKey=${encodeURIComponent(apiKey)}`, {
+                const response = await adminFetch(`/api/admin/prizes/${prizeId}`, {
                     method: 'DELETE',
                 });
                 const data = await response.json();
@@ -605,7 +626,7 @@
                 let response;
                 if (currentPrizeId) {
                     // 更新
-                    response = await fetch(`/api/admin/prizes/${currentPrizeId}?apiKey=${encodeURIComponent(apiKey)}`, {
+                    response = await adminFetch(`/api/admin/prizes/${currentPrizeId}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -614,7 +635,7 @@
                     });
                 } else {
                     // 新增
-                    response = await fetch(`/api/admin/prizes?apiKey=${encodeURIComponent(apiKey)}`, {
+                    response = await adminFetch('/api/admin/prizes', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -673,7 +694,7 @@
             }
             
             try {
-                const response = await fetch(`/api/admin/users?apiKey=${encodeURIComponent(apiKey)}`);
+                const response = await adminFetch('/api/admin/users');
                 
                 if (response.status === 401) {
                     document.getElementById('usersList').innerHTML = '<p style="color: #f44336;">認證失敗：請檢查 API Key</p>';
@@ -721,8 +742,8 @@
                     <tbody>
                         ${users.map(user => `
                             <tr>
-                                <td>${user.lineId.substring(0, 20)}...</td>
-                                <td>${user.displayName || '-'}</td>
+                                <td>${escapeHtml(user.lineId.substring(0, 20))}...</td>
+                                <td>${escapeHtml(user.displayName || '-')}</td>
                                 <td>${user.totalChances}</td>
                                 <td>${user.usedChances}</td>
                                 <td>${user.remainingChances}</td>
@@ -743,7 +764,7 @@
             }
             
             try {
-                const response = await fetch(`/api/admin/statistics?apiKey=${encodeURIComponent(apiKey)}`);
+                const response = await adminFetch('/api/admin/statistics');
                 
                 if (response.status === 401) {
                     document.getElementById('statisticsContent').innerHTML = '<p style="color: #f44336;">認證失敗：請檢查 API Key</p>';
