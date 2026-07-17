@@ -324,7 +324,7 @@
         </div>
 
         <div id="analyticsTab" class="tab-content active">
-            <div class="section-header"><div><h2>好康地圖成長儀表板</h2><p class="privacy-note">以 session 為主，訂位指標代表「點擊前往訂位」，不是已完成訂位。</p></div></div>
+            <div class="section-header"><div><h2>好康地圖成長儀表板</h2><p class="privacy-note">以不重複使用者為主；Session 僅用來診斷單次旅程。訂位指標代表「點擊前往訂位」，不是已完成訂位。</p></div></div>
             <div class="analytics-toolbar">
                 <div class="range-group" aria-label="分析期間">
                     <button class="range-btn" data-days="7" onclick="setAnalyticsDays(7, this)">7 天</button>
@@ -489,7 +489,7 @@
             return `<span class="change ${cls}">${value >= 0 ? '上升' : '下降'} ${Math.abs(value * 100).toFixed(1)}%</span>`;
         }
         function sourceLabel(value) {
-            return ({ direct: '直接開啟', shared_restaurant: '餐廳分享連結', dice: '骰子', search: '搜尋', sheet: '餐廳列表', map_pin: '地圖餐廳點', pin_label: '店名標籤' })[value] || value || '未知';
+            return ({ direct: '直接開啟', unknown: '舊版未記錄', shared_restaurant: '餐廳分享連結', dice: '骰子', search: '搜尋', sheet: '餐廳列表', map_pin: '地圖餐廳點', pin_label: '店名標籤' })[value] || value || '未知';
         }
 
         async function loadAnalytics() {
@@ -518,17 +518,19 @@
         }
 
         function renderAnalytics(a) {
-            const o = a.overview, maxVisitors = Math.max(1, ...a.daily.map(x => x.visitors)), maxBookings = Math.max(1, ...a.daily.map(x => x.bookingSessions));
+            const o = a.overview, maxVisitors = Math.max(1, ...a.daily.map(x => x.users)), maxBookings = Math.max(1, ...a.daily.map(x => x.bookingUsers));
             const kpis = [
-                ['匿名訪客', o.visitors, o.changes.visitors], ['Sessions', o.sessions, o.changes.sessions],
-                ['前往訂位 Sessions', o.bookingSessions, o.changes.bookingSessions], ['訂位點擊轉換率', fmtPct(o.sessionConversionRate), o.changes.conversionRate],
-                ['餐廳曝光', o.restaurantViews, null], ['分享次數', o.shareClicks, null], ['新增收藏', o.favoriteAdds, null], ['平均停留', o.avgSessionSeconds == null ? '資料累積中' : `${o.avgSessionSeconds} 秒`, null],
+                ['不重複使用者', o.users, o.changes.visitors], ['前往訂位使用者', o.bookingUsers, o.changes.bookingUsers],
+                ['使用者訂位轉換率', fmtPct(o.userConversionRate), o.changes.conversionRate], ['期間內回訪率', fmtPct(o.returnRate), o.changes.returnRate],
+                ['每位使用者 Sessions', Number(o.sessionsPerUser || 0).toFixed(1), null], ['Sessions（診斷）', o.sessions, o.changes.sessions],
+                ['餐廳曝光事件', o.restaurantViews, null], ['平均單次停留', o.avgSessionSeconds == null ? '資料累積中' : `${o.avgSessionSeconds} 秒`, null],
             ];
             document.getElementById('analyticsContent').innerHTML = `
                 <div class="dashboard-grid kpi-grid">${kpis.map(x => `<div class="kpi-card"><span class="kpi-label">${x[0]}</span><strong class="kpi-value">${typeof x[1] === 'number' ? fmt(x[1]) : x[1]}</strong>${changeHtml(x[2])}</div>`).join('')}</div>
                 <div class="dashboard-grid insights">${a.insights.map(x => `<article class="insight-card ${escapeHtml(x.level)}"><h3>${escapeHtml(x.title)}</h3><p>${escapeHtml(x.body)}</p><p class="insight-action">建議：${escapeHtml(x.action)}</p></article>`).join('')}</div>
-                <section class="panel"><h3>核心漏斗（不重複 Sessions）</h3><div class="funnel">${o.funnel.map((x, i) => `<div class="funnel-step"><span>${escapeHtml(x.label)}</span><strong>${fmt(x.sessions)}</strong><small>${i ? `承接率 ${fmtPct(x.sessions / Math.max(1, o.funnel[i - 1].sessions))}` : '100%'}</small></div>`).join('')}</div></section>
-                <section class="panel"><h3>每日趨勢</h3><div class="bar-chart" title="橘色：訪客；紫色：前往訂位 Sessions">${a.daily.map(x => `<div class="bar-day" title="${x.date}｜訪客 ${x.visitors}｜訂位 ${x.bookingSessions}"><i class="bar" style="height:${Math.max(2, x.visitors / maxVisitors * 170)}px"></i><i class="bar booking" style="height:${Math.max(2, x.bookingSessions / maxBookings * 170)}px"></i></div>`).join('')}</div><p class="privacy-note">橘色＝匿名訪客；紫色＝前往訂位 Sessions。滑過柱狀查看單日數字。</p></section>
+                <section class="panel"><h3>核心漏斗（不重複使用者）</h3><div class="funnel">${o.funnel.map((x, i) => `<div class="funnel-step"><span>${escapeHtml(x.label)}</span><strong>${fmt(x.users)}</strong><small>${i ? `承接率 ${fmtPct(x.users / Math.max(1, o.funnel[i - 1].users))}` : '100%'}</small></div>`).join('')}</div></section>
+                ${renderSearchQuality(a.searchQuality)}
+                <section class="panel"><h3>每日使用者趨勢</h3><div class="bar-chart" title="橘色：使用者；紫色：前往訂位使用者">${a.daily.map(x => `<div class="bar-day" title="${x.date}｜使用者 ${x.users}｜前往訂位 ${x.bookingUsers}"><i class="bar" style="height:${Math.max(2, x.users / maxVisitors * 170)}px"></i><i class="bar booking" style="height:${Math.max(2, x.bookingUsers / maxBookings * 170)}px"></i></div>`).join('')}</div><p class="privacy-note">橘色＝不重複使用者；紫色＝前往訂位使用者。單日間仍可能重複，但期間 KPI 會去重。</p></section>
                 <div class="dashboard-grid two-col">
                     <section class="panel"><h3>功能使用與訂位關聯</h3>${renderFeatureTable(a.features)}</section>
                     <section class="panel"><h3>流量來源</h3>${renderSourceTable(a.sources)}</section>
@@ -536,15 +538,16 @@
                 <section class="panel"><h3>餐廳查看與行動</h3>${renderRestaurantTable(a.restaurants)}</section>
                 <div class="dashboard-grid two-col">
                     <section class="panel"><h3>平台表現</h3>${renderPlatformTable(a.platforms)}</section>
-                    <section class="panel"><h3>最近匿名旅程</h3>${renderJourneys(a.journeys)}</section>
+                    <section class="panel"><h3>最近單次旅程（Session 診斷）</h3>${renderJourneys(a.journeys)}</section>
                 </div>
-                <p class="privacy-note">資料品質：${fmt(a.dataQuality.eventCount)} 個事件，匿名訪客 ID 覆蓋率 ${fmtPct(a.dataQuality.visitorCoverage)}。${escapeHtml(a.dataQuality.note)}</p>`;
+                <p class="privacy-note">資料品質：${fmt(a.dataQuality.eventCount)} 個事件，穩定 LINE 使用者辨識覆蓋率 ${fmtPct(a.dataQuality.stableLineUserCoverage)}，匿名裝置 ID 覆蓋率 ${fmtPct(a.dataQuality.visitorCoverage)}。${escapeHtml(a.dataQuality.note)}</p>`;
         }
 
-        function renderFeatureTable(rows) { return `<table><thead><tr><th>功能</th><th>使用 Sessions</th><th>訂位 Sessions</th><th>轉換率</th><th>相對整體</th></tr></thead><tbody>${rows.map(x => `<tr><td>${escapeHtml(x.name)}</td><td>${fmt(x.sessions)}</td><td>${fmt(x.bookings)}</td><td>${fmtPct(x.conversionRate)}</td><td>${x.lift == null ? '—' : `${x.lift >= 0 ? '+' : ''}${(x.lift * 100).toFixed(0)}%`}</td></tr>`).join('') || '<tr><td colspan="5">資料累積中</td></tr>'}</tbody></table>`; }
-        function renderSourceTable(rows) { return `<table><thead><tr><th>來源</th><th>Sessions</th><th>訂位</th><th>轉換率</th></tr></thead><tbody>${rows.map(x => `<tr><td>${escapeHtml(sourceLabel(x.source))}</td><td>${fmt(x.sessions)}</td><td>${fmt(x.bookings)}</td><td>${fmtPct(x.conversionRate)}</td></tr>`).join('') || '<tr><td colspan="4">資料累積中</td></tr>'}</tbody></table>`; }
-        function renderRestaurantTable(rows) { return `<table><thead><tr><th>餐廳</th><th>查看 Sessions</th><th>前往訂位 Sessions</th><th>查看→訂位</th><th>收藏</th><th>分享</th><th>主要入口</th></tr></thead><tbody>${rows.slice(0, 30).map(x => `<tr><td>${escapeHtml(x.name)}</td><td>${fmt(x.views)}</td><td>${fmt(x.bookings)}</td><td>${fmtPct(x.bookingRate)}</td><td>${fmt(x.favorites)}</td><td>${fmt(x.shares)}</td><td>${escapeHtml(sourceLabel(x.mainSource))}</td></tr>`).join('') || '<tr><td colspan="7">資料累積中</td></tr>'}</tbody></table>`; }
-        function renderPlatformTable(rows) { return `<table><thead><tr><th>平台</th><th>Sessions</th><th>訂位</th><th>轉換率</th></tr></thead><tbody>${rows.map(x => `<tr><td>${escapeHtml(x.label)}</td><td>${fmt(x.sessions)}</td><td>${fmt(x.bookings)}</td><td>${fmtPct(x.conversionRate)}</td></tr>`).join('') || '<tr><td colspan="4">資料累積中</td></tr>'}</tbody></table>`; }
+        function renderSearchQuality(q) { if (!q || !q.intents) return ''; const legacy = q.method === 'legacy_session_final'; return `<section class="panel"><h3>搜尋品質${legacy ? '（舊資料校正估算）' : ''}</h3><div class="dashboard-grid kpi-grid"><div class="kpi-card"><span class="kpi-label">搜尋使用者</span><strong class="kpi-value">${fmt(q.users)}</strong></div><div class="kpi-card"><span class="kpi-label">完整搜尋意圖</span><strong class="kpi-value">${fmt(q.intents)}</strong></div><div class="kpi-card"><span class="kpi-label">最終無結果率</span><strong class="kpi-value">${fmtPct(q.zeroRate)}</strong></div><div class="kpi-card"><span class="kpi-label">無結果後恢復率</span><strong class="kpi-value">${legacy ? '新版上線後累積' : fmtPct(q.recoveryRate)}</strong></div></div><p class="privacy-note">只計算完成或離開搜尋時的最終狀態，不再把逐字輸入中的半成品當成失敗。為保護隱私，不保存搜尋原文。</p></section>`; }
+        function renderFeatureTable(rows) { return `<table><thead><tr><th>功能</th><th>使用者</th><th>前往訂位使用者</th><th>轉換率</th><th>相對整體</th></tr></thead><tbody>${rows.map(x => `<tr><td>${escapeHtml(x.name)}</td><td>${fmt(x.users)}</td><td>${fmt(x.bookingUsers)}</td><td>${fmtPct(x.conversionRate)}</td><td>${x.lift == null ? '—' : `${x.lift >= 0 ? '+' : ''}${(x.lift * 100).toFixed(0)}%`}</td></tr>`).join('') || '<tr><td colspan="5">資料累積中</td></tr>'}</tbody></table>`; }
+        function renderSourceTable(rows) { return `<table><thead><tr><th>首次來源</th><th>使用者</th><th>前往訂位使用者</th><th>轉換率</th></tr></thead><tbody>${rows.map(x => `<tr><td>${escapeHtml(sourceLabel(x.source))}</td><td>${fmt(x.users)}</td><td>${fmt(x.bookingUsers)}</td><td>${fmtPct(x.conversionRate)}</td></tr>`).join('') || '<tr><td colspan="4">資料累積中</td></tr>'}</tbody></table>`; }
+        function renderRestaurantTable(rows) { return `<table><thead><tr><th>餐廳</th><th>查看使用者</th><th>前往訂位使用者</th><th>查看→訂位</th><th>收藏</th><th>分享</th><th>主要入口</th></tr></thead><tbody>${rows.slice(0, 30).map(x => `<tr><td>${escapeHtml(x.name)}</td><td>${fmt(x.viewUsers)}</td><td>${fmt(x.bookingUsers)}</td><td>${fmtPct(x.bookingRate)}</td><td>${fmt(x.favorites)}</td><td>${fmt(x.shares)}</td><td>${escapeHtml(sourceLabel(x.mainSource))}</td></tr>`).join('') || '<tr><td colspan="7">資料累積中</td></tr>'}</tbody></table>`; }
+        function renderPlatformTable(rows) { return `<table><thead><tr><th>平台</th><th>使用者</th><th>前往訂位使用者</th><th>轉換率</th></tr></thead><tbody>${rows.map(x => `<tr><td>${escapeHtml(x.label)}</td><td>${fmt(x.users)}</td><td>${fmt(x.bookingUsers)}</td><td>${fmtPct(x.conversionRate)}</td></tr>`).join('') || '<tr><td colspan="4">資料累積中</td></tr>'}</tbody></table>`; }
         function renderJourneys(rows) { return rows.slice(0, 12).map(x => `<div class="journey"><div><strong>訪客 …${escapeHtml(x.visitor)}</strong>${x.booked ? ' <span class="badge badge-enabled">前往訂位</span>' : ''}</div><div class="journey-meta">${new Date(x.startedAt).toLocaleString('zh-TW')} · ${escapeHtml(sourceLabel(x.source))} · ${escapeHtml(x.platform)} · ${x.durationSeconds} 秒${x.restaurants.length ? ` · ${escapeHtml(x.restaurants.join('、'))}` : ''}</div><div class="steps">${x.steps.map(s => `<span class="step ${s === '訂位' ? 'booked' : ''}">${escapeHtml(s)}</span>`).join('')}</div></div>`).join('') || '<p>資料累積中</p>'; }
         
         // 載入獎品列表

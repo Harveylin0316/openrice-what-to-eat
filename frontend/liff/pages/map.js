@@ -2340,9 +2340,27 @@ function showUserMarker() {
 // ---- 搜尋（像 Google Maps：輸入地區/捷運站/餐廳 → 跳轉） ----
 
 // 品類 substring 命中：query「火鍋」→ {set: 火鍋店/麻辣鍋/火鍋吃到飽…的索引, count: 聯集店數}
+function normalizeSearchText(value) {
+    return String(value || '').toLowerCase().replace(/臺/g, '台').replace(/[\s·・,，.。()（）\-_/]/g, '');
+}
+
+function searchTokens(query) {
+    const q = normalizeSearchText(query);
+    if (!q) return [];
+    const candidates = [
+        '台北市', '台北', '新北市', '新北',
+        ...allCats.map(normalizeSearchText),
+        ...allPlaces.map(p => normalizeSearchText(p.n)),
+    ].filter(x => x && x.length >= 2 && x !== q).sort((a, b) => b.length - a.length);
+    const split = candidates.find(term => q.includes(term));
+    if (!split) return [q];
+    const rest = q.replace(split, '');
+    return rest ? [split, rest] : [q];
+}
+
 function catHitForQuery(q) {
     const set = new Set();
-    allCats.forEach((c, i) => { if (c.toLowerCase().includes(q)) set.add(i); });
+    allCats.forEach((c, i) => { if (normalizeSearchText(c).includes(q)) set.add(i); });
     if (!set.size) return null;
     let count = 0;
     for (const pin of allPins) {
@@ -2352,27 +2370,42 @@ function catHitForQuery(q) {
 }
 
 function searchMatches(query) {
-    const q = query.trim().toLowerCase();
+    const q = normalizeSearchText(query);
     if (!q) return [];
+    const tokens = searchTokens(query);
     // 品類（Google 式：搜「火鍋」「吃到飽」→ 一列彙總，選了就是地圖篩選）
     const catHit = catHitForQuery(q);
     const catRows = catHit
         ? [{ kind: 'category', name: query.trim(), sub: `${catHit.count} 間餐廳`, set: catHit.set }]
         : [];
     const placeHits = allPlaces
-        .filter(p => p.n.toLowerCase().includes(q))
+        .filter(p => tokens.every(t => normalizeSearchText(`${p.n}${p.d || ''}`).includes(t)))
         .slice(0, 4)
         .map(p => ({ kind: p.t, name: p.n, sub: p.t === 'district' ? p.d : `${p.c} 間餐廳`, lat: p.lat, lng: p.lng }));
     const pinHits = allPins
-        .filter(p => p.n.toLowerCase().includes(q))
+        .filter(p => {
+            const cats = (p.ct || []).map(i => allCats[i] || '').join('');
+            const haystack = normalizeSearchText(`${p.n}${p.d || ''}${p.ad || ''}${(p.tg || []).join('')}${cats}`);
+            return tokens.every(t => haystack.includes(t));
+        })
         .slice(0, Math.max(3, 8 - placeHits.length - catRows.length))
         .map(p => ({ kind: 'restaurant', name: p.n, sub: p.d, pin: p }));
     // 無優惠店（最多 2 筆、排最後）：搜得到 → 點開卡片看見「有優惠店」的對照
     const extHits = extPois
-        .filter(p => p.n.toLowerCase().includes(q))
+        .filter(p => tokens.every(t => normalizeSearchText(`${p.n}${p.d || ''}${p.cu || ''}`).includes(t)))
         .slice(0, 2)
         .map(p => ({ kind: 'ext', name: p.n, sub: `${p.d || ''}·暫無優惠`, poi: p }));
     return [...catRows, ...placeHits, ...pinHits, ...extHits];
+}
+
+function searchFallbacks() {
+    const bounds = map && map.getBounds ? map.getBounds() : null;
+    const pool = allPins.filter(p => p.b && p.t !== 'none');
+    return [...pool].sort((a, b) => {
+        const aVisible = bounds && bounds.contains([a.lat, a.lng]) ? 1 : 0;
+        const bVisible = bounds && bounds.contains([b.lat, b.lng]) ? 1 : 0;
+        return bVisible - aVisible || Number(!!(b.hm || b.ho)) - Number(!!(a.hm || a.ho)) || (b.r || 0) - (a.r || 0);
+    }).slice(0, 3).map(pin => ({ kind: 'restaurant', name: pin.n, sub: `附近熱門好康・${pin.d || ''}`, pin, fallback: true }));
 }
 
 const SEARCH_ICON = { category: '🍴', district: '🏙️', landmark: '📍', restaurant: '🍽️', recent: '🕘', ext: '⚪' };
@@ -2415,8 +2448,17 @@ function renderSearchResults(matches, query = '') {
     if (!matches.length) {
         // 有輸入但沒結果 → 給回饋而不是無聲消失
         if (query.trim()) {
-            list.innerHTML = `<li class="map-search__empty">找不到「${escapeHtml(query.trim())}」，試試地區或捷運站名</li>`;
+            const fallbacks = searchFallbacks();
+            list.innerHTML = `<li class="map-search__empty">暫時找不到「${escapeHtml(query.trim())}」<br><small>可試餐廳、料理、行政區或捷運站；也可以先看附近熱門好康</small></li>`
+                + fallbacks.map((m, i) => `<li><button type="button" class="map-search__item" data-fallback-idx="${i}">
+                    <span aria-hidden="true">${SEARCH_ICON.restaurant}</span>
+                    <span class="map-search__item-name">${escapeHtml(m.name)}</span>
+                    <span class="map-search__item-sub">${escapeHtml(m.sub)}</span>
+                </button></li>`).join('');
             list.hidden = false;
+            list.querySelectorAll('[data-fallback-idx]').forEach(btn => {
+                btn.addEventListener('click', () => selectSearchResult(fallbacks[Number(btn.dataset.fallbackIdx)]));
+            });
         } else {
             list.hidden = true;
             list.innerHTML = '';
@@ -2636,7 +2678,10 @@ function clearSearchFocus() {
     if (sheetOpen) renderSheetList();
 }
 
+let finishSearchEpisode = () => {};
+
 function selectSearchResult(m) {
+    finishSearchEpisode('selected', m.kind, !!m.fallback);
     track('map_search_select', {
         kind: m.kind,
         or_id: m.kind === 'restaurant' ? m.pin?.id : null,
@@ -2704,6 +2749,32 @@ function wireSearch() {
     const input = document.getElementById('mapSearchInput');
     const clearBtn = document.getElementById('mapSearchClear');
     let debounceTimer = null;
+    let searchEpisode = null;
+
+    const beginOrUpdateEpisode = (query, matches) => {
+        if (!searchEpisode) {
+            searchEpisode = { startedAt: Date.now(), hadZero: false, hits: 0, queryLength: 0 };
+            track('map_search_start', {});
+        }
+        searchEpisode.hits = matches.length;
+        searchEpisode.queryLength = query.trim().length;
+        if (!matches.length) searchEpisode.hadZero = true;
+    };
+
+    finishSearchEpisode = (outcome, selectedKind = null, usedFallback = false) => {
+        if (!searchEpisode) return;
+        track('map_search_complete', {
+            query_length: searchEpisode.queryLength,
+            hits: searchEpisode.hits,
+            zero_result: searchEpisode.hits === 0,
+            had_zero_result: searchEpisode.hadZero,
+            outcome,
+            selected_kind: selectedKind,
+            used_fallback: usedFallback,
+            duration_ms: Math.max(0, Date.now() - searchEpisode.startedAt),
+        });
+        searchEpisode = null;
+    };
 
     input.addEventListener('input', () => {
         clearBtn.hidden = !input.value;
@@ -2711,22 +2782,22 @@ function wireSearch() {
         debounceTimer = setTimeout(() => {
             const matches = searchMatches(input.value);
             renderSearchResults(matches, input.value);
-            if (input.value.trim()) track('map_search', {
-                query_length: input.value.trim().length,
-                hits: matches.length,
-                zero_result: matches.length === 0,
-            });
-        }, 180);
+            if (input.value.trim()) beginOrUpdateEpisode(input.value, matches);
+        }, 300);
     });
     input.addEventListener('keydown', e => {
         if (e.key === 'Enter') {
             const first = searchMatches(input.value)[0];
             if (first) selectSearchResult(first);
+            else finishSearchEpisode('submitted_no_result');
         } else if (e.key === 'Escape') {
             closeSearch({ clear: true });
         }
     });
-    clearBtn.addEventListener('click', () => { closeSearch({ clear: true }); input.focus(); });
+    clearBtn.addEventListener('click', () => { finishSearchEpisode('cleared'); closeSearch({ clear: true }); input.focus(); });
+    input.addEventListener('blur', () => setTimeout(() => {
+        if (searchEpisode && document.activeElement !== input) finishSearchEpisode('abandoned');
+    }, 250));
 
     // Google 式：聚焦空白搜尋框 → 最近看過的店（直接開卡）＋最近搜尋
     input.addEventListener('focus', () => {

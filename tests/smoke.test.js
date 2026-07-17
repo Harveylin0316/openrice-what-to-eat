@@ -73,6 +73,16 @@ test('LIFF decision UX keeps the five core guidance improvements', () => {
   assert.match(mapCss, /\.map-spotlight__actions \{[\s\S]*?grid-template-columns: repeat\(3/);
 });
 
+test('search tracks completed intent and offers recovery without storing query text', () => {
+  const mapJs = fs.readFileSync(path.join(root, 'frontend/liff/pages/map.js'), 'utf8');
+  assert.match(mapJs, /map_search_start/);
+  assert.match(mapJs, /map_search_complete/);
+  assert.match(mapJs, /used_fallback/);
+  assert.match(mapJs, /附近熱門好康/);
+  assert.match(mapJs, /normalizeSearchText/);
+  assert.doesNotMatch(mapJs, /track\('map_search',\s*\{[\s\S]{0,200}query:/);
+});
+
 test('generated map data has valid counts, unique ids and coordinates', () => {
   const map = readJson('frontend/liff/data/map_pins.json');
   assert.equal(map.count, map.pins.length);
@@ -132,6 +142,8 @@ test('admin page sends keys in headers, uses session storage and escapes rendere
   assert.match(html, /sessionStorage\.setItem\('admin_api_key'/);
   assert.match(html, /escapeHtml\(user\.displayName/);
   assert.match(html, /escapeHtml\(prize\.name/);
+  assert.match(html, /核心漏斗（不重複使用者）/);
+  assert.match(html, /最終無結果率/);
   const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
   assert.ok(scripts.length > 0);
   for (const script of scripts) new vm.Script(script[1]);
