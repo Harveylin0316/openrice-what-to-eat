@@ -57,6 +57,22 @@ test('critical LIFF cache-buster versions stay aligned', () => {
   assert.match(html, /router\.js\?v=' \+ window\.__V/);
 });
 
+test('LIFF decision UX keeps the five core guidance improvements', () => {
+  const mapJs = fs.readFileSync(path.join(root, 'frontend/liff/pages/map.js'), 'utf8');
+  const mapCss = fs.readFileSync(path.join(root, 'frontend/liff/map.css'), 'utf8');
+
+  assert.match(mapJs, /查看附近 \$\{total\} 間餐廳/);
+  assert.match(mapJs, /開啟定位後，才能顯示附近餐廳、距離與步行時間/);
+  assert.match(mapJs, /requestInitialLocation\(\)/);
+  assert.match(mapJs, /data-spotlight-fav/);
+  assert.match(mapJs, /data-spotlight-share/);
+  assert.match(mapJs, /停車場導航/);
+  assert.match(mapJs, /餐廳導航/);
+  assert.match(mapJs, /<strong>回饋資格<\/strong>/);
+  assert.match(mapCss, /transform: translateY\(calc\(100% - 68px/);
+  assert.match(mapCss, /\.map-spotlight__actions \{[\s\S]*?grid-template-columns: repeat\(3/);
+});
+
 test('generated map data has valid counts, unique ids and coordinates', () => {
   const map = readJson('frontend/liff/data/map_pins.json');
   assert.equal(map.count, map.pins.length);

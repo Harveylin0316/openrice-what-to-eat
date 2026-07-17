@@ -263,12 +263,17 @@ function dealBadgesHtml(pin, { compact = false } = {}) {
 }
 
 // 優惠明細行（迷你卡/聚光燈共用）：套餐款數 + 訂位優惠文字 + 回饋現金基本盤
-function dealDetailLines({ hm, mc, offers, bookable }) {
+function dealDetailLines({ hm, mc, offers }) {
     const lines = [];
     if (hm) lines.push(`🍽️ ${mc ? mc + ' 款' : ''}優惠套餐，訂位即享`);
     for (const o of (offers || []).slice(0, 3)) lines.push(`🎁 ${escapeHtml(o)}`);
-    if (bookable) lines.push('💵 線上訂位＋到店用餐，每人回饋現金 NT$3');
     return lines;
+}
+
+// 回饋條件集中在一個固定區塊，避免 badge、優惠清單與 CTA 各講一小段而讓人拼湊規則。
+function rewardEligibilityHtml(bookable) {
+    if (!bookable) return '';
+    return `<p class="map-reward-note"><strong>回饋資格</strong><span>從本頁完成線上訂位並到店用餐，每人回饋 NT$3</span></p>`;
 }
 let sponsoredRestaurants = [];
 
@@ -477,6 +482,19 @@ function ensureMapRoot() {
             </svg>
         </button>
         <div class="map-toast" id="mapToast" role="status" aria-live="polite" hidden></div>
+        <div class="map-location-primer" id="locationPrimer" hidden>
+            <div class="map-location-primer__backdrop" aria-hidden="true"></div>
+            <section class="map-location-primer__card" role="dialog" aria-modal="true"
+                     aria-labelledby="locationPrimerTitle" aria-describedby="locationPrimerDesc">
+                <div class="map-location-primer__icon" aria-hidden="true">◎</div>
+                <h2 id="locationPrimerTitle">先找你附近的好康</h2>
+                <p id="locationPrimerDesc">開啟定位後，才能顯示附近餐廳、距離與步行時間。你也可以先逛地圖，之後再開啟。</p>
+                <div class="map-location-primer__actions">
+                    <button type="button" class="map-btn map-btn--ghost" id="locationPrimerSkip">先逛地圖</button>
+                    <button type="button" class="map-btn map-btn--primary" id="locationPrimerAllow">開啟定位</button>
+                </div>
+            </section>
+        </div>
         <div id="liffMap" class="map-canvas" role="application" aria-label="餐廳好康地圖"></div>
         <button type="button" class="map-fab" id="mapDecideBtn" aria-label="幫我決定，隨機推薦一間">
             <span class="map-fab__dice" aria-hidden="true">🎲</span>
@@ -487,7 +505,11 @@ function ensureMapRoot() {
             <button type="button" class="map-sheet__handle" id="sheetHandle"
                     aria-expanded="false" aria-controls="sheetBody">
                 <span class="map-sheet__grip" aria-hidden="true"></span>
-                <span class="map-sheet__summary" id="mapCountPill" role="status" aria-live="polite">載入地圖中…</span>
+                <span class="map-sheet__summary" role="status" aria-live="polite">
+                    <span class="map-sheet__summary-main" id="mapCountPill">載入地圖中…</span>
+                    <span class="map-sheet__summary-meta" id="mapCountMeta"></span>
+                </span>
+                <span class="map-sheet__chevron" aria-hidden="true">⌃</span>
             </button>
             <div class="map-sheet__body" id="sheetBody">
                 <div class="map-sheet__legend" aria-label="圖例">
@@ -517,8 +539,8 @@ function ensureMapRoot() {
             <button type="button" class="map-card-close" id="spotlightClose" aria-label="關閉">✕</button>
             <div class="map-spotlight__body" id="spotlightBody"></div>
             <div class="map-spotlight__actions">
-                <button type="button" class="map-btn map-btn--ghost" id="spotlightRedraw">🎲 再抽一家</button>
                 <span id="spotlightActionLinks"></span>
+                <button type="button" class="map-btn map-btn--ghost" id="spotlightRedraw">🎲 再抽一家</button>
             </div>
         </div>
     `;
@@ -1161,6 +1183,8 @@ function afterFavChange() {
 
 function updateCountPill() {
     const pill = document.getElementById('mapCountPill');
+    const meta = document.getElementById('mapCountMeta');
+    const handle = document.getElementById('sheetHandle');
     if (!pill || !map) return;
     const bounds = map.getBounds();
     const now = new Date();
@@ -1193,12 +1217,14 @@ function updateCountPill() {
             : filtered
                 ? '篩選有點嚴格，鬆開一個條件再看看'
                 : '這一帶還沒有店家，滑去鬧區看看';
+        if (meta) meta.textContent = '';
     } else {
-        // 窄屏用短版，避免被 FAB 保留區截斷
-        pill.textContent = window.matchMedia('(max-width: 360px)').matches
-            ? `${total} 間 · 回饋 ${cashback} · 優惠 ${deals}`
-            : `畫面內 ${total} 間 · ${cashback} 間出席回饋 · ${deals} 間有優惠`;
+        pill.textContent = `查看附近 ${total} 間餐廳`;
+        if (meta) meta.textContent = window.matchMedia('(max-width: 360px)').matches
+            ? `回饋 ${cashback} · 優惠 ${deals}`
+            : `${cashback} 間出席回饋 · ${deals} 間有優惠`;
     }
+    if (handle) handle.setAttribute('aria-label', `${sheetOpen ? '收起' : '展開'}餐廳列表：${pill.textContent}`);
     if (sheetOpen) renderSheetList();
 }
 
@@ -1206,7 +1232,7 @@ function updateCountPill() {
 
 const SHEET_MAX_ROWS = 60;
 
-// 三段狀態機（r50）：peek(52px 把手) / half(55dvh) / full(頂到搜尋欄下)。
+// 三段狀態機：peek(68px 明確入口) / half(55dvh) / full(頂到搜尋欄下)。
 // setSheetOpen 保持舊語意（true=half / false=peek），全開只由拖拽手勢進入（Google 式）。
 function setSheetState(state) {
     const was = sheetState;
@@ -1218,6 +1244,7 @@ function setSheetState(state) {
     root.classList.toggle('is-sheet-open', state !== 'peek');
     root.classList.toggle('is-sheet-full', state === 'full');
     handle.setAttribute('aria-expanded', String(state !== 'peek'));
+    handle.setAttribute('aria-label', `${state === 'peek' ? '展開' : '收起'}餐廳列表：${document.getElementById('mapCountPill')?.textContent || ''}`);
     if (state !== 'peek' && was === 'peek') {
         closeMiniCard();
         closeSpotlight();
@@ -1601,11 +1628,12 @@ function showMiniCard(pin) {
         </div>
         <div class="map-minicard__parking" id="miniCardParking" hidden></div>
         ${detailLines.length ? `<ul class="map-minicard__offers">${detailLines.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}
+        ${rewardEligibilityHtml(pin.b)}
         ${isStar ? '<p class="map-minicard__star-note">每天換一間，明天就不是它了</p>' : ''}
         <div class="map-minicard__actions">
-            ${orLink(pin) ? `<a class="map-btn map-btn--primary map-btn--full" data-track="booking" data-liff-internal href="${escapeHtml(orLink(pin))}" target="_blank" rel="noopener">${pin.b ? '立即訂位' : '看餐廳頁'}</a>` : ''}
+            ${orLink(pin) ? `<a class="map-btn ${pin.b ? 'map-btn--primary' : 'map-btn--ghost'} map-btn--full" data-track="booking" data-liff-internal href="${escapeHtml(orLink(pin))}" target="_blank" rel="noopener">${pin.b ? '立即訂位' : '查看餐廳'}</a>` : ''}
             ${pin.ph ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="phone" href="tel:${escapeHtml(pin.ph)}">📞 電話</a>` : ''}
-            <a class="map-btn map-btn--ghost map-btn--labeled" data-track="navigation" href="${navigationUrl(pin.lat, pin.lng, pin.n)}" target="_blank" rel="noopener">🧭 導航</a>
+            <a class="map-btn map-btn--ghost map-btn--labeled" data-track="navigation" href="${navigationUrl(pin.lat, pin.lng, pin.n)}" target="_blank" rel="noopener">🧭 餐廳導航</a>
             <button type="button" class="map-btn map-btn--ghost map-btn--labeled map-btn--fav ${isFav(pin.id) ? 'is-fav' : ''}" data-fav aria-pressed="${isFav(pin.id)}">${isFav(pin.id) ? '❤️ 已收藏' : '🤍 收藏'}</button>
             <button type="button" class="map-btn map-btn--ghost map-btn--labeled" data-share>↗ 分享</button>
         </div>
@@ -1789,7 +1817,7 @@ async function fillParking(pin, elId = 'miniCardParking') {
             '<span class="map-parking__icon" aria-hidden="true">🅿️</span>' +
             `<span class="map-parking__stat">${availInner}${Number.isFinite(lot.walkMin) ? `<span class="map-parking__walk">・步行 ${lot.walkMin} 分</span>` : ''}</span>` +
             `<span class="map-parking__text">${escapeHtml(lot.name)}</span>` +
-            `<a class="map-parking__nav" href="${navigationUrl(lot.lat, lot.lng, lot.name)}" target="_blank" rel="noopener" data-park-nav>導航</a>`;
+            `<a class="map-parking__nav" href="${navigationUrl(lot.lat, lot.lng, lot.name)}" target="_blank" rel="noopener" data-park-nav aria-label="導航到停車場：${escapeHtml(lot.name)}">停車場導航</a>`;
         const nav = el.querySelector('[data-park-nav]');
         if (nav) nav.addEventListener('click', () => track('map_parking_nav_click', { or_id: pin.id, lot: lot.name }));
     };
@@ -1961,7 +1989,7 @@ async function drawSpotlight() {
         const streakDays = getStreak().days;
         body.innerHTML = `<p class="map-spotlight__loading">🎲 今日 ${diceQuota()} 次手氣用完啦！<br>
             明天 0 點自動補滿${streakDays < STREAK_BONUS_DAYS ? '，連續來 3 天、每天多送 2 次 🔥' : ''}</p>`;
-        links.innerHTML = '<button type="button" class="map-btn map-btn--primary" id="quotaBrowseBtn">先看看附近有哪些優惠</button>';
+        links.innerHTML = '<button type="button" class="map-btn map-btn--primary map-btn--full" id="quotaBrowseBtn">先看看附近有哪些優惠</button>';
         document.getElementById('quotaBrowseBtn').addEventListener('click', () => {
             closeSpotlight();
             setSheetOpen(true);
@@ -2101,6 +2129,11 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
     if (ho) dealBadges += '<span class="map-badge map-badge--offer">訂位優惠</span>';
     if (bookable) dealBadges += '<span class="map-badge map-badge--cashback">出席回饋 NT$3/人</span>'; // 基本盤，與加碼優惠並存
     const detailLines = dealDetailLines({ hm, mc, offers, bookable });
+    const actionPin = pin || {
+        id: r.or_id, n: r.name, d: [r.city, r.district].filter(Boolean).join('・'),
+        bud: r.budget, r: r.rating, t: hm ? 'menu' : ho ? 'offer' : bookable ? 'cashback' : 'none',
+        hm: !!hm, ho: !!ho, b: !!bookable, img: heroImage, dl: r.dl, url: r.url,
+    };
 
     body.innerHTML = `
         ${photoStripHtml({ id: r.or_id, img: heroImage }, 'spotlightStrip')}
@@ -2121,6 +2154,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
             <div class="map-spotlight__parking map-minicard__parking" id="spotlightParking" hidden></div>
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
             ${detailLines.length ? `<ul class="map-minicard__offers">${detailLines.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}
+            ${rewardEligibilityHtml(bookable)}
         </div>
     `;
 
@@ -2130,9 +2164,11 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
     if (parkSrc && parkSrc.lat != null) fillParking(parkSrc, 'spotlightParking');
 
     links.innerHTML = `
-        ${orLink(r) ? `<a class="map-btn map-btn--primary" data-track="booking" data-liff-internal href="${escapeHtml(orLink(r))}" target="_blank" rel="noopener">${r.bookable ? '立即訂位' : '看餐廳頁'}</a>` : ''}
+        ${orLink(r) ? `<a class="map-btn ${bookable ? 'map-btn--primary' : 'map-btn--ghost'} map-btn--full" data-track="booking" data-liff-internal href="${escapeHtml(orLink(r))}" target="_blank" rel="noopener">${bookable ? '立即訂位' : '查看餐廳'}</a>` : ''}
         ${r.phone ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="phone" href="tel:${escapeHtml(r.phone)}">📞 電話</a>` : ''}
-        ${hasCoords ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="navigation" href="${navigationUrl(coords.lat, coords.lng, r.name)}" target="_blank" rel="noopener">🧭 導航</a>` : ''}
+        ${hasCoords ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="navigation" href="${navigationUrl(coords.lat, coords.lng, r.name)}" target="_blank" rel="noopener">🧭 餐廳導航</a>` : ''}
+        ${actionPin.id != null ? `<button type="button" class="map-btn map-btn--ghost map-btn--labeled map-btn--fav ${isFav(actionPin.id) ? 'is-fav' : ''}" data-spotlight-fav aria-pressed="${isFav(actionPin.id)}">${isFav(actionPin.id) ? '❤️ 已收藏' : '🤍 收藏'}</button>` : ''}
+        ${actionPin.id != null ? '<button type="button" class="map-btn map-btn--ghost map-btn--labeled" data-spotlight-share>↗ 分享</button>' : ''}
     `;
     links.querySelectorAll('a[data-track]').forEach(a => {
         a.addEventListener('click', () => {
@@ -2140,6 +2176,17 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
             track(evt, { or_id: r.or_id, name: r.name, sponsored: isSponsoredPick, source: 'spotlight' });
         });
     });
+    const favBtn = links.querySelector('[data-spotlight-fav]');
+    if (favBtn) favBtn.addEventListener('click', () => {
+        const nowFav = toggleFav(actionPin.id);
+        favBtn.classList.toggle('is-fav', nowFav);
+        favBtn.setAttribute('aria-pressed', String(nowFav));
+        favBtn.textContent = nowFav ? '❤️ 已收藏' : '🤍 收藏';
+        showPillMessage(nowFav ? '已加入收藏 ❤️' : '已移除收藏', 1800);
+        afterFavChange();
+    });
+    const shareBtn = links.querySelector('[data-spotlight-share]');
+    if (shareBtn) shareBtn.addEventListener('click', () => shareRestaurant(actionPin));
     wirePhotoStrip({ id: r.or_id, n: r.name, img: heroImage }, 'spotlightStrip'); // 照片帶同小卡
 }
 
@@ -2175,6 +2222,35 @@ function closeSpotlight() {
 }
 
 // ---- 定位 ----
+
+const LOCATION_PREF_KEY = 'rr_location_preference';
+
+function setLocationPreference(value) {
+    try { localStorage.setItem(LOCATION_PREF_KEY, value); } catch (e) { /* private mode */ }
+}
+
+function hideLocationPrimer() {
+    const primer = document.getElementById('locationPrimer');
+    if (primer) primer.hidden = true;
+}
+
+function showLocationPrimer() {
+    const primer = document.getElementById('locationPrimer');
+    if (!primer) return;
+    primer.hidden = false;
+    requestAnimationFrame(() => document.getElementById('locationPrimerAllow')?.focus());
+    track('map_location_primer_shown', {});
+}
+
+function requestInitialLocation() {
+    // 從分享連結進來時先讓使用者看餐廳，不用定位說明蓋住主內容。
+    const miniCard = document.getElementById('mapMiniCard');
+    if (miniCard && !miniCard.hidden) return;
+    let pref = null;
+    try { pref = localStorage.getItem(LOCATION_PREF_KEY); } catch (e) { /* private mode */ }
+    if (pref === 'enabled') locateUser({ silent: true });
+    else if (pref !== 'browse') showLocationPrimer();
+}
 
 // 實時藍點：首次定位成功後持續跟隨（Google 式「邊走邊找」）。
 // 只更新點位、不動鏡頭（鏡頭主導權在用戶）；頁面退到背景暫停省電、回前景恢復。
@@ -2234,8 +2310,7 @@ function locateUser({ silent = false } = {}) {
     });
 }
 
-// 進場即請求定位（Owner 決策 2026-07-06：好康地圖以「你附近」為核心，
-// 開門見山要位置；拒絕也不擋路，地圖照樣能逛、能搜尋、能抽）
+// 首次進場先說明定位價值；使用者選擇開啟後才觸發原生權限提示。
 
 function showUserMarker() {
     const L = window.L;
@@ -2701,7 +2776,23 @@ function wireControls() {
         });
     });
 
-    document.getElementById('chipLocate').addEventListener('click', () => locateUser({ silent: false }));
+    document.getElementById('chipLocate').addEventListener('click', () => {
+        setLocationPreference('enabled');
+        locateUser({ silent: false });
+    });
+
+    document.getElementById('locationPrimerAllow').addEventListener('click', () => {
+        setLocationPreference('enabled');
+        hideLocationPrimer();
+        track('map_location_primer_choice', { choice: 'enabled' });
+        locateUser({ silent: false });
+    });
+    document.getElementById('locationPrimerSkip').addEventListener('click', () => {
+        setLocationPreference('browse');
+        hideLocationPrimer();
+        track('map_location_primer_choice', { choice: 'browse' });
+        showPillMessage('沒問題，仍可搜尋、滑地圖或用骰子找餐廳', 3500);
+    });
 
     // 🅿️ 停車圖層開關：一鍵在地圖顯示可視範圍內的停車場（含即時空位）
     const chipParking = document.getElementById('chipParking');
@@ -2784,11 +2875,11 @@ function wireControls() {
     let peekSafeInset = null; // 開機必在 peek：反推 safe-area-inset-bottom 的實際 px（CSS env 無法直接讀）
     const sheetDetents = () => {
         const H = sheetEl.getBoundingClientRect().height;
-        if (peekSafeInset == null) peekSafeInset = Math.max(0, H - 52 - sheetTyNow());
+        if (peekSafeInset == null) peekSafeInset = Math.max(0, H - 68 - sheetTyNow());
         return {
             full: 0,
             half: Math.max(0, H - Math.min(window.innerHeight * 0.55, 480)),
-            peek: H - 52 - peekSafeInset,
+            peek: H - 68 - peekSafeInset,
         };
     };
 
@@ -2857,10 +2948,12 @@ function wireControls() {
     document.addEventListener('keydown', e => {
         if (e.key !== 'Escape') return;
         const viewer = document.getElementById('photoViewer');
+        const locationPrimer = document.getElementById('locationPrimer');
         const searchResults = document.getElementById('mapSearchResults');
         const spotlight = document.getElementById('mapSpotlight');
         const minicard = document.getElementById('mapMiniCard');
-        if (viewer && !viewer.hidden) closePhotoViewer();
+        if (locationPrimer && !locationPrimer.hidden) document.getElementById('locationPrimerSkip')?.click();
+        else if (viewer && !viewer.hidden) closePhotoViewer();
         else if (searchResults && !searchResults.hidden) closeSearch();
         else if (spotlight && !spotlight.hidden) closeSpotlight();
         else if (minicard && !minicard.hidden) closeMiniCard();
@@ -3092,8 +3185,8 @@ export async function initMapPage() {
             }
         } catch (e) { /* ignore */ }
 
-        // 進場即請求定位（拒絕不擋路：地圖照樣能逛、能搜尋）
-        locateUser({ silent: true });
+        // 首次先說明定位能帶來的價值，再由使用者決定是否觸發系統權限。
+        requestInitialLocation();
     } catch (err) {
         console.error('地圖初始化失敗:', err);
         const canvas = document.getElementById('liffMap');
