@@ -3,7 +3,7 @@ name: map-data-refresh
 # 自動把地圖資料刷到最新並部署——「checker 掃完即時上，不用手動」。
 #
 # 分工（因 OpenRice WAF 擋機房 IP，爬蟲只能在住宅 IP 跑）：
-#   1) 爬新資料：你本機/24hr 電腦跑 openrice-closure-checker 的 daily_closure_check.py
+#   1) 爬新資料：你本機/24hr 電腦跑 openrice-google-sync-checker 的 daily_closure_check.py
 #      → commit 最新 data/openrice.db 到 checker repo（住宅 IP，這步在你那邊）
 #   2) 變成地圖 + 部署（本 workflow，純 SQLite→JSON，雲端跑得動）：
 #      每 15 分鐘抓 checker 最新 db → 比對雜湊，db 有變才重生 map_pins /
@@ -16,7 +16,7 @@ name: map-data-refresh
 #     （run_daily_local.sh 設 APP_DISPATCH_TOKEN 即會自動打），本 workflow 立刻跑一次、同樣走雜湊閘。
 #
 # ⚙️ 一次性設定：Settings → Secrets and variables → Actions 新增
-#   CHECKER_TOKEN = 對 harveylin0316/openrice-closure-checker 有 Contents:Read 的 fine-grained PAT。
+#   CHECKER_TOKEN = 對 harveylin0316/openrice-google-sync-checker 有 Contents:Read 的 fine-grained PAT。
 
 on:
   schedule:
@@ -45,7 +45,7 @@ jobs:
       - name: Fetch latest checker DB
         uses: actions/checkout@v4
         with:
-          repository: harveylin0316/openrice-closure-checker
+          repository: harveylin0316/openrice-google-sync-checker
           token: ${{ secrets.CHECKER_TOKEN }}
           path: _checker
           sparse-checkout: data/openrice.db
@@ -84,7 +84,12 @@ jobs:
         run: |
           DB=_checker/data/openrice.db
           python3 export_checker_overlay.py --db "$DB"
-          python3 export_external_pois.py   --db "$DB"
+          # 灰點（未合作 POI）暫時凍結，維持既有 external_pois.json 不重生。
+          # 原因：checker db 自 2026-07-20 併入全站 catalog（3,099→48,165 家）後，
+          # export_external_pois.py 沒有品質門檻，重生會讓灰點從 1,251 → 24,063 家，
+          # 灌爆地圖並拖慢 LINE WebView 載入。Owner 決定灰點維持現狀、只更新彩色合作店。
+          # 要恢復：先在 export_external_pois.py 加 bookmark_count 門檻（>=50 約 1,724 家）再取消註解。
+          # python3 export_external_pois.py   --db "$DB"
           python3 generate_map_pins.py
 
       - name: Commit & push
