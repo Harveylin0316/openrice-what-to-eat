@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="color-scheme" content="light">
     <title>OpenRice 好康地圖</title>
+    <!-- 正式環境 LIFF ID（新 provider 的 Login channel，2026-07 切換）。
+         寫在 <head> 內聯、app.js 之前執行：app.js 的 getLiffId() 優先讀 window.LIFF_ID
+         （順序：?liffId= 網址參數 > window.LIFF_ID > app.js 內建預設）。放這裡的好處：
+         此檔屬 /liff/*（Cache-Control must-revalidate），LIFF ID 跟著會重驗的 HTML 一起下發，
+         不必依賴被 LINE WebView 硬快取的 app.js。換 channel 時只改這一行即可。
+         舊 channel（已停用）：2008944358-649rLhGj -->
+    <script>window.LIFF_ID = '2007974193-JJfJNq2h';</script>
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">

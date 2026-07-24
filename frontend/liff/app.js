@@ -21,11 +21,12 @@ function getLiffId() {
         return window.LIFF_ID;
     }
     
-    // 默認值（已設置 LIFF ID）
-    // 目前使用舊版 LIFF Channel ID（穩定可用）
-    // Mini App ID（待修好 Development endpoint 後再切）：'2010198695-KNvBANCO'
-    const defaultLiffId = '2008944358-649rLhGj';
-    
+    // 默認值：新 provider 的 Login channel（2026-07 切換）。
+    // 正式環境實際靠 index.html <head> 內聯的 window.LIFF_ID 提供（上面那段先命中）；
+    // 這個內建預設是 window.LIFF_ID 未設時的保底，兩者保持一致。
+    // 舊 channel（已停用）：2008944358-649rLhGj
+    const defaultLiffId = '2007974193-JJfJNq2h';
+
     return defaultLiffId;
 }
 
