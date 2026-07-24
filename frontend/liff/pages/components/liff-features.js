@@ -54,7 +54,7 @@ function addShareButton() {
             const shareResult = await liff.shareTargetPicker([
                 {
                     type: 'text',
-                    text: '🍽️ 今天吃什麼？\n\n目前餐廳雙北較多，陸續新增\n\n快來試試看吧！'
+                    text: '🍽️ OpenRice 好康地圖\n\n附近合作餐廳、訂位優惠一次看\n\n快來試試看吧！'
                 }
             ]);
             

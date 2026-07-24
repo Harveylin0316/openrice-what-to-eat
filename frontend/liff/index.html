@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="color-scheme" content="light">
-    <title>今天吃什麼</title>
+    <title>OpenRice 好康地圖</title>
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="style.css">
     <!-- 生活地圖頁樣式（Leaflet 本體由 map.js 動態載入）。?v 破 webview 快取：
          改到 map.css 時，跟下方 __V 一起 bump，讓新樣式確實下發到用戶（不吃舊快取）。 -->
-    <link rel="stylesheet" href="map.css?v=r59">
+    <link rel="stylesheet" href="map.css?v=r60">
     <!-- 圖磚 CDN 先握手（DNS+TLS）：首張地圖圖磚更快出現（tileLayer 在 Leaflet 載完才連太晚） -->
     <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin>
     <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com">
@@ -56,7 +56,7 @@
         } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
 
         // __V：關鍵路徑破快取版本（單一來源，body 開機腳本讀這個）。
-        window.__V = 'r59';
+        window.__V = 'r60';
         // modulepreload：JS 模組鏈原本逐層發現（router→map→shared→constants 串行 4 層 RTT），
         // 首繪前全部並行預抓+預編譯 → 實測 pins 就緒時間大幅提前。舊 webview 不支援也只是忽略提示。
         try {
@@ -169,8 +169,8 @@
     <div class="container">
         <header class="header">
             <img src="openrice-logo.png" alt="OpenRice 開飯喇" class="partner-logo">
-            <h1>今天吃什麼</h1>
-            <p class="subtitle">不想再煩惱了嗎？讓骰子幫你決定</p>
+            <h1>OpenRice 好康地圖</h1>
+            <p class="subtitle">附近合作餐廳、訂位優惠一次看</p>
         </header>
 
         <!-- LIFF 初始化載入中 -->

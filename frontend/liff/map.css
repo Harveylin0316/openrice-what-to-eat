@@ -148,6 +148,39 @@ body.is-map-page { overflow: hidden; }
 .map-canvas.show-landmarks .map-landmark-label { display: block; }
 .map-canvas.is-spotlight .map-landmark-label { display: none; } /* 聚光燈時全部讓位 */
 
+/* 捷運站錨點（r60）：真實站點座標 + 官方路線色（buildMrtLayer）。
+ * 定位靠捷運站——它是「座標」不是「內容」，所以不吃點擊、壓在餐廳釘之下；
+ * 但它是最強的方位線索，字色比商圈錨點深一階，且 z≥14 起顯示到最大都不收
+ * （.show-mrt 由 map.js 切；商圈錨點 z≥17 讓位，車站不讓）。 */
+.map-mrt-wrap { background: transparent; border: none; }
+.map-mrt-label {
+  display: none;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #37474F; /* 深藍灰：比商圈棕深一階，站名要能一眼抓到 */
+  pointer-events: none;
+  text-shadow:
+    -1px -1px 2px #fff, 1px -1px 2px #fff, -1px 1px 2px #fff, 1px 1px 2px #fff,
+    0 0 3px #fff, 0 0 4px #fff;
+}
+/* 路線色圓點：轉乘站會有多顆（台北車站＝紅+藍）。細白邊讓黃色(環狀線)在白底也看得見。 */
+.map-mrt-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.95), 0 0 2px rgba(0, 0, 0, 0.35);
+  flex: none;
+}
+.map-canvas.show-mrt .map-mrt-label { display: inline-flex; }
+.map-canvas.is-spotlight .map-mrt-label { display: none; } /* 聚光燈時讓位，與其他錨點一致 */
+
 /* 連鎖品牌招牌錨點（r41）：麥當勞/星巴克…分店名（landmarks.json brands，OSM 每月刷）。
  * 認路靠招牌——但它是「路標」不是「我們的內容」：比商圈錨點再淡一階的灰藍小字，
  * z≥16 街區層級才顯示（.show-brands 由 map.js 切），永遠壓在彩色優惠釘之下。 */
@@ -1536,6 +1569,16 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
     -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000, 1px 1px 2px #000,
     0 0 3px #000, 0 0 4px #000;
 }
+/* 捷運站錨點：深色底提亮到近白 + 黑暈（路線色圓點不動，深色底一樣清楚） */
+:root[data-theme="dark"] .map-mrt-label {
+  color: #E3E9EF;
+  text-shadow:
+    -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000, 1px 1px 2px #000,
+    0 0 3px #000, 0 0 4px #000;
+}
+:root[data-theme="dark"] .map-mrt-dot {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7), 0 0 2px rgba(255, 255, 255, 0.45);
+}
 /* 品牌招牌錨點：深色底提亮灰藍 + 黑暈 */
 :root[data-theme="dark"] .map-brand-label {
   color: #AEB9C6;
@@ -1670,6 +1713,8 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 :root[data-textsize="lg"] .map-parking__nav { font-size: 15px; }
 :root[data-textsize="lg"] .map-pin-label { font-size: 15.5px; max-width: 170px; }
 :root[data-textsize="lg"] .map-landmark-label { font-size: 14px; }
+:root[data-textsize="lg"] .map-mrt-label { font-size: 14px; }
+:root[data-textsize="lg"] .map-mrt-dot { width: 8px; height: 8px; }
 :root[data-textsize="lg"] .map-brand-label { font-size: 13px; }
 :root[data-textsize="lg"] .map-brand-logo { width: 20px; height: 20px; }
 :root[data-textsize="lg"] .map-park-popup { font-size: 15px; }

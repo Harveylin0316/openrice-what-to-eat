@@ -29,7 +29,7 @@ function renderLotteryPage() {
     if (!mainContent) return;
     
     // 更新標題
-    document.title = '🎁 抽獎活動 - 今天吃什麼';
+    document.title = '🎁 抽獎活動 - OpenRice 好康地圖';
     
     const header = document.querySelector('.header h1');
     if (header) header.textContent = '🎁 抽獎活動';
