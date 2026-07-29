@@ -81,13 +81,6 @@
   status = 200
   force = true
 
-# LINE Webhook
-[[redirects]]
-  from = "/api/webhook"
-  to = "/.netlify/functions/webhook"
-  status = 200
-  force = true
-
 # 用戶行為追蹤
 [[redirects]]
   from = "/api/track"

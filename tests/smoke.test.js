@@ -32,7 +32,7 @@ test('public entry points redirect to LIFF while API and LIFF routes win first',
   assert.equal(redirects[catchAllIndex].to, '/liff/');
   assert.equal(redirects[catchAllIndex].status, 301);
 
-  for (const pathPrefix of ['/api/restaurants/*', '/api/parking/*', '/api/lottery/*', '/api/admin/*', '/api/webhook', '/api/track', '/liff/*']) {
+  for (const pathPrefix of ['/api/restaurants/*', '/api/parking/*', '/api/lottery/*', '/api/admin/*', '/api/track', '/liff/*']) {
     const routeIndex = redirects.findIndex(rule => rule.from === pathPrefix);
     assert.ok(routeIndex >= 0, `missing preserved route: ${pathPrefix}`);
     assert.ok(routeIndex < catchAllIndex, `${pathPrefix} must precede the public catch-all`);
