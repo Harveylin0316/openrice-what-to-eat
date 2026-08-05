@@ -355,37 +355,214 @@
     <button type="button" class="back-to-map-btn" id="backToMapBtn">🗺️ 回好康地圖</button>
 
     <!-- ★ 開機權威來源：內聯模組。index.html 每次都向伺服器驗證（不快取），所以這段
-         永遠是最新的，不受 app.js 被 webview 快取住舊版的影響——這正是根治「卡在正在
-         連線 LINE」的關鍵：地圖不依賴 LINE，無條件先開，只 import 最小相依（router）。 -->
+         永遠是最新的，不受 app.js 被 webview 快取住舊版的影響。
+
+         2026-08-05 起：改為「必須 LINE 登入才能使用」（Owner 決定，擋掉匿名流量）。
+         原本的設計是「地圖不依賴 LINE、無條件先開」，用來根治過去「卡在正在連線 LINE」；
+         現在既然要擋匿名，地圖就必然得等 LINE 驗明身分。為了不重蹈覆轍，這裡的每一條
+         失敗路徑都必須「給畫面 + 給出口」，絕不允許停在轉圈圈：
+           - SDK 載不到 / init 失敗 / 逾時 → 顯示原因 + 重試 + 直接用 LINE 開啟的按鈕
+           - 未登入 → 導去 LINE 登入（回來後原地繼續）
+           - 本機開發（localhost）→ 略過閘門，否則沒有 LINE 環境根本無法開發
+         注意：不提供任何線上可用的略過參數（?dev=1 只在 localhost 有效），
+         否則「擋匿名」等於形同虛設。 -->
     <script type="module">
-      // __V 已在 head 內聯定義（單一來源；也供 modulepreload 用）
-      import('./pages/router.js?v=' + window.__V).then(function (m) {
-        if (window.__rrBooted) return;
-        window.__rrBooted = true;
-        var el = document.getElementById('liffLoading');
-        if (el) el.style.display = 'none';
-        try { m.initRouter(); } catch (e) {
-          console.error('initRouter 失敗', e);
-          if (el) { el.style.display = ''; el.innerHTML = '<p style="padding:16px;color:#4E3B2D">初始化失敗：' + (e && e.message || e) + '</p><button onclick="location.reload()" style="padding:10px 22px;border:none;border-radius:10px;background:#E44E25;color:#fff;font-weight:600">重新載入</button>'; }
+      // 逾時預算刻意放寬：閘門失敗＝整個 app 不能用，寧可多等也不要誤判把人擋在外面。
+      // ★ 緊急關閉開關：改成 false 並部署，即可立刻恢復成「不強制登入」的舊行為。
+      var REQUIRE_LINE_LOGIN = true;
+      var GATE = { SDK_WAIT_MS: 10000, INIT_TIMEOUT_MS: 10000, LOGIN_NAV_MS: 10000, LATE_SDK_MS: 15000 };
+      // 迴圈防護用網址參數而非 sessionStorage：會發生無限重導的環境（Safari 封鎖儲存、
+      // iOS 經 universal link 彈到新分頁）正好就是 sessionStorage 失效的環境，
+      // 存在那裡的計數器永遠是 0，等於沒防護。網址參數跟著整趟跑，跨分頁也成立。
+      var RETURN_FLAG = '_rt';
+
+      function gateEl() { return document.getElementById('liffLoading'); }
+
+      // 剝掉 LINE 登入回傳的一次性參數，避免它們被包進下一輪 redirectUri 而讓網址無限膨脹。
+      function cleanUrl() {
+        var u = new URL(location.href);
+        ['code', 'state', 'error', 'errorCode', 'error_description', 'liffClientId', 'liffRedirectUri'].forEach(function (k) { u.searchParams.delete(k); });
+        return u.toString();
+      }
+      // 錯誤畫面的「重新載入」必須用這個：直接 location.reload() 會帶著已作廢的一次性 code
+      // 重跑，init 必定再失敗、永遠看到同一張錯誤畫面。
+      function gateReload() {
+        var u = new URL(cleanUrl());
+        u.searchParams.delete(RETURN_FLAG);
+        location.replace(u.toString());
+      }
+      window.__gateReload = gateReload;
+      // 深連結要帶著原本的參數（例如朋友分享的 ?r=<店家id>），否則點了會掉到通用地圖。
+      function deepLink() {
+        var u = new URL(location.href);
+        ['code', 'state', 'error', 'errorCode', 'error_description'].forEach(function (k) { u.searchParams.delete(k); });
+        return 'https://liff.line.me/' + (window.LIFF_ID || '') + (u.search || '');
+      }
+      function inLineApp() {
+        try { if (window.liff && typeof window.liff.isInClient === 'function') return window.liff.isInClient(); } catch (e) {}
+        return / Line\//i.test(navigator.userAgent);
+      }
+
+      // 顯示失敗畫面。設 __gateHandled 讓下面那段 10 秒保險不要覆蓋掉這裡的出口按鈕。
+      function showGateError(title, detail, opts) {
+        opts = opts || {};
+        window.__gateHandled = true;
+        var el = gateEl();
+        if (!el) return;
+        el.style.display = '';
+        // 已經在 LINE 裡就別給「用 LINE 開啟」（原地疊一層一樣會失敗），改以重新載入為主。
+        var primary = (!opts.forceDeepLink && inLineApp())
+          ? '<button onclick="window.__gateReload()" style="padding:10px 22px;border:none;border-radius:10px;background:#E44E25;color:#fff;font-size:15px;font-weight:600;">重新載入</button>'
+          : '<a href="' + deepLink() + '" style="display:inline-block;padding:10px 22px;border-radius:10px;background:#E44E25;color:#fff;font-size:15px;font-weight:600;text-decoration:none;">用 LINE 開啟</a>' +
+            '<button onclick="window.__gateReload()" style="margin-left:8px;padding:10px 18px;border:1px solid #e0dad6;border-radius:10px;background:#fff;color:#4E3B2D;font-size:15px;">重新載入</button>';
+        el.innerHTML =
+          '<p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#4E3B2D;">' + title + '</p>' +
+          '<p style="margin:0 0 14px;font-size:13px;color:#8d6e63;line-height:1.6;">' + (detail || '') + '</p>' + primary;
+      }
+      function setGateStatus(text) {
+        if (window.__gateHandled) return;
+        var el = gateEl(); if (!el) return;
+        var p = el.querySelector('p');
+        if (p) p.textContent = text;
+      }
+
+      function isLocalDev() {
+        var h = location.hostname;
+        return h === 'localhost' || h === '127.0.0.1' || h === '' || h.endsWith('.local');
+      }
+
+      function waitForLiffSdk(maxMs) {
+        return new Promise(function (resolve) {
+          if (window.liff) return resolve(window.liff);
+          var start = Date.now();
+          var t = setInterval(function () {
+            if (window.liff || Date.now() - start > maxMs) { clearInterval(t); resolve(window.liff || null); }
+          }, 120);
+        });
+      }
+
+      // 回傳 true = 身分已驗明，可以開地圖；false = 已顯示畫面或正在導去登入，不要開。
+      async function passLoginGate() {
+        if (!REQUIRE_LINE_LOGIN) return true;
+        if (isLocalDev() && new URLSearchParams(location.search).get('dev') === '1') return true;
+
+        var q = new URLSearchParams(location.search);
+        // 一定要在 init 之前取：LIFF init 成功後會 replaceState 把 code/state 洗掉。
+        var returnedFromLogin = q.has('code') || q.has('state') || q.has('error') || q.has(RETURN_FLAG);
+        // 使用者在 LINE 同意頁按了取消 → 絕不能自動再導一次，否則變成無畫面的無限迴圈。
+        if (q.get('error')) {
+          try { sessionStorage.removeItem(TRY_KEY); } catch (e) {}
+          showGateError('你取消了 LINE 登入', '好康地圖需要用 LINE 帳號登入才能使用。想繼續的話請重新登入。', { forceDeepLink: true });
+          return false;
         }
-      }).catch(function (e) {
-        // 連 router 都載不到 → 顯示原因讓用戶回報（不再默默卡住）
-        var el = document.getElementById('liffLoading');
-        if (el) el.innerHTML = '<p style="padding:16px;color:#4E3B2D">載入失敗：' + (e && e.message || e) + '</p><button onclick="location.reload()" style="padding:10px 22px;border:none;border-radius:10px;background:#E44E25;color:#fff;font-weight:600">重新載入</button>';
-      });
+
+        setGateStatus('正在連線 LINE…');
+        var sdk = await waitForLiffSdk(GATE.SDK_WAIT_MS);
+        if (!sdk) {
+          // 不要斷定「你不在 LINE」——慢網路下 SDK 只是還沒到，誤判會讓客服收到抱怨。
+          showGateError('連線 LINE 逾時', '請檢查網路後再試一次。');
+          // SDK 晚到就自動復原，不要讓畫面死在錯誤頁。
+          var t0 = Date.now();
+          var late = setInterval(function () {
+            if (window.liff) { clearInterval(late); window.__gateHandled = false; boot(); }
+            else if (Date.now() - t0 > GATE.LATE_SDK_MS) clearInterval(late);
+          }, 300);
+          return false;
+        }
+
+        try {
+          // 全頁只 init 一次：app.js 會 await 同一個 promise，避免兩邊搶同一個一次性授權碼。
+          if (!window.__liffInitPromise) {
+            window.__liffInitPromise = sdk.init({ liffId: window.LIFF_ID });
+          }
+          await Promise.race([
+            window.__liffInitPromise,
+            new Promise(function (_, rej) { setTimeout(function () { rej(new Error('連線逾時')); }, GATE.INIT_TIMEOUT_MS); })
+          ]);
+        } catch (e) {
+          // 注意：不要在這裡把 __liffInitPromise 設回 null。逾時只代表「等太久」，
+          // 底層 init 仍在進行；清掉會讓 app.js 再 init 一次而搶同一個一次性授權碼。
+          showGateError('連線 LINE 時發生問題', '請稍後再試一次。（' + (e && e.message || e) + '）');
+          return false;
+        }
+
+        if (!sdk.isLoggedIn()) {
+          // 已經從登入流程回來一趟卻仍未登入 → 再導只會無限閃爍（多半是瀏覽器擋住儲存空間）。
+          if (returnedFromLogin) {
+            showGateError('LINE 登入沒有完成', '可能是瀏覽器擋住了登入需要的儲存空間。請直接用 LINE 開啟好康地圖。', { forceDeepLink: true });
+            return false;
+          }
+          setGateStatus('正在前往 LINE 登入…');
+          // login() 在 LINE 內建瀏覽器可能是 no-op（不導頁也不丟錯）→ 需要兜底，
+          // 否則使用者永久卡在轉圈圈。逾時放寬到 10 秒，避免慢網路下導頁還沒完成就誤報。
+          var navTimer = setTimeout(function () {
+            showGateError('無法開啟 LINE 登入', '請用 LINE 重新開啟好康地圖。', { forceDeepLink: true });
+          }, GATE.LOGIN_NAV_MS);
+          // 導頁一開始就取消兜底計時器，避免在換頁過程中閃出錯誤畫面。
+          addEventListener('pagehide', function () { clearTimeout(navTimer); }, { once: true });
+          document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'hidden') clearTimeout(navTimer);
+          }, { once: true });
+          try {
+            var back = new URL(cleanUrl());
+            back.searchParams.set(RETURN_FLAG, '1');   // 讓「已經回來過一趟」跟著網址跑
+            sdk.login({ redirectUri: back.toString() });
+          } catch (e) {
+            clearTimeout(navTimer);
+            showGateError('無法開啟 LINE 登入', '請用 LINE 重新開啟好康地圖。（' + (e && e.message || e) + '）', { forceDeepLink: true });
+          }
+          return false;
+        }
+
+        setGateStatus('正在載入地圖…');
+        return true;
+      }
+
+      async function boot() {
+        var ok = false;
+        try { ok = await passLoginGate(); }
+        catch (e) { showGateError('無法驗證身分', String(e && e.message || e)); return; }
+        if (!ok) return;
+
+        // 閘門通過後才開始算保險時間（原本從 parse 就起算，會在地圖還沒載完就誤報失敗）。
+        window.__gateDoneAt = Date.now();
+
+        // __V 已在 head 內聯定義（單一來源；也供 modulepreload 用）
+        import('./pages/router.js?v=' + window.__V).then(function (m) {
+          if (window.__rrBooted) return;
+          window.__rrBooted = true;
+          var el = gateEl();
+          if (el) el.style.display = 'none';
+          try { m.initRouter(); } catch (e) {
+            console.error('initRouter 失敗', e);
+            if (el) { el.style.display = ''; el.innerHTML = '<p style="padding:16px;color:#4E3B2D">初始化失敗：' + (e && e.message || e) + '</p><button onclick="location.reload()" style="padding:10px 22px;border:none;border-radius:10px;background:#E44E25;color:#fff;font-weight:600">重新載入</button>'; }
+          }
+        }).catch(function (e) {
+          var el = gateEl();
+          if (el) el.innerHTML = '<p style="padding:16px;color:#4E3B2D">載入失敗：' + (e && e.message || e) + '</p><button onclick="location.reload()" style="padding:10px 22px;border:none;border-radius:10px;background:#E44E25;color:#fff;font-weight:600">重新載入</button>';
+        });
+      }
+
+      boot();
     </script>
     <!-- 保險出口（classic，最相容，不依賴任何模組）：連內聯模組都沒跑起來（例如整個
          模組圖載入失敗），10 秒後給重載鈕，不讓用戶乾瞪載入畫面。 -->
     <script>
       (function () {
-        setTimeout(function () {
+        // 保險的職責是「沒人接管時才出手」。閘門若已顯示自己的錯誤畫面（__gateHandled），
+        // 這裡絕不能覆蓋——否則會把唯一的出口（用 LINE 開啟）洗掉，只剩一顆按了也沒用的重載鈕。
+        // 另外時間從 25 秒起算：閘門最壞情況要等 SDK 10s + init 10s，之後才開始載
+        // router/leaflet/pins，用 10 秒會在地圖還沒載完就誤報失敗、把人趕去無限重載。
+        function check() {
+          if (window.__gateHandled) return;                 // 閘門已接管，不插手
           var el = document.getElementById('liffLoading');
           if (el && el.style.display !== 'none' && el.offsetParent !== null) {
             el.innerHTML =
               '<p style="margin:0 0 12px;font-size:15px;color:#4E3B2D;">載入遇到問題，重新整理試試 🙏</p>' +
               '<button onclick="location.reload()" style="padding:10px 22px;border:none;border-radius:10px;background:#E44E25;color:#fff;font-size:15px;font-weight:600;">重新載入</button>';
           }
-        }, 10000);
+        }
+        setTimeout(check, 25000);
       })();
     </script>
     <!-- app.js 只負責 LINE 背景初始化（拿 profile / 分享用），與地圖開機無關 -->

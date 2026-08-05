@@ -2,15 +2,19 @@
 // 負責 LIFF 初始化和路由管理
 
 // 註：不再 import router（地圖開機已由 index.html 內聯負責）；app.js 只做背景 LIFF。
-import { track, setUserContext } from './shared/tracker.js';
+import { track, setUserContext, markUserContextReady } from './shared/tracker.js';
 
 // LINE LIFF ID（需要在 LINE Developers Console 獲取）
 // 優先順序：1. URL 參數 2. 環境變數 3. 默認值
 function getLiffId() {
-    // 從 URL 參數獲取（方便測試）
+    // 從 URL 參數獲取（方便測試）— 僅限本機。
+    // 線上若允許 ?liffId= 覆寫，等於讓人指向自己的 LIFF app 通過登入閘門，
+    // 而且會造成同一頁對兩個不同 LIFF app 各 init 一次。
+    const host = window.location.hostname;
+    const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '' || host.endsWith('.local');
     const urlParams = new URLSearchParams(window.location.search);
     const urlLiffId = urlParams.get('liffId');
-    if (urlLiffId) {
+    if (isLocal && urlLiffId) {
         console.log('從 URL 參數獲取 LIFF ID:', urlLiffId);
         return urlLiffId;
     }
@@ -45,8 +49,10 @@ const mainContent = document.getElementById('mainContent');
 /**
  * 初始化 LIFF
  */
-// SDK 有時比 DOMContentLoaded 晚一點就緒（或載入失敗）→ 短暫輪詢等它，等不到就放棄。
-async function waitForLiffSdk(maxMs = 3000) {
+// SDK 有時比 DOMContentLoaded 晚一點就緒（或載入失敗）→ 輪詢等它，等不到就放棄。
+// 逾時必須 >= index.html 登入閘門的 GATE.SDK_WAIT_MS(10s)：若這裡先放棄，
+// 會變成「閘門放行、使用者已登入，但這支拿不到 profile」→ 整場事件 line_id 全是 null。
+async function waitForLiffSdk(maxMs = 12000) {
     if (window.liff) return window.liff;
     const start = Date.now();
     while (!window.liff && Date.now() - start < maxMs) {
@@ -62,9 +68,15 @@ async function initLiffBackground() {
     try {
         liff = await waitForLiffSdk();
         if (!liff) throw new Error('LIFF SDK 未載入（window.liff undefined）');
+        // 共用 index.html 登入閘門建立的那個 init promise。
+        // 兩邊各自 init 會同時拿同一個一次性授權碼去換 token，慢的那邊必定失敗——
+        // 若失敗的是這裡，使用者明明剛登入成功，事件卻會被記成 liff_unavailable、is_in_line=false。
+        if (!window.__liffInitPromise) {
+            window.__liffInitPromise = liff.init({ liffId: LIFF_ID });
+        }
         await Promise.race([
-            liff.init({ liffId: LIFF_ID }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('LIFF init 逾時')), 8000)),
+            window.__liffInitPromise,
+            new Promise((_, reject) => setTimeout(() => reject(new Error('LIFF init 逾時')), 12000)),
         ]);
         if (liff.isLoggedIn()) {
             try {
@@ -90,11 +102,15 @@ async function initLiffBackground() {
             os: liff.getOS(),
             language: liff.getLanguage(),
         });
+        // 身分已確定 → 放行先前排隊的事件（開場那批才不會變匿名）
+        markUserContextReady();
         track('app_open', { logged_in: liff.isLoggedIn() });
     } catch (error) {
         console.warn('LIFF 背景初始化失敗（不影響地圖）:', error);
         try {
             setUserContext({ is_in_line: false, os: 'liff-unavailable', language: navigator.language });
+            // 確定拿不到身分也要放行，否則排隊的事件會卡到逾時才送、甚至整批遺失
+            markUserContextReady();
             track('app_open', { liff_unavailable: true });
         } catch (e) { /* ignore */ }
     }
@@ -132,8 +148,13 @@ function startLiffBackground() {
     if (window.__liffStarted) return;
     window.__liffStarted = true;
     const params = new URLSearchParams(window.location.search);
-    if (params.get('dev') === '1') {
+    // ?dev=1 只在本機有效。線上若讓它生效，使用者明明過了登入閘門、追蹤卻記成匿名，
+    // 與「擋掉匿名流量」的目的直接矛盾（而且等於留了一個公開的略過參數）。
+    const host = window.location.hostname;
+    const isLocalDev = host === 'localhost' || host === '127.0.0.1' || host === '' || host.endsWith('.local');
+    if (isLocalDev && params.get('dev') === '1') {
         setUserContext({ is_in_line: false, os: 'dev', language: navigator.language });
+        markUserContextReady();
         track('app_open', { dev: true });
         return;
     }

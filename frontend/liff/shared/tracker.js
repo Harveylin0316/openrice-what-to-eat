@@ -73,9 +73,12 @@ function send(eventName, properties) {
     session.lastAt = Date.now();
     session.eventCount += 1;
     try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(session)); } catch { /* private mode */ }
+    // __ts 是「事件發生的當下」；緩衝過的事件延後送出時要用它，不能用送出當下的時間，
+    // 否則時間軸會被壓縮成同一秒。
+    const { __ts, ...rest } = properties || {};
     const body = JSON.stringify({
         event_name: eventName,
-        properties: { ...commonProperties(), ...properties, event_index: session.eventCount },
+        properties: { ...commonProperties(), ...rest, event_index: session.eventCount, ...(__ts ? { client_ts: __ts } : {}) },
         session_id: session.id,
         ...userContext,
     });
@@ -85,17 +88,54 @@ function send(eventName, properties) {
     } catch (err) { console.debug('[track] fail:', err); }
 }
 
+// ── 身分就緒前先緩衝 ──────────────────────────────────────────────
+// 問題：track() 原本直接送出，而 line_id 是 app.js 拿到 LIFF profile 後才 setUserContext。
+// 地圖多半從快取秒開、getProfile 卻要跑一趟網路，所以開場那批事件
+// （analytics_session_start、map_open、分享連結進來的 map_restaurant_view…）
+// 全部帶著 line_id: null 送出去，事後無法回填。
+// 實測：30 天內有 71 個 session 是「同一次來訪部分事件有身分、部分沒有」，共 205 筆事件遺失身分。
+// 解法：身分確定前先排隊，確定後再依原順序送出（用 __ts 保留原始發生時間）。
+// 安全閥：① 逾時仍未就緒就照送（寧可匿名也不要整批遺失）② 使用者離開頁面時立刻清空佇列。
+const CTX_WAIT_MAX_MS = 10000;
+let ctxReady = false;
+let pending = [];
+let ctxTimer = null;
+
+function flushPending() {
+    ctxReady = true;
+    if (ctxTimer) { clearTimeout(ctxTimer); ctxTimer = null; }
+    const queued = pending;
+    pending = [];
+    for (const [name, props] of queued) send(name, props);
+}
+
+function enqueueOrSend(eventName, properties) {
+    const payload = { ...properties, __ts: new Date().toISOString() };
+    if (!ctxReady) {
+        pending.push([eventName, payload]);
+        if (!ctxTimer) ctxTimer = setTimeout(flushPending, CTX_WAIT_MAX_MS);
+        return;
+    }
+    send(eventName, payload);
+}
+
 function ensureLifecycle() {
     if (lifecycleStarted) return;
     lifecycleStarted = true;
-    send('analytics_session_start', {});
-    addEventListener('pagehide', () => send('analytics_session_end', {
-        duration_ms: Math.max(0, Date.now() - session.startedAt),
-        event_count: session.eventCount,
-    }), { once: true });
+    enqueueOrSend('analytics_session_start', {});
+    addEventListener('pagehide', () => {
+        // 頁面要走了：先把還在排隊的送出（否則整批遺失），再送結束事件。
+        flushPending();
+        send('analytics_session_end', {
+            duration_ms: Math.max(0, Date.now() - session.startedAt),
+            event_count: session.eventCount,
+        });
+    }, { once: true });
 }
 
 export function setUserContext(ctx) { userContext = { ...userContext, ...ctx }; }
+/** 身分已確定（或確定拿不到）→ 把排隊中的事件依序送出。app.js 成功與失敗路徑都要呼叫。 */
+export function markUserContextReady() { flushPending(); }
 export function getSessionId() { return session.id; }
 export function getVisitorId() { return visitorId; }
-export function track(eventName, properties = {}) { ensureLifecycle(); send(eventName, properties); }
+export function track(eventName, properties = {}) { ensureLifecycle(); enqueueOrSend(eventName, properties); }
