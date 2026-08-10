@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
 """
-從 openrice-closure-checker 的 SQLite 匯出「未合作餐廳」POI 快照
+從 openrice-google-sync-checker 的 SQLite 匯出「未合作餐廳」POI 快照
 （取代原 OSM 方案：資料更全、含 OpenRice 評分/菜系/連結 + Google 歇業比對）
 
 範圍：台北市全區（Owner 2026-07-06）
 條件：非合作（不在 partners）、OR 營業中(status=10)、有座標、
-      Google 比對非歇業（closed/closed_moved/closed_unverified/temp_closed 剔除）
+      Google 比對非歇業（closed/closed_moved/closed_unverified/temp_closed 剔除）、
+      **收藏數 >= MIN_BOOKMARKS**（Owner 2026-08-06）
 
-用法：python3 export_external_pois.py [--db /path/to/openrice.db]
-資料更新：closure-checker 每日 GitHub Action 更新 db 後，重跑本腳本再 commit。
+為什麼要收藏門檻：checker db 2026-07-20 起併入 OpenRice 全站 catalog（3,099 → 49,148 家），
+沒有品質門檻的話台北市符合條件的會有 24,404 家，灰點灌爆地圖、拖慢 LINE WebView 載入。
+灰點是「認路用的背景參考」不是內容，取有一定人氣的即可。實測（2026-08-06）：
+  >=0: 24,404 家 ／ >=20: 3,253 ／ **>=50: 1,684（現行）** ／ >=100: 935
+
+用法：python3 export_external_pois.py [--db /path/to/openrice.db] [--min-bookmarks N]
+資料更新：checker 每日更新 db 後，由 .github/workflows/nightly-refresh.yml 重跑本腳本再 commit。
 """
 
 import argparse
@@ -42,10 +48,15 @@ BBOX = {'lat_min': 24.96, 'lat_max': 25.22, 'lng_min': 121.45, 'lng_max': 121.67
 
 GOOGLE_CLOSED = {'closed', 'closed_moved', 'closed_unverified', 'temp_closed'}
 
+# 灰點品質門檻（見檔頭說明）。改這個數字前先看一次各門檻的家數，別讓地圖爆量。
+MIN_BOOKMARKS = 50
+
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--db', default=DEFAULT_DB)
+    ap.add_argument('--min-bookmarks', type=int, default=MIN_BOOKMARKS,
+                    help=f'收藏數門檻，低於此不上圖（預設 {MIN_BOOKMARKS}）')
     args = ap.parse_args()
 
     con = sqlite3.connect(args.db)
@@ -58,7 +69,8 @@ def main():
           AND r.status = 10
           AND r.lat IS NOT NULL AND r.lng IS NOT NULL
           AND r.name_tc IS NOT NULL
-    """).fetchall()
+          AND COALESCE(r.bookmark_count, 0) >= ?
+    """, (args.min_bookmarks,)).fetchall()
 
     pois = []
     skipped_geo = skipped_closed = 0
@@ -68,10 +80,12 @@ def main():
             continue
         d = r['district_name']
         lat, lng = r['lat'], r['lng']
-        in_taipei = (d in TAIPEI_DISTRICTS) or (
-            d is None
-            and BBOX['lat_min'] <= lat <= BBOX['lat_max']
-            and BBOX['lng_min'] <= lng <= BBOX['lng_max'])
+        # 座標必須落在台北盆地：OR 來源偶有「行政區寫台北、座標卻在外縣市」的髒資料
+        # （例：單眼皮双眼皮早餐輕食 掛萬華區、座標在新竹），只信 district 會在地圖上
+        # 畫出一顆位置完全錯誤的灰點。BBOX 對所有點都檢查，不只 district 缺漏時。
+        in_bbox = (BBOX['lat_min'] <= lat <= BBOX['lat_max']
+                   and BBOX['lng_min'] <= lng <= BBOX['lng_max'])
+        in_taipei = in_bbox and (d in TAIPEI_DISTRICTS or d is None)
         if not in_taipei:
             skipped_geo += 1
             continue
@@ -95,8 +109,9 @@ def main():
     pois.sort(key=lambda p: p['n'])
     payload = {
         'generated_at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
-        'source': 'openrice-closure-checker/openrice.db',
+        'source': 'openrice-google-sync-checker/openrice.db',
         'area': '台北市全區',
+        'min_bookmarks': args.min_bookmarks,
         'count': len(pois),
         'pois': pois,
     }
@@ -104,8 +119,12 @@ def main():
         json.dump(payload, f, ensure_ascii=False, separators=(',', ':'))
 
     size_kb = os.path.getsize(OUTPUT) / 1024
-    print(f"✅ external_pois.json：{len(pois)} 間未合作餐廳（台北市，{size_kb:.0f} KB）")
+    print(f"✅ external_pois.json：{len(pois)} 間未合作餐廳"
+          f"（台北市，收藏>={args.min_bookmarks}，{size_kb:.0f} KB）")
     print(f"   剔除：Google 歇業 {skipped_closed}、非台北市 {skipped_geo}")
+    # 爆量護欄：門檻設太低會讓灰點灌爆地圖、拖慢 LINE WebView（見檔頭）
+    if len(pois) > 4000:
+        print(f"   ⚠️ 灰點 {len(pois)} 家偏多（>4000），確認 --min-bookmarks 是否設太低")
     from collections import Counter
     dist = Counter(p.get('d', '（無區）') for p in pois)
     print('   分布：', dict(dist.most_common(13)))

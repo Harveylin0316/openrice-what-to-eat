@@ -84,12 +84,10 @@ jobs:
         run: |
           DB=_checker/data/openrice.db
           python3 export_checker_overlay.py --db "$DB"
-          # 灰點（未合作 POI）暫時凍結，維持既有 external_pois.json 不重生。
-          # 原因：checker db 自 2026-07-20 併入全站 catalog（3,099→48,165 家）後，
-          # export_external_pois.py 沒有品質門檻，重生會讓灰點從 1,251 → 24,063 家，
-          # 灌爆地圖並拖慢 LINE WebView 載入。Owner 決定灰點維持現狀、只更新彩色合作店。
-          # 要恢復：先在 export_external_pois.py 加 bookmark_count 門檻（>=50 約 1,724 家）再取消註解。
-          # python3 export_external_pois.py   --db "$DB"
+          # 灰點（未合作 POI）：2026-07-24 曾因 checker db 併入全站 catalog（無品質門檻會爆成
+          # 24,404 家）而暫時凍結；2026-08-06 在 export_external_pois.py 加上收藏數門檻
+          # MIN_BOOKMARKS=50（約 1,684 家）後恢復每日重生。改門檻請直接改該檔的常數。
+          python3 export_external_pois.py   --db "$DB"
           python3 generate_map_pins.py
 
       - name: Commit & push

@@ -990,7 +990,7 @@ function rebuildExtMembership() {
 // 灰點資料無法證明它符合，就不該顯示（否則等於假裝它符合）。
 // - 可訂位/加碼優惠/預算/收藏：合作條件，未合作店本就不符合 → 隱藏。
 // - 現在有開：灰點的 external_pois 沒有營業時間資料 → 無法證明「現在有開」。全部留著＝
-//   假裝 1261 家都開著，早上 7 點幾乎全關時特別離譜（用戶回報）→ 一律隱藏，只留「確定有開」的合作店。
+//   假裝上千家都開著，早上 7 點幾乎全關時特別離譜（用戶回報）→ 一律隱藏，只留「確定有開」的合作店。
 function extFilteredOut() {
     return activeFilters.deals || activeFilters.open || activeFilters.bookable
         || !!activeFilters.budget || activeFilters.favOnly;
@@ -3159,7 +3159,9 @@ export async function initMapPage() {
         buildLandmarkLayer(L); // 地標錨點（商圈/捷運站名，z14–16 顯示）
 
         // 外部 POI（1,262 顆灰點，只在 z≥16 顯示）延後載入：不與首屏搶頻寬/CPU。
-        // 首繪後 idle 再抓 + 建層（含 1262 marker 配置）；失敗不影響地圖（選配資料）。
+        // 首繪後 idle 再抓 + 建層（~1,700 個 circleMarker，靠 preferCanvas 畫在單一 canvas
+        // 上所以不吃 DOM；數量由 export_external_pois.py 的 MIN_BOOKMARKS 門檻決定）。
+        // 失敗不影響地圖（選配資料）。
         const loadExternalPois = () => fetch(new URL('../data/external_pois.json', import.meta.url))
             .then(r => (r.ok ? r.json() : null))
             .then(extRes => {
