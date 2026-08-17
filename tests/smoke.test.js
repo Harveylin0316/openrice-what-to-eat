@@ -178,3 +178,26 @@ test('restaurant filter-options route responds successfully', async () => {
   assert.equal(body.success, true);
   assert.ok(body.options);
 });
+
+// netlify-build.sh 會用 frontend/shared/* 覆蓋發布目錄的 /liff/shared/*，
+// 所以「repo 裡 frontend/liff/shared/ 的修改」不一定會上線——r35 的高評價門檻
+// 就是這樣躺在 repo 裡兩個月沒生效（線上 90% 的 rating>=4 店評論數 <5，
+// 卻一律標「高評價」）。這個測試把兩份釘在一起，分歧就會紅燈。
+test('shared/utils.js stays identical across both copies and keeps the review-count gate', () => {
+  const shipped = fs.readFileSync(path.join(root, 'frontend/shared/utils.js'), 'utf8');
+  const liffCopy = fs.readFileSync(path.join(root, 'frontend/liff/shared/utils.js'), 'utf8');
+
+  assert.equal(
+    shipped,
+    liffCopy,
+    'frontend/shared/utils.js 與 frontend/liff/shared/utils.js 不一致：' +
+    'build 會用前者覆蓋發布目錄，後者的修改不會上線'
+  );
+
+  // 「高評價」必須同時看評分與評論數，否則是話術（見上方註解）
+  assert.match(
+    shipped,
+    /rating\s*>=\s*4\s*&&\s*rc\s*>=\s*5/,
+    '高評價門檻（rating>=4 且 review_count>=5）不見了'
+  );
+});

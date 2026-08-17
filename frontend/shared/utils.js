@@ -64,11 +64,34 @@ export function getOpeningStatus(openingHours, now = new Date()) {
     }
     const todayKey = DAY_KEYS[now.getDay()];
     const todaySlots = openingHours[todayKey];
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+
+    // 先看「昨天的跨夜時段是否還沒打烊」：酒吧/宵夜店寫成 18:30-02:00，
+    // 凌晨 1 點時它屬於「昨天那一格」，只讀今天的時段會誤判成尚未營業／今日休息
+    // （實測週六 01:00 有 109 家被誤判關門，深夜正是這類店最需要被找到的時候）。
+    const ydaySlots = openingHours[DAY_KEYS[(now.getDay() + 6) % 7]];
+    if (Array.isArray(ydaySlots)) {
+        for (const slot of ydaySlots) {
+            const [openStr, closeStr] = (slot || '').split('-');
+            const open = parseTimeToMinutes(openStr);
+            let close = parseTimeToMinutes(closeStr);
+            if (open == null || close == null || close > open) continue; // 不跨夜就與現在無關
+            close += 24 * 60;
+            const nowFromYesterday = nowMin + 24 * 60;  // 把現在換算到「昨天的時間軸」
+            if (nowFromYesterday >= open && nowFromYesterday < close) {
+                const closeH = Math.floor(close / 60) % 24;
+                const closeLabel = `${String(closeH).padStart(2, '0')}:${String(close % 60).padStart(2, '0')}`;
+                return (close - nowFromYesterday <= 30)
+                    ? { status: 'closing-soon', label: `即將打烊 · ${closeLabel}`, openNow: true }
+                    : { status: 'open', label: `營業中 · ${closeLabel} 打烊`, openNow: true };
+            }
+        }
+    }
+
     if (!Array.isArray(todaySlots) || todaySlots.length === 0) {
         return { status: 'closed-today', label: '今日休息', openNow: false };
     }
 
-    const nowMin = now.getHours() * 60 + now.getMinutes();
     let nextOpen = null;
     let currentClose = null;
 
@@ -144,14 +167,15 @@ export function generateEvidence(restaurant, context = {}) {
     const { distance } = context;
 
     // ★ OpenRice 評分（最強說服力，新版資料源）
+    // 「高評價」要有底氣：至少 5 則評論才敢說（全庫 rating≥4 的店中位數僅 2 則，
+    // 無門檻會變話術——用戶點進 OpenRice 發現只有 1 則評論，信任直接崩）。
     const rating = restaurant.rating;
     if (typeof rating === 'number' && rating > 0) {
-        if (rating >= 4) {
-            facts.push({ p: 11, t: `OpenRice ${rating.toFixed(1)} 星，高評價` });
-        } else if (rating >= 3.5) {
-            facts.push({ p: 9, t: `OpenRice ${rating.toFixed(1)} 星` });
+        const rc = restaurant.review_count || 0;
+        if (rating >= 4 && rc >= 5) {
+            facts.push({ p: 11, t: `OpenRice ${rating.toFixed(1)} 星，高評價（${rc} 則）` });
         } else if (rating >= 3) {
-            facts.push({ p: 6, t: `OpenRice ${rating.toFixed(1)} 星` });
+            facts.push({ p: rating >= 3.5 ? 9 : 6, t: `OpenRice ${rating.toFixed(1)} 星${rc ? `（${rc} 則）` : ''}` });
         }
     }
 

@@ -24,7 +24,7 @@ export const FRONTEND_TYPE_CATEGORIES = [
 
 // API 基礎 URL 配置
 export function getApiBaseUrl() {
-    return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://localhost:3000/api'
-        : '/api';
+    // 同源相對路徑：正式站與本機（backend/server.js 同時 serve 靜態檔與 /api）都適用。
+    // 原本硬寫 localhost:3000，dev server 換埠就整個打不到。
+    return '/api';
 }

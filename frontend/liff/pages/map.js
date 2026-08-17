@@ -208,6 +208,7 @@ let map = null;
 let clusterGroup = null;
 let controlsWired = false;      // wireControls 只接一次線（初次 init 失敗重試時避免重複綁 listener）
 let allPins = [];               // map_pins.json 的原始資料
+let closedIds = new Set();      // 已永久歇業的 or_id（推薦 API 的池子沒過濾，見 isRecommendableId）
 let allPlaces = [];             // 搜尋用地點索引（行政區/地標，含質心座標）
 let allCats = [];               // 品類詞彙表（火鍋店/燒肉店/居酒屋…，pin.ct 為索引）
 let catFilter = null;           // 品類篩選 {label, set:Set<catIdx>}，搜尋或快捷 chip 設定
@@ -1767,8 +1768,9 @@ async function refreshParkingLayer() {
     const thisAbort = parkAbort;
     const b = map.getBounds();
     const bbox = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()].map(v => v.toFixed(5)).join(',');
-    const apiBase = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-        ? 'http://localhost:3000/api' : '/api';
+    // 同源相對路徑：正式站與本機（backend/server.js 同時 serve 靜態檔與 /api）都適用。
+    // 原本硬寫 localhost:3000，只要 dev server 不是 3000 埠就整個打不到（實測 3001 全部 ERR_CONNECTION_REFUSED）。
+    const apiBase = '/api';
     let lots;
     setParkingChipLoading(true);
     try {
@@ -1832,8 +1834,9 @@ async function fillParking(pin, elId = 'miniCardParking') {
     el.innerHTML = `<span class="map-parking__loading">🅿️ 查附近停車…</span>`;
     const parkMsg = (t) => { el.innerHTML = `<span class="map-parking__icon" aria-hidden="true">🅿️</span><span class="map-parking__text map-parking__loading">${escapeHtml(t)}</span>`; };
     // 停車查詢「就地」fetch，不 import api.js（靜態會拖垮 map.js、動態在 webview 會卡）。
-    const apiBase = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-        ? 'http://localhost:3000/api' : '/api';
+    // 同源相對路徑：正式站與本機（backend/server.js 同時 serve 靜態檔與 /api）都適用。
+    // 原本硬寫 localhost:3000，只要 dev server 不是 3000 埠就整個打不到（實測 3001 全部 ERR_CONNECTION_REFUSED）。
+    const apiBase = '/api';
     const base = `${apiBase}/parking/nearby?lat=${pin.lat}&lng=${pin.lng}`;
 
     // 沒有即時感測器的場（台北約 1/3）→ 不顯示無用的「即時不明」，改給「一定知道」的總車位「共 N 格」。
@@ -1963,6 +1966,16 @@ function pinToRestaurant(pin) {
     };
 }
 
+// 「幫我決定」在畫面內沒有候選時會退回推薦 API，而那支 API 讀主檔、沒有套用歇業名單
+// （實測 576 家池子裡有 70 家已永久歇業）→ 抽到就是叫使用者白跑一趟。
+// closedIds 由 map_pins.json 一起送來（generate_map_pins.py 產生時就知道這份名單）。
+// 刻意只擋「確認歇業」而不是「不在 allPins 裡」：有 8 家合作店只是缺座標沒上圖，
+// 它們仍是正常營業的店，聚光燈卡也處理得了無座標（不飛鏡頭、不顯示距離），不該連坐。
+function isRecommendableId(orId) {
+    if (orId == null || !closedIds.size) return true;   // 名單還沒到就不阻擋
+    return !closedIds.has(Number(orId));
+}
+
 // 「幫我決定」候選池 = 使用者眼前的世界：畫面內 + 通過目前篩選 + 今天有開
 function viewportCandidates() {
     if (!map) return [];
@@ -2079,12 +2092,22 @@ async function drawSpotlight() {
                 if (cancelled()) return;
             }
             restaurant = results[0] || null;
+            // 推薦 API 的池子沒有套用歇業名單（closed 只在 map_pins 產生時過濾），
+            // 實測 576 家池子裡有 70 家已永久歇業 → 抽到就是叫人白跑一趟。
+            // allPins 是已過濾的權威集合，不在裡面就換一次（只換一次，避免迴圈）。
+            if (restaurant && !isRecommendableId(restaurant.or_id)) {
+                spotlightExcludes.push(restaurant.name);
+                const swap = await fetchRecommendations(buildDecideFormData(), spotlightExcludes, 1);
+                if (cancelled()) return;
+                if (swap[0] && isRecommendableId(swap[0].or_id)) restaurant = swap[0];
+                else restaurant = null; // 換不到乾淨的就別推，讓下面走「這一帶沒有符合的店」
+            }
             // API 不會過濾今日休息：抽到就換一次（只換一次，避免迴圈）
             if (restaurant && getOpeningStatus(restaurant.opening_hours).status === 'closed-today') {
                 spotlightExcludes.push(restaurant.name);
                 const retry = await fetchRecommendations(buildDecideFormData(), spotlightExcludes, 1);
                 if (cancelled()) return;
-                if (retry[0]) restaurant = retry[0];
+                if (retry[0] && isRecommendableId(retry[0].or_id)) restaurant = retry[0];
             }
         }
 
@@ -3117,6 +3140,7 @@ export async function initMapPage() {
         allPins = pinsRes.pins || [];
         allPlaces = pinsRes.places || [];
         allCats = pinsRes.cats || [];
+        closedIds = new Set((pinsRes.closed || []).map(Number)); // 舊版 map_pins 沒有這欄 → 空集合＝不阻擋
 
         map = L.map('liffMap', {
             preferCanvas: true,
@@ -3199,8 +3223,7 @@ export async function initMapPage() {
         if (!window.__parkingWarmed) {
             window.__parkingWarmed = true;
             const warm = () => {
-                const apiBase = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-                    ? 'http://localhost:3000/api' : '/api';
+                const apiBase = '/api';  // 同源；原硬寫 localhost:3000 在非 3000 埠的本機開發會失效
                 try { fetch(`${apiBase}/parking/nearby?warm=1`).catch(() => {}); } catch (e) { /* 靜默 */ }
             };
             if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 4000 });

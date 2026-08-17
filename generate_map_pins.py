@@ -338,6 +338,10 @@ def main():
         'pins': pins,
         'places': places,
         'cats': cats,
+        # 永久歇業名單也一起送給前端：「幫我決定」在畫面內沒有候選時會退回推薦 API，
+        # 而那支 API 讀主檔、沒有套用這份名單（實測 576 家池子裡有 70 家已歇業）。
+        # 前端拿這份清單當黑名單，才不會把已經倒了的店推給使用者去白跑一趟。
+        'closed': sorted(int(c) for c in overlay['closed']),
     }
     with open(OUTPUT, 'w', encoding='utf-8') as f:
         json.dump(payload, f, ensure_ascii=False, separators=(',', ':'))
