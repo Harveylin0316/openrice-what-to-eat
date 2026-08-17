@@ -204,6 +204,10 @@ body.is-map-page { overflow: hidden; }
 /* 帶官方 logo 的品牌（麥當勞/星巴克，r50）：文字前加圓形 logo 小標——
  * 白底圓形收掉方形圖的白邊視覺、細邊+微影浮於底圖；載入失敗 onerror 移除退回純文字。 */
 .map-canvas.show-brands .map-brand-label--iconed { display: inline-flex; align-items: center; gap: 3px; }
+/* --iconed 的隱藏規則必須排在上面那行「之後」：兩者特異度相同(0,3,0)，
+   同分時由出現順序決勝。放前面會被上面的 display:inline-flex 蓋回去，
+   聚光燈畫面裡就會留著帶彩色 logo 的麥當勞/星巴克標籤，比抽中的餐廳還搶眼。 */
+.map-canvas.is-spotlight .map-brand-label--iconed { display: none; }
 .map-brand-logo {
   width: 18px;
   height: 18px;
@@ -333,7 +337,9 @@ body.is-map-page { overflow: hidden; }
   top: 12px;
   left: 12px;
   right: 12px;
-  z-index: 520; /* 高於 chips，結果下拉蓋在 chips 上 */
+  /* 660：必須高於 .map-sheet(650)。抽屜拉到全開時搜尋框仍露在上方（刻意保留），
+     但結果下拉若低於抽屜就會被整個蓋住，看起來像搜尋沒反應。仍低於卡片(700)。 */
+  z-index: 660; /* 高於 chips，結果下拉蓋在 chips 上 */
 }
 .map-search__input {
   width: 100%;
@@ -548,7 +554,10 @@ body.is-map-page { overflow: hidden; }
   right: 12px;
   /* 抬到骰子 FAB 上方，避免提示訊息蓋住主要操作 */
   bottom: calc(148px + var(--lm-safe-bottom));
-  z-index: 670;
+  /* 710：必須高於 .map-minicard/.map-spotlight(700)。toast 停在距底 148px，
+     正好落在卡片範圍內；低於卡片時「已加入收藏」「已複製連結」等回饋完全看不到。
+     仍低於照片檢視器(3000)。 */
+  z-index: 710;
   margin-inline: auto;
   max-width: 456px;
   background: rgba(26, 24, 21, 0.88);
@@ -1718,7 +1727,10 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 :root[data-textsize="lg"] .map-badge { font-size: 15px; }
 :root[data-textsize="lg"] .map-btn { font-size: 16px; }
 :root[data-textsize="lg"] .map-btn--labeled { font-size: 16px; }
-:root[data-textsize="lg"] .map-sheet__summary { font-size: 16px; }
+/* 摘要列的字級寫在子元素上（-main 15px / -meta 12px），設父層無效。
+   這行是抽屜收合時唯一永遠可見的文字，正是大字模式最該放大的地方。 */
+:root[data-textsize="lg"] .map-sheet__summary-main { font-size: 17px; }
+:root[data-textsize="lg"] .map-sheet__summary-meta { font-size: 14px; }
 :root[data-textsize="lg"] .map-sheet__item-name { font-size: 17px; }
 :root[data-textsize="lg"] .map-sheet__item-meta { font-size: 16px; }
 :root[data-textsize="lg"] .map-sheet__legend { font-size: 15px; }
