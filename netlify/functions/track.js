@@ -61,8 +61,11 @@ exports.handler = async (event) => {
     });
     return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
   } catch (err) {
+    // 只回固定字串：err.message 夾帶 PostgREST 的原始回應（欄位名、型別、錯誤碼），
+    // 而這支端點無需認證、CORS 為 *，等於把資料表結構回給任何匿名呼叫端。
+    // 診斷細節留在下面這行 console，Netlify function log 讀得到。
     console.error('[track] insert failed:', err);
-    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'track failed' }) };
   }
 };
 
