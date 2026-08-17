@@ -3,7 +3,8 @@
 OpenRice Taiwan 的 LINE LIFF 餐廳探索工具。使用者可在地圖上搜尋合作餐廳、查看訂位回饋與優惠、瀏覽照片、收藏分享，並查詢台北市附近停車場。
 
 - 正式站：<https://random-rice.netlify.app/liff/>
-- LIFF ID：`2008944358-649rLhGj`
+- LIFF ID：`2007974193-JJfJNq2h`（2026-07 換到新 provider；舊的 `2008944358-649rLhGj` 已停用）
+  唯一來源是 `frontend/liff/index.html` `<head>` 內聯的 `window.LIFF_ID`，換 channel 只改那一行
 - 正式環境：`main` 分支由 Netlify 自動建置部署
 - 公開入口：網域根目錄與舊版網址一律以 HTTP redirect 導向 `/liff/`；舊版 Web 推薦首頁不再對外提供
 
@@ -15,7 +16,7 @@ OpenRice Taiwan 的 LINE LIFF 餐廳探索工具。使用者可在地圖上搜�
 - 收藏、LINE 分享及 Google Maps 導航
 - 台北市附近停車場、即時空位及停車圖層
 - 隨機餐廳推薦、抽獎、會員與管理後台
-- 使用行為追蹤與 LINE webhook
+- 使用行為追蹤
 
 ## 技術架構
 
@@ -27,14 +28,18 @@ LINE LIFF / Web
               │
               ▼
        Netlify Functions
-       restaurants / parking / lottery / admin / track / webhook
+       restaurants / parking / lottery / admin / track
               │
               ├── repo 內 JSON 快照
               ├── Supabase（抽獎與會員，設定時使用）
               └── 台北市停車開放資料 + Netlify Blobs 快取
 ```
 
-餐廳地圖資料由 `openrice-closure-checker` 產生。GitHub Actions 每日讀取最新 SQLite DB，重生地圖 JSON，資料有變化才 commit `main` 並觸發部署。
+餐廳地圖資料由 `openrice-google-sync-checker`（2026-07 從 `openrice-closure-checker` 改名）產生。
+GitHub Actions 每日讀取最新 SQLite DB，重生地圖 JSON，資料有變化才 commit `main` 並觸發部署。
+
+LINE 官方帳號的 webhook、MGM 邀請、群發與自動化流程都在另一個 repo `openrice-line-crm`，不在本專案。
+本專案原有的 `/api/webhook`（加好友送抽獎次數）已於 2026-08 連同 function 一併移除。
 
 ## 重要目錄
 
@@ -88,14 +93,13 @@ LINE WebView 可能長時間保留舊 JavaScript。只要修改地圖啟動、ro
 | `ADMIN_API_KEY` | 管理後台認證；未設定時 Admin API 會拒絕所有請求 |
 | `SUPABASE_URL` | Supabase 專案 URL |
 | `SUPABASE_KEY` | Supabase server-side key |
-| `LINE_CHANNEL_SECRET` | 驗證 LINE webhook 簽章 |
 
 密鑰只能存放在 Netlify／GitHub secrets 或本機 `.env`，不可提交。Admin API 僅接受 `X-API-Key` header，不接受 query string 或 request body 中的 key。
 
 ## 資料來源
 
 - OpenRice Taiwan 餐廳與優惠資料
-- `openrice-closure-checker` 的餐廳狀態資料
+- `openrice-google-sync-checker` 的餐廳狀態資料（OR × Google Maps 每日比對）
 - 臺北市停車管理工程處開放資料
 - OpenStreetMap 地標資料
 

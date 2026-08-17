@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-從 openrice-closure-checker 的 SQLite 匯出「合作店對照層」快照 partner_overlay.json。
+從 openrice-google-sync-checker 的 SQLite 匯出「合作店對照層」快照 partner_overlay.json。
 
 合作店主檔(restaurants_database.json)是 openrice-crawler 每次匯出的（含 enabled / 城市白名單 /
 landmarks 等 app 規則），但欄位會過時。checker 的 openrice.db 每天在住宅 IP 重爬，
@@ -24,7 +24,9 @@ import sqlite3
 from datetime import datetime, timezone
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_DB = '/workspace/openrice-closure-checker/data/openrice.db'
+# 實務上都由 .github/workflows/nightly-refresh.yml 以 --db _checker/data/openrice.db 指定；
+# 這個預設值只是手動補跑時的方便值（checker repo 2026-07 已改名為 openrice-google-sync-checker）。
+DEFAULT_DB = os.environ.get('CHECKER_DB', os.path.expanduser('~/openrice-checker/data/openrice.db'))
 OUTPUT = os.path.join(BASE_DIR, 'frontend', 'liff', 'data', 'partner_overlay.json')
 
 # 只下架「確定永久歇業/搬遷」；temp_closed / closed_unverified 不動（checker 自述會誤判）
@@ -154,7 +156,7 @@ def main():
 
     payload = {
         'generated_at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
-        'source': 'openrice-closure-checker/openrice.db',
+        'source': 'openrice-google-sync-checker/openrice.db',
         'note': ('closed=永久歇業下架；partners[poi]=最新 name/座標/評分/照片/優惠/dl(短網址deeplink)。'
                  '座標名稱評分照片直接覆蓋、優惠只加不減。主檔仍為 restaurants_database.json'),
         'closed_count': len(closed),

@@ -1,146 +1,103 @@
-# LINE LIFF App - 今天吃什麼
+# OpenRice 好康地圖（LIFF 前端）
 
-這是「今天吃什麼」的 LINE LIFF 版本，可以在 LINE 內使用。
+LINE LIFF 網頁：使用者在 LINE 裡打開，用地圖找 OpenRice 合作餐廳、看訂位回饋與優惠、
+導航、分享。純 Vanilla JS + Leaflet，沒有 build step，改完直接是上線的樣子。
 
-## 功能特點
+專案整體說明（部署、資料來源、環境變數）看 repo 根目錄的 `README.md`，這裡只講前端。
 
-- ✅ 餐廳推薦功能（今天吃什麼）
-- ✅ LINE 特定功能（分享、關閉按鈕）
-- ✅ 路由系統（支持未來擴展多個頁面）
-- ✅ 移動端優化 UI/UX
-- ✅ 地理位置功能
-- ✅ 餐廳篩選（料理風格、類型、預算、地區）
+## 目錄結構
 
-## 架構說明
+| 路徑 | 用途 |
+|---|---|
+| `index.html` | 入口。LIFF ID、破快取版本 `__V`、開機腳本、登入閘門都在這 |
+| `pages/map.js` | 地圖主程式（3,300+ 行，核心） |
+| `pages/router.js` | 頁面路由（預設 `map`） |
+| `pages/home.js` / `pages/lottery.js` | 舊版推薦首頁 / 抽獎頁（皆已不是對外入口） |
+| `pages/components/liff-features.js` | 分享、關閉等 LINE 專屬功能 |
+| `map.css` | 地圖樣式 |
+| `shared/` | 與 `frontend/web` 共用的 api / utils / constants |
+| `data/` | build 時產生的 JSON：map_pins、partner_overlay、external_pois、photos、mrt_stations、landmarks |
+| `vendor/leaflet/` | Leaflet 本體（版本釘死，不走 CDN） |
 
-```
-frontend/liff/
-├── index.html              # 主頁面
-├── app.js                  # LIFF 初始化和路由啟動
-├── style.css              # 樣式文件
-├── pages/                 # 頁面模組
-│   ├── router.js          # 路由管理器
-│   ├── home.js            # 餐廳推薦頁面
-│   └── components/        # 組件
-│       └── liff-features.js  # LINE 特定功能
-└── shared/                # 共享模組（從 frontend/shared 複製）
-    ├── api.js
-    ├── constants.js
-    └── utils.js
-```
+> ⚠️ **`shared/` 是建置時會被覆蓋的副本。**`netlify-build.sh` 會用 `frontend/shared/*`
+> 覆蓋發布目錄的 `/liff/shared/*`，所以只改這裡的檔案**不會上線**（r35 的「高評價需 ≥5 則評論」
+> 就這樣躺了兩個月）。改 shared 模組時兩份都要改，`tests/smoke.test.js` 有測試會擋住分歧。
 
-## 設置步驟
+## 改 LIFF ID（換 channel）
 
-### 1. 獲取 LIFF ID
+**唯一正確的位置是 `index.html` `<head>` 裡的這一行：**
 
-1. 登入 [LINE Developers Console](https://developers.line.biz/console/)
-2. 選擇或創建 Provider
-3. 創建 **LINE Login Channel**
-4. 在 Channel 中創建 **LIFF App**
-5. 設置：
-   - **LIFF app name**: 今天吃什麼
-   - **Size**: Full（全螢幕）
-   - **Endpoint URL**: `https://your-site.netlify.app/liff`
-   - **Scope**: `profile`（獲取用戶基本資料）
-6. 複製 **LIFF ID**
-
-### 2. 配置 LIFF ID
-
-有兩種方式設置 LIFF ID：
-
-**方式 1：在 URL 參數中（測試用）**
-```
-https://your-site.netlify.app/liff?liffId=你的LIFF_ID
+```html
+<script>window.LIFF_ID = '2007974193-JJfJNq2h';</script>
 ```
 
-**方式 2：在代碼中設置（正式環境）**
-編輯 `frontend/liff/app.js`，將 `YOUR_LIFF_ID_HERE` 替換為你的 LIFF ID。
+目前是 2026-07 換到新 provider 的 Login channel；舊的 `2008944358-649rLhGj` 已停用。
 
-### 3. 部署
+為什麼放在 `index.html` 而不是 `app.js`：`app.js` 會被 LINE WebView 硬快取，改了不一定下發；
+`index.html` 屬 `/liff/*`（`Cache-Control: must-revalidate`），每次都會重新驗證。
 
-確保 `netlify-build.sh` 正確複製了共享模組到 `frontend/liff/shared/`。
+`app.js` 的 `getLiffId()` 取值順序：
 
-## 路由系統
+1. `?liffId=` 網址參數 —— **只在 localhost 生效**（線上允許覆寫等於讓人指向自己的 LIFF app 通過登入閘門）
+2. `window.LIFF_ID` ← 正式環境走這條
+3. `app.js` 內建預設（保底，與上面那行保持一致）
 
-當前支持的路由：
-- `/liff` 或 `/liff?page=home` - 餐廳推薦頁面（今天吃什麼）
+## 破快取：改 map.js / map.css 一定要 bump 版本
 
-未來可以添加：
-- `/liff?page=favorites` - 我的最愛
-- `/liff?page=history` - 搜尋歷史
-- `/liff?page=settings` - 設定
+`/liff/pages/*` 與 `map.css` 的快取是 **immutable 一年**，靠網址上的 `?v=` 破快取。
+改動這兩類檔案時，`index.html` 裡這兩處必須同時改成同一個值：
 
-### 添加新頁面
-
-1. 在 `frontend/liff/pages/` 創建新頁面文件（例如 `favorites.js`）
-2. 在 `router.js` 中添加路由映射：
-```javascript
-import { initFavoritesPage } from './favorites.js';
-
-const routes = {
-    'home': initHomePage,
-    'favorites': initFavoritesPage,  // 新增
-};
+```html
+<link rel="stylesheet" href="map.css?v=r63">
+...
+window.__V = 'r63';
 ```
 
-## LINE 特定功能
+漏改的話用戶會拿到舊 JS/CSS 配新資料。`tests/smoke.test.js` 有一條
+`critical LIFF cache-buster versions stay aligned` 會擋住兩處不一致。
 
-### 分享功能
-- 如果支援 `shareTargetPicker` API，會在標題右上角顯示分享按鈕
-- 點擊後可以分享給 LINE 好友
+`data/*.json` 是 `max-age=300`，會自己更新，不需要 bump。
 
-### 關閉功能
-- 如果在 LINE 內，會在標題左上角顯示關閉按鈕
-- 點擊後會關閉 LIFF App
+## 本機開發
 
-### 外部連結處理
-- 在 LINE 內打開外部連結時，會自動使用 `liff.openWindow()` 打開外部瀏覽器
-
-## Rich Menu 配置
-
-在 LINE 官方帳號的 Rich Menu 中，可以設置按鈕連結到：
-
-```
-https://your-site.netlify.app/liff?page=home
-```
-
-每個按鈕可以對應不同的頁面（通過 `page` 參數）。
-
-## 測試
-
-### 本地測試
-
-1. 啟動後端服務器：
 ```bash
-cd backend
-npm start
+cd backend && npm install && npm start   # 同時 serve 靜態檔與 /api
 ```
 
-2. 在瀏覽器中打開：
+然後開 `http://localhost:3000/liff/?dev=1&page=map`：
+
+- `?dev=1` —— 跳過 LIFF init，非 LINE 環境也能開地圖
+- `?page=map` —— 指定頁面（預設就是 map）
+
+注意 `/api/track`、`/api/parking` 只有 Netlify Functions 有實作，本機會 404，屬正常。
+
+## 在 LINE 內測試
+
 ```
-http://localhost:3000/liff?liffId=你的LIFF_ID
+https://liff.line.me/2007974193-JJfJNq2h
 ```
 
-### LINE 內測試
+要驗證某個 pin 的深連結：`https://liff.line.me/2007974193-JJfJNq2h?r=<or_id>`。
 
-1. 部署到 Netlify
-2. 在 LINE Developers Console 設置 LIFF App 的 Endpoint URL
-3. 在 LINE 內打開 LIFF App 進行測試
+## 地圖圖層與顯示層級
+
+| 圖層 | 來源 | 顯示條件 |
+|---|---|---|
+| 彩色合作店 pin | `map_pins.json` | 全程；顏色依優惠層級（套餐紅橘 / 訂位金黃 / 回饋淡點） |
+| 灰點（未合作餐廳） | `external_pois.json` | z≥16，且未被「可訂位/優惠/現在有開/預算/收藏」等篩選排除 |
+| 捷運站 | `mrt_stations.json` | z≥14 起**不設上限**（放大時最需要對方位） |
+| 商圈地標 | `map_pins.json` 的 `places` | z14–16（z≥17 讓位給街道字） |
+| 連鎖品牌招牌 | `landmarks.json` | z≥16 |
+
+灰點用 `preferCanvas` 畫在單一 canvas（不是 DOM 節點），所以一千多顆不影響效能。
 
 ## 注意事項
 
-- LIFF App 必須在 HTTPS 環境下運行（Netlify 自動提供）
-- 某些功能（如分享）只在 LINE 內可用
-- 地理位置功能需要用戶授權
-- 確保 `frontend/shared/` 模組已正確複製到 `frontend/liff/shared/`
-
-## 開發計劃
-
-- [x] 路由系統架構
-- [x] 餐廳推薦功能（今天吃什麼）
-- [x] LINE 特定功能（分享、關閉）
-- [x] UI/UX 優化
-- [ ] 我的最愛功能
-- [ ] 搜尋歷史功能
-- [ ] 設定頁面
-- [ ] 用戶個人化功能
+- LINE WebView 的快取很頑固，測不出改動時先確認 `__V` 有沒有 bump、再完全關掉頁面重開
+- 地圖刻意設計成**不依賴 LINE 也能開**：登入閘門在 `index.html` 內聯，不經過 `app.js`，
+  所以 `app.js` 載入失敗時地圖照常運作（但分享等 LINE 功能會退化）
+- 深色模式、大字模式在首繪前就套用（`index.html` 內聯腳本讀 localStorage），避免閃動
+- 新增樣式時，**淺色寫死的顏色要同時補深色覆寫**，否則深色模式會出現白底白字
+  （`--lm-surface` / `--lm-bg` / `--lm-text-body` 這些 token 已經處理好兩種模式，優先用它們）
+- 用 `[hidden]` 控制顯示的元素，CSS 若有 `display: flex/block`，必須另外補
+  `.xxx[hidden] { display: none; }`——作者樣式會蓋過瀏覽器預設

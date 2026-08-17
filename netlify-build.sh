@@ -26,7 +26,7 @@ if command -v node >/dev/null 2>&1 && [ -f "netlify/functions/gen-parking-lots.m
 fi
 
 # 未合作餐廳 POI：使用已提交的快照 frontend/liff/data/external_pois.json
-# （來源：openrice-closure-checker 的 openrice.db，台北市全區；
+# （來源：openrice-google-sync-checker 的 openrice.db，台北市全區；
 #   更新方式：python3 export_external_pois.py --db <checker的openrice.db> 後 commit）
 #
 # 合作店對照層：已提交的快照 frontend/liff/data/partner_overlay.json

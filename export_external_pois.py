@@ -25,7 +25,7 @@ import sqlite3
 from datetime import datetime, timezone
 
 # 防禦：OpenRice 少數店名登記成「編號+公司全名+門市名」，
-# 與 closure-checker 的 clean_corp_names.py 同規則（那邊清源頭，這邊保底）
+# 與 google-sync-checker 的 clean_corp_names.py 同規則（那邊清源頭，這邊保底）
 CORP_PREFIX = re.compile(r'^\d*[一-鿿（）()A-Za-z]*?(?:股份有限公司|有限公司)[-－·]?')
 
 
@@ -36,7 +36,8 @@ def clean_name(name):
     return stripped if stripped else name
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_DB = '/workspace/openrice-closure-checker/data/openrice.db'
+# 同 export_checker_overlay.py：正式流程由 workflow 指定 --db，這裡只是手動補跑的方便值。
+DEFAULT_DB = os.environ.get('CHECKER_DB', os.path.expanduser('~/openrice-checker/data/openrice.db'))
 OUTPUT = os.path.join(BASE_DIR, 'frontend', 'liff', 'data', 'external_pois.json')
 
 TAIPEI_DISTRICTS = {
