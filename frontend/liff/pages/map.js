@@ -2183,7 +2183,11 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
     const hm = r._hm || r.has_booking_menu || (r.booking_menus && r.booking_menus.length) || (pin && pin.hm);
     const ho = r._ho || r.has_booking_offer || offers.length || (pin && pin.ho);
     const mc = r._mc || r.booking_menu_count || (pin && pin.mc);
-    const bookable = (r.bookable != null ? r.bookable : (pin && pin.b));
+    // 可否訂位以 pin.b 為準（來自 partner_overlay，checker 每日重查 OR 現況的權威值），
+    // 主檔的 r.bookable 是舊快照、只在沒有 pin 時當退路。順序寫反會出金錢承諾的包：
+    // 實測 63 家主檔說可訂位、checker 說不可，卻照樣掛「出席回饋 NT$3/人」——
+    // 使用者訂不到位也拿不到回饋，其中還有 1 家是每 4 抽保底曝光的贊助店。
+    const bookable = (pin && typeof pin.b === 'boolean') ? pin.b : r.bookable;
     let dealBadges = '';
     if (hm) dealBadges += '<span class="map-badge map-badge--menu">套餐優惠</span>';
     if (ho) dealBadges += '<span class="map-badge map-badge--offer">訂位優惠</span>';

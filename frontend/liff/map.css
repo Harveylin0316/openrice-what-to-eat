@@ -904,7 +904,9 @@ body.is-map-page { overflow: hidden; }
   font-size: 13px;
   line-height: 1.5;
   color: var(--lm-text-body);
-  background: #F7F5F2;
+  /* 同上：寫死淺底在深色模式會變成刺眼白塊 + 讀不到的文字。
+     灰點（未合作店，地圖上最多的一種 pin）的唯一說明文字就在這裡。 */
+  background: var(--lm-bg);
   border-radius: 8px;
   padding: 8px 10px;
 }
@@ -1281,6 +1283,11 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   color: var(--lm-text-body);
   line-height: 1.35;
 }
+
+/* 隱藏分支要真的隱藏：作者樣式的 display:flex 會勝過瀏覽器預設的 [hidden]{display:none}，
+   少了這行，非台北市的 102 家合作店（停管處資料只涵蓋台北）會永遠卡著「查附近停車…」。
+   同檔 .map-location-primer[hidden] / .map-photoviewer[hidden] 是同一種寫法。 */
+.map-minicard__parking[hidden] { display: none; }
 .map-parking__icon { flex: 0 0 auto; font-size: 14px; }
 /* 剩餘車位＝決策關鍵：獨立欄位不可壓縮（r46 Owner：常被長場名擠到看不見），場名自己截斷 */
 .map-parking__stat { flex: 0 0 auto; }
@@ -1356,7 +1363,10 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
   padding: 0 12px;
   border-radius: 15px;
   border: 1px solid var(--lm-border);
-  background: #fff;
+  /* 用 token 不寫死白：深色模式 --lm-surface 會變 #2E3038，
+     寫死 #fff 會變成白底配淺色文字（對比 1.37:1），排序選項整排看不見。
+     與 .map-chip 的做法一致。 */
+  background: var(--lm-surface);
   color: var(--lm-text-body);
   font-size: 13px;
   font-weight: 500;
@@ -1533,16 +1543,22 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 /* 地圖底色（磚圖載入前/縫隙）：Google 風深藍灰，不用死黑 */
 :root[data-theme="dark"] .map-canvas,
 :root[data-theme="dark"] .map-canvas.leaflet-container { background: #1B2739; }
-/* CARTO dark_all 是純黑系；疊一層 navy 用 screen 混色把黑「提」成 Google 深藍灰。
- * screen(暗底圖, navy)→深藍；screen(白點/彩標, navy)≈幾乎不變（亮色疊暗色變化極小），
- * 所以標記、cluster 數字泡泡、店名標籤都不會被染色。z-index 300 介於 tilePane(200)
- * 與 overlayPane(400) 之上、控制項(≥800)之下；pointer-events:none 不吃點擊。 */
+/* CARTO dark_all 是純黑系；原意是疊一層灰藍用 screen 混色把黑「提」成中性板岩灰。
+ *
+ * ⚠️ 已知失效（2026-08 稽核發現，尚未修）：Leaflet 的 .leaflet-map-pane 自帶
+ * z-index:400 並形成獨立堆疊脈絡，tilePane(200)/overlayPane(400)/markerPane(600)
+ * 都是「它內部」的層級。本層掛在 .map-canvas 上、z-index:300，等於被整張地圖蓋住，
+ * 從未真的顯示過——所以顏色從 #454B57 調到 #5B6472 兩次都沒有任何視覺變化，
+ * 用戶仍反映太黑。要真的生效必須把它放進 map-pane 的堆疊脈絡內
+ * （例如對 .leaflet-tile-pane 套 filter，或用 JS 在 tilePane 內插一層 div）；
+ * 純 CSS 掛 .leaflet-tile-pane::after 不可行——pane 本身無寬高，偽元素算不出尺寸。
+ * 因涉及深色模式的視覺取捨，保留現狀待 Owner 決定要多亮再改。 */
 :root[data-theme="dark"] .map-canvas::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 300;
-  background: #5B6472; /* 偏灰藍：screen 把死黑提成中性板岩灰，明顯不再死黑（用戶兩次反映太黑）但仍是深色 */
+  background: #5B6472;
   mix-blend-mode: screen;
   pointer-events: none;
 }
