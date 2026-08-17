@@ -125,9 +125,17 @@ def main():
             continue  # 要下架的店不必再帶欄位
 
         entry = {}
-        # is_bookable 是 OpenRice 頁面的直接欄位（每列都有，非依賴 booking 子表），
-        # 比主檔(6/10)衍生的 bookable 可靠 → 權威覆蓋（可訂位＝出席回饋的前提）
-        entry['b'] = 1 if r['is_bookable'] else 0
+        # is_bookable 是 OpenRice 頁面的直接欄位，比主檔衍生的 bookable 可靠
+        # → 有值時權威覆蓋（可訂位＝出席回饋 NT$3 的前提）。
+        #
+        # ⚠️ NULL 一定要「不寫這個 key」，不能寫成 0：
+        # 原本寫 `1 if r['is_bookable'] else 0`，把 NULL（未知）當成 0（否）。
+        # crawler 抓到 404 頁時會把整列清空只留 poi_id（見 openrice-crawler 專案筆記），
+        # 目前有 120 家合作店是這種空白列、is_bookable 為 NULL。它們不是「驗證過不可訂位」，
+        # 只是狀態不明——寫成 0 等於謊報，實測會讓 25 家實際可訂位的店在卡片上
+        # 失去「出席回饋 NT$3/人」。key 缺席時前端會退回主檔值（與 n/lat/lng 同樣的約定）。
+        if r['is_bookable'] is not None:
+            entry['b'] = 1 if r['is_bookable'] else 0
         if r['name_tc']:
             entry['n'] = r['name_tc']
         if r['lat'] is not None and r['lng'] is not None:
