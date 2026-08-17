@@ -109,7 +109,10 @@ function parseBudgetRange(budgetStr) {
   }
   
   // 處理 "XXX以上" 格式
-  const aboveMatch = budgetStr.match(/(\d+)以上/);
+  // 主檔實際寫法是「1500 元以上」「100 元以內」：數字與「以上/以內」中間夾了「 元」，
+  // 且用「以內」不是「以下」。舊 regex 兩種都比不到 → 這些店拿不到預算分類。
+  // 必須與 generate_map_pins.py 的 map_budget_to_category 保持一致（見該檔 docstring）。
+  const aboveMatch = budgetStr.match(/(\d+)\s*元?\s*以上/);
   if (aboveMatch) {
     return {
       min: parseInt(aboveMatch[1]),
@@ -117,8 +120,8 @@ function parseBudgetRange(budgetStr) {
     };
   }
   
-  // 處理 "XXX以下" 格式
-  const belowMatch = budgetStr.match(/(\d+)以下/);
+  // 處理 "XXX以下 / XXX以內" 格式
+  const belowMatch = budgetStr.match(/(\d+)\s*元?\s*(?:以下|以內)/);
   if (belowMatch) {
     return {
       min: 0,

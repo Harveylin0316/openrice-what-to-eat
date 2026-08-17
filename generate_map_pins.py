@@ -118,11 +118,16 @@ def map_budget_to_category(db_budget):
         lo, hi = int(m.group(1)), int(m.group(2))
         center = (lo + hi) / 2
     else:
-        m = re.search(r'(\d+)以上', db_budget)
+        # 主檔實際寫法是「1500 元以上」「100 元以內」——數字與「以上/以內」中間夾了「 元」，
+        # 且用「以內」不是「以下」。原本的 r'(\d+)以上' / r'(\d+)以下' 兩種都比不到，
+        # 導致 53 家「1500 元以上」+ 20 家「100 元以內」拿不到分類：
+        # 「1500以上」篩選鈕永遠篩不出任何一家，而沒有分類的 pin 在 map.js:564
+        # 的 `pin.bc &&` 判斷下完全不受篩選，反而讓不符價位的店全數通過。
+        m = re.search(r'(\d+)\s*元?\s*以上', db_budget)
         if m:
             center = int(m.group(1)) + 500  # 「XXX以上」假設範圍較大
         else:
-            m = re.search(r'(\d+)以下', db_budget)
+            m = re.search(r'(\d+)\s*元?\s*(?:以下|以內)', db_budget)
             if m:
                 center = int(m.group(1)) / 2
             else:
