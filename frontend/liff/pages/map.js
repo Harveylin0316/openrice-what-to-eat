@@ -742,6 +742,12 @@ function showExtCard(poi, source = 'map_pin') {
     const body = document.getElementById('miniCardBody');
     if (!card || !body) return;
     track('map_restaurant_view', { name: poi.n, partner: false, bookable: false, source });
+    // 先清掉上一個合作店的選中態：不清的話，先點彩色店再點灰點時，地圖上會同時有
+    // 「放大浮起的彩釘」與「紅圈的灰點」兩個選中標記，清單也還高亮在錯的那一列。
+    // 灰點沒有對應的清單列，selectedPinId 一併清成 null 才不會誤高亮。
+    clearSelectedPin();
+    selectedPinId = null;
+    highlightSheetRow(-1);
     setSelectedRing(poi.lat, poi.lng);
     body.innerHTML = `
         <div class="map-minicard__info">
@@ -1728,6 +1734,11 @@ function parkAvailText(a, total) {
 }
 
 function toggleParkingLayer() {
+    // wireControls() 在 map 建立之前就跑（見 initMapPage 的順序），所以 chip 在地圖
+    // 出現前就可以點。LINE webview 冷啟 + 4G 下這段有 1–4 秒。少了這道守衛會先把
+    // parkOn 翻掉、chip 點亮（看起來已開啟），接著 map.on(...) 對 null 丟 TypeError，
+    // 結果是「亮著但完全沒作用」，而且狀態已經翻反、再按一次也回不來。
+    if (!map) { showPillMessage('地圖還在載入，稍等一下再試 🅿️', 2000); return; }
     parkOn = !parkOn;
     const chip = document.getElementById('chipParking');
     if (chip) { chip.classList.toggle('is-active', parkOn); chip.setAttribute('aria-pressed', String(parkOn)); }
