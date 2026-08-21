@@ -1764,3 +1764,238 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 /* 頭列的兩行 meta 在窄幅仍溢出時：優先保店名（name 不縮） */
 .map-minicard__head .map-minicard__info { min-width: 0; flex: 1; }
 .map-minicard__head .map-minicard__name { margin: 0 0 2px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * UI 改版 v1（r66，設計交付 2026-08-21）：Yellow-first、無 emoji、深淺色成對。
+ * 來源：design/好康地圖-UI改版-v1/map-ui-overrides-v1.css，以下為對照實際
+ * DOM 適配後的版本（差異：FAB 文字改放真實 markup 不用 ::after；pin 是
+ * divIcon .map-food-pin 不是 circleMarker，深淺色用 class + token 驅動，
+ * 主題切換零重繪）。追加在檔尾靠 cascade 覆蓋上方同名規則，舊 token 值
+ * （--lm-or-yellow 等）仍保留給尚未遷移的規則使用。
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: light;
+  --lm-border: #D8D3CC;
+  --lm-border-control: #9A948C;
+  --lm-text-muted: #625D55;
+  --lm-brand-yellow: #F9C73B;
+  --lm-brand-yellow-ink: #3A2A00;
+  --lm-brand-orange: #E44E25;
+  --lm-accent: #B53A16;
+  --lm-accent-press: #963013;
+  --lm-reward: #286B64;
+  --lm-success: #1E6D49;
+  --lm-warning: #806000;
+  --lm-focus-ring: rgba(181, 58, 22, 0.30);
+  --lm-radius: 18px;
+  --lm-radius-sm: 10px;
+  --lm-sheet-peek: 88px;
+  --lm-surface-raised: #FFFFFF;
+  /* pin 深淺色（divIcon .map-food-pin 用；offer 黃底配深棕圖示與邊） */
+  --lm-pin-menu: #E44E25;
+  --lm-pin-menu-edge: #FFFFFF;
+  --lm-pin-menu-ink: #FFFFFF;
+  --lm-pin-offer: #F9C73B;
+  --lm-pin-offer-edge: #4B3B00;
+  --lm-pin-offer-ink: #4B3B00;
+  --lm-pin-cashback: #28786F;
+  --lm-pin-cashback-edge: #FFFFFF;
+  --lm-pin-cashback-ink: #FFFFFF;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --lm-bg: #1F232B;
+  --lm-surface: #2B2E35;
+  --lm-surface-raised: #30343C;
+  --lm-border: #50545F;
+  --lm-border-control: #737986;
+  --lm-text: #F7F5F0;
+  --lm-text-muted: #B9B4AB;
+  --lm-brand-orange: #FF7A52;
+  --lm-accent: #FFB49C;
+  --lm-accent-press: #FFD1C2;
+  --lm-reward: #8ED0C5;
+  --lm-success: #7FD1AA;
+  --lm-warning: #F2C765;
+  --lm-focus-ring: rgba(249, 199, 59, 0.34);
+  --lm-pin-menu: #FF7A52;
+  --lm-pin-menu-edge: #1A2028;
+  --lm-pin-menu-ink: #1A2028;
+  --lm-pin-offer-edge: #1A2028;
+  --lm-pin-cashback: #75C0B6;
+  --lm-pin-cashback-edge: #182029;
+  --lm-pin-cashback-ink: #182029;
+}
+
+/* 通用向量圖示（<svg class="map-icon"><use href="#icon-…"></use></svg>） */
+.map-icon { width: 18px; height: 18px; flex: 0 0 auto; color: currentColor; pointer-events: none; }
+.map-icon--20 { width: 20px; height: 20px; }
+
+/* ── 搜尋欄與 chips ── */
+.map-search::before {
+  content: '';
+  position: absolute;
+  left: 15px; top: 15px;
+  width: 18px; height: 18px;
+  pointer-events: none;
+  background: currentColor;
+  color: var(--lm-text-muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='10.8' cy='10.8' r='6.3' fill='none' stroke='black' stroke-width='1.8'/%3E%3Cpath d='m15.5 15.5 4 4' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='10.8' cy='10.8' r='6.3' fill='none' stroke='black' stroke-width='1.8'/%3E%3Cpath d='m15.5 15.5 4 4' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.map-search__input {
+  min-height: 48px;
+  padding-left: 42px;
+  border-color: var(--lm-border);
+  border-radius: 24px;
+  font-weight: 500;
+  box-shadow: var(--lm-shadow-chip);
+}
+.map-search__input:focus {
+  border-color: var(--lm-accent);
+  box-shadow: var(--lm-shadow-md), 0 0 0 3px var(--lm-focus-ring);
+}
+.map-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+}
+.map-chip.is-active,
+.map-chip--clear {
+  border-color: var(--lm-brand-yellow);
+  background: var(--lm-brand-yellow);
+  color: var(--lm-brand-yellow-ink);
+}
+.map-chip:focus-visible,
+.map-search__input:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--lm-focus-ring); }
+
+/* ── 深色 CARTO dark_all 提亮：直接作用在 tile pane。
+ * 舊 .map-canvas::before 蓋在 map pane(z400) 之下永遠看不見（稽核已證實），關掉。
+ * contrast<1 抬起近黑階；只動磚圖層，marker/label/UI 不受影響。── */
+:root[data-theme="dark"] .map-canvas::before { content: none; }
+:root[data-theme="dark"] .map-canvas,
+:root[data-theme="dark"] .map-canvas.leaflet-container { background: #26313F; }
+:root[data-theme="dark"] .map-canvas .leaflet-tile-pane {
+  filter: brightness(1.08) contrast(0.82) saturate(0.72);
+}
+
+/* ── 彩色合作店 pin：token 驅動深淺色（divIcon，主題切換免重繪）── */
+.map-food-pin--menu     { background: var(--lm-pin-menu);     border-color: var(--lm-pin-menu-edge);     color: var(--lm-pin-menu-ink); }
+.map-food-pin--offer    { background: var(--lm-pin-offer);    border-color: var(--lm-pin-offer-edge);    color: var(--lm-pin-offer-ink); }
+.map-food-pin--cashback { background: var(--lm-pin-cashback); border-color: var(--lm-pin-cashback-edge); color: var(--lm-pin-cashback-ink); }
+
+/* ── 右側控制與主 CTA ── */
+.map-locate-btn, .map-theme-btn, .map-textsize-btn {
+  width: 48px; height: 48px;
+  border-color: var(--lm-border);
+  background: var(--lm-surface);
+  color: var(--lm-text-body);
+  box-shadow: var(--lm-shadow-chip);
+}
+.map-fab {
+  width: auto;
+  min-width: 122px;
+  height: 48px;
+  padding: 0 18px;
+  gap: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(58, 42, 0, 0.16);
+  border-radius: 24px;
+  background: var(--lm-brand-yellow);
+  color: var(--lm-brand-yellow-ink);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 20px;
+  box-shadow: var(--lm-shadow-md);
+}
+.map-fab:active { background: #E8B82F; }
+.map-fab__dice { display: inline-flex; color: inherit; }
+.map-fab__label { white-space: nowrap; }
+.map-fab__count {
+  background: var(--lm-surface);
+  color: var(--lm-accent);
+  border-color: var(--lm-surface);
+  box-shadow: 0 0 0 1px var(--lm-border);
+}
+
+/* ── 底部抽屜 peek：88px 直接呈現「附近 N 間＋優惠數＋回饋數」── */
+.map-sheet { border-radius: 18px 18px 0 0; }
+.map-sheet__grip { width: 36px; height: 4px; background: var(--lm-border-control); opacity: 0.72; }
+.map-sheet__summary-main { font-size: 16px; font-weight: 700; line-height: 22px; color: var(--lm-text); }
+.map-sheet__summary-meta { font-size: 13px; font-weight: 600; line-height: 18px; color: var(--lm-text-muted); }
+.map-sheet__stat--deal { color: var(--lm-accent); }
+.map-sheet__stat--reward { color: var(--lm-reward); }
+
+/* ── 迷你卡：四區分層（照片／決策資訊／好康／操作）── */
+.map-minicard, .map-spotlight {
+  border: 1px solid var(--lm-border);
+  border-radius: 18px;
+  background: var(--lm-surface-raised);
+}
+.map-minicard__photo { border-radius: 10px; }
+.map-minicard__name { font-size: 18px; font-weight: 700; line-height: 24px; color: var(--lm-text); }
+.map-reward-note {
+  padding: 8px 0;
+  border: 0;
+  border-top: 1px solid var(--lm-border);
+  border-bottom: 1px solid var(--lm-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--lm-text-body);
+}
+.map-reward-note strong { color: var(--lm-reward); }
+.map-badge {
+  padding: 2px 0;
+  margin-right: 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent !important;
+  font-size: 13px;
+  font-weight: 700;
+}
+.map-badge--menu, .map-badge--sponsored { color: var(--lm-accent) !important; }
+.map-badge--offer { color: var(--lm-warning) !important; }
+.map-badge--cashback { color: var(--lm-reward) !important; }
+.map-btn { border-radius: 10px; font-weight: 700; }
+.map-btn--primary {
+  min-height: 48px;
+  background: var(--lm-brand-yellow);
+  color: var(--lm-brand-yellow-ink);
+}
+.map-btn--primary:active { background: #E8B82F; }
+.map-btn--ghost { border-color: var(--lm-border); background: transparent; color: var(--lm-text-body); }
+.map-btn .map-icon { margin-right: 2px; }
+
+/* ── 大字模式（+15%，容器自然高度可折行）── */
+:root[data-textsize="lg"] { --lm-sheet-peek: 96px; }
+:root[data-textsize="lg"] .map-search__input { font-size: 18px; }
+:root[data-textsize="lg"] .map-chip { font-size: 16px; }
+:root[data-textsize="lg"] .map-sheet__summary-main { font-size: 18px; line-height: 24px; }
+:root[data-textsize="lg"] .map-sheet__summary-meta { font-size: 15px; line-height: 20px; }
+:root[data-textsize="lg"] .map-minicard__name { font-size: 20px; line-height: 27px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .map-sheet, .map-minicard, .map-spotlight { transition: none; animation: none; }
+}
+
+/* ── peek 高度統一由 --lm-sheet-peek 驅動（88px；大字 96px）。
+ * JS 端 wireSheetDrag 的檔位計算讀同一個 var（sheetPeekPx()），兩邊永遠一致；
+ * 上方 r58 的 68px 舊規則保留不刪（smoke test 以它驗證 peek 入口存在），本組覆蓋生效。── */
+.map-sheet { transform: translateY(calc(100% - var(--lm-sheet-peek) - var(--lm-safe-bottom))); }
+@media (min-width: 768px) {
+  .map-sheet { transform: translate(-50%, calc(100% - var(--lm-sheet-peek) - var(--lm-safe-bottom))); }
+}
+.map-sheet__handle { min-height: var(--lm-sheet-peek); }
+.map-fab { bottom: calc(var(--lm-sheet-peek) + 12px + var(--lm-safe-bottom)); }
+.map-locate-btn { bottom: calc(var(--lm-sheet-peek) + 72px + var(--lm-safe-bottom)); }
+.map-theme-btn { bottom: calc(var(--lm-sheet-peek) + 132px + var(--lm-safe-bottom)); }
+.map-textsize-btn { bottom: calc(var(--lm-sheet-peek) + 192px + var(--lm-safe-bottom)); }
+
+/* 抽屜圖例圓點：跟地圖 pin 同一組 token（原本 inline 寫死舊色，主題切換不會跟） */
+.map-dot--menu { background: var(--lm-pin-menu); }
+.map-dot--offer { background: var(--lm-pin-offer); }
+.map-dot--cashback { background: var(--lm-pin-cashback); }

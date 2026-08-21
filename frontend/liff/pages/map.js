@@ -174,7 +174,7 @@ async function shareRestaurant(pin, source = 'unknown') {
     if (canPicker) {
         try {
             const res = await liff.shareTargetPicker([buildFlexMessage(pin, url)]);
-            showPillMessage(res ? '已分享給 LINE 好友 🎉' : '已取消分享', 2500);
+            showPillMessage(res ? '已分享給 LINE 好友' : '已取消分享', 2500);
             return;
         } catch (e) {
             console.warn('shareTargetPicker 失敗，退回原生分享', e);
@@ -188,7 +188,7 @@ async function shareRestaurant(pin, source = 'unknown') {
     }
     try {
         await navigator.clipboard.writeText(`${pin.n}｜${summary}\n${url}`);
-        showPillMessage('已複製連結，貼給好友吧 📋', 2500);
+        showPillMessage('已複製連結，貼給好友吧', 2500);
     } catch (e) {
         showPillMessage('分享連結：' + url, 5000);
     }
@@ -267,8 +267,8 @@ function dealBadgesHtml(pin, { compact = false } = {}) {
 // 優惠明細行（迷你卡/聚光燈共用）：套餐款數 + 訂位優惠文字 + 回饋現金基本盤
 function dealDetailLines({ hm, mc, offers }) {
     const lines = [];
-    if (hm) lines.push(`🍽️ ${mc ? mc + ' 款' : ''}優惠套餐，訂位即享`);
-    for (const o of (offers || []).slice(0, 3)) lines.push(`🎁 ${escapeHtml(o)}`);
+    if (hm) lines.push(`${mc ? mc + ' 款' : ''}優惠套餐，訂位即享`);
+    for (const o of (offers || []).slice(0, 3)) lines.push(escapeHtml(o));
     return lines;
 }
 
@@ -405,7 +405,7 @@ function applyTheme(mode, persist) {
     const btn = document.getElementById('themeToggle');
     if (btn) {
         const dark = mode === 'dark';
-        btn.textContent = dark ? '☀️' : '🌙'; // 顯示「點下去會變成的樣子」
+        btn.innerHTML = dark ? '<svg class="map-icon map-icon--20" aria-hidden="true"><use href="#icon-sun"></use></svg>' : '<svg class="map-icon map-icon--20" aria-hidden="true"><use href="#icon-moon"></use></svg>'; // 顯示「點下去會變成的樣子」
         btn.setAttribute('aria-pressed', String(dark));
         btn.setAttribute('aria-label', dark ? '切換為淺色外觀' : '切換為深色外觀');
     }
@@ -426,7 +426,7 @@ function applyTextSize(large, persist) {
 function toggleTextSize() {
     const next = !isLargeText();
     applyTextSize(next, true);
-    showPillMessage(next ? '已切換大字模式 🔍' : '已恢復標準字級', 2000);
+    showPillMessage(next ? '已切換大字模式' : '已恢復標準字級', 2000);
     track('map_textsize_toggle', { large: next });
 }
 
@@ -463,19 +463,19 @@ function ensureMapRoot() {
             <ul class="map-search__results" id="mapSearchResults" hidden></ul>
         </div>
         <div class="map-chips" role="toolbar" aria-label="地圖篩選">
-            <button type="button" class="map-chip" id="chipParking" aria-pressed="false">🅿️ 停車</button>
-            <button type="button" class="map-chip" id="chipOpen" aria-pressed="false">🕐 現在有開</button>
-            <button type="button" class="map-chip" id="chipBookable" aria-pressed="false">📅 可訂位</button>
-            <button type="button" class="map-chip" id="chipFav" aria-pressed="false">❤️ 收藏</button>
-            <button type="button" class="map-chip map-chip--cat" data-cat="火鍋" aria-pressed="false">🍲 火鍋</button>
-            <button type="button" class="map-chip map-chip--cat" data-cat="燒肉" aria-pressed="false">🥩 燒肉</button>
-            <button type="button" class="map-chip map-chip--cat" data-cat="吃到飽" aria-pressed="false">🍱 吃到飽</button>
-            <button type="button" class="map-chip map-chip--cat" data-cat="餐酒館" aria-pressed="false">🍷 餐酒館</button>
-            <button type="button" class="map-chip map-chip--cat" data-cat="咖啡" aria-pressed="false">☕ 咖啡廳</button>
+            <button type="button" class="map-chip" id="chipParking" aria-pressed="false"><svg class="map-icon" aria-hidden="true"><use href="#icon-parking"></use></svg><span>停車</span></button>
+            <button type="button" class="map-chip" id="chipOpen" aria-pressed="false"><svg class="map-icon" aria-hidden="true"><use href="#icon-clock"></use></svg><span>現在有開</span></button>
+            <button type="button" class="map-chip" id="chipBookable" aria-pressed="false"><svg class="map-icon" aria-hidden="true"><use href="#icon-calendar"></use></svg><span>可訂位</span></button>
+            <button type="button" class="map-chip" id="chipFav" aria-pressed="false"><svg class="map-icon" aria-hidden="true"><use href="#icon-heart"></use></svg><span class="map-chip__label">收藏</span></button>
+            <button type="button" class="map-chip map-chip--cat" data-cat="火鍋" aria-pressed="false"><svg class="map-icon" aria-hidden="true"><use href="#icon-hotpot"></use></svg><span>火鍋</span></button>
+            <button type="button" class="map-chip map-chip--cat" data-cat="燒肉" aria-pressed="false"><svg class="map-icon" aria-hidden="true"><use href="#icon-grill"></use></svg><span>燒肉</span></button>
+            <button type="button" class="map-chip map-chip--cat" data-cat="吃到飽" aria-pressed="false"><span>吃到飽</span></button>
+            <button type="button" class="map-chip map-chip--cat" data-cat="餐酒館" aria-pressed="false"><svg class="map-icon" aria-hidden="true"><use href="#icon-bar"></use></svg><span>餐酒館</span></button>
+            <button type="button" class="map-chip map-chip--cat" data-cat="咖啡" aria-pressed="false"><svg class="map-icon" aria-hidden="true"><use href="#icon-coffee"></use></svg><span>咖啡廳</span></button>
         </div>
         <button type="button" class="map-chip map-chip--clear" id="clearFilters" hidden>✕ 清除篩選</button>
         <button type="button" class="map-textsize-btn" id="textSizeToggle" aria-label="切換大字模式" aria-pressed="false">Aa</button>
-        <button type="button" class="map-theme-btn" id="themeToggle" aria-label="切換深色／淺色外觀" aria-pressed="false">🌙</button>
+        <button type="button" class="map-theme-btn" id="themeToggle" aria-label="切換深色／淺色外觀" aria-pressed="false"><svg class="map-icon map-icon--20" aria-hidden="true"><use href="#icon-moon"></use></svg></button>
         <button type="button" class="map-locate-btn" id="chipLocate" aria-label="定位到我的位置">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
@@ -499,7 +499,7 @@ function ensureMapRoot() {
         </div>
         <div id="liffMap" class="map-canvas" role="application" aria-label="餐廳好康地圖"></div>
         <button type="button" class="map-fab" id="mapDecideBtn" aria-label="幫我決定，隨機推薦一間">
-            <span class="map-fab__dice" aria-hidden="true">🎲</span>
+            <span class="map-fab__dice" aria-hidden="true"><svg class="map-icon map-icon--20" aria-hidden="true"><use href="#icon-dice"></use></svg></span><span class="map-fab__label">幫我決定</span>
             <span class="map-fab__count" id="fabDiceCount" aria-hidden="true"></span>
         </button>
 
@@ -515,9 +515,9 @@ function ensureMapRoot() {
             </button>
             <div class="map-sheet__body" id="sheetBody">
                 <div class="map-sheet__legend" aria-label="圖例">
-                    <span><i class="map-dot" style="background:#E44E25"></i>套餐優惠</span>
-                    <span><i class="map-dot" style="background:#E5A000"></i>訂位優惠</span>
-                    <span><i class="map-dot" style="background:#68A9A0"></i>出席回饋</span>
+                    <span><i class="map-dot map-dot--menu"></i>套餐優惠</span>
+                    <span><i class="map-dot map-dot--offer"></i>訂位優惠</span>
+                    <span><i class="map-dot map-dot--cashback"></i>出席回饋</span>
                     <span><i class="map-dot map-dot--hollow"></i>暫無優惠</span>
                 </div>
                 <div class="map-sheet__budget" id="sheetBudget" role="group" aria-label="預算篩選"></div>
@@ -542,7 +542,7 @@ function ensureMapRoot() {
             <div class="map-spotlight__body" id="spotlightBody"></div>
             <div class="map-spotlight__actions">
                 <span id="spotlightActionLinks"></span>
-                <button type="button" class="map-btn map-btn--ghost" id="spotlightRedraw">🎲 再抽一家</button>
+                <button type="button" class="map-btn map-btn--ghost" id="spotlightRedraw"><svg class="map-icon" aria-hidden="true"><use href="#icon-dice"></use></svg>再抽一家</button>
             </div>
         </div>
     `;
@@ -628,7 +628,7 @@ function pinGlyphSvg(pin) {
     let key = 'restaurant';
     for (const [re, k] of STRONG_RULES) if (re.test(strong)) { key = k; break; }
     if (key === 'restaurant') for (const [re, k] of SOFT_RULES) if (re.test(soft)) { key = k; break; }
-    return `<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true">${GLYPHS[key]}</svg>`;
+    return `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${GLYPHS[key]}</svg>`;
 }
 
 function bindPinCommon(marker, pin, offsetX, isDeal) {
@@ -686,7 +686,7 @@ function buildMarker(L, pin) {
     const marker = L.marker([pin.lat, pin.lng], {
         icon: L.divIcon({
             className: 'map-food-wrap',
-            html: `<div class="map-food-pin${isDeal ? ' map-food-pin--lg' : ''}" style="background:${t.color}">${inner}</div>`,
+            html: `<div class="map-food-pin map-food-pin--${pin.t}${isDeal ? ' map-food-pin--lg' : ''}">${inner}</div>`,
             iconSize: [size, size],
             iconAnchor: [size / 2, size / 2],
         }),
@@ -709,7 +709,7 @@ function buildStarMarker(L, pin) {
     const marker = L.marker([pin.lat, pin.lng], {
         icon: L.divIcon({
             className: 'map-sponsor-wrap',
-            html: '<div class="map-star-pin"><span aria-hidden="true">👑</span></div>',
+            html: '<div class="map-star-pin"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 8.5 8 12l4-6 4 6 4-3.5-1.6 9a1.5 1.5 0 0 1-1.5 1.3H7.1a1.5 1.5 0 0 1-1.5-1.3L4 8.5z"/></svg></span></div>',
             iconSize: [36, 44],
             iconAnchor: [18, 42],
         }),
@@ -756,11 +756,11 @@ function showExtCard(poi, source = 'map_pin') {
                 ? `<a href="${escapeHtml(poi.u)}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(poi.n)}<span class="map-minicard__more"> ›</span></a>`
                 : escapeHtml(poi.n)}</h3>
             <p class="map-minicard__meta">
-                ${poi.r ? `⭐ ${formatRating(poi.r)}　` : ''}${escapeHtml(poi.d || '')}${poi.cu ? `　·　${escapeHtml(poi.cu)}` : ''}${poi.bud ? `　·　💰 ${escapeHtml(poi.bud)}` : ''}
+                ${poi.r ? `★ ${formatRating(poi.r)}　` : ''}${escapeHtml(poi.d || '')}${poi.cu ? `　·　${escapeHtml(poi.cu)}` : ''}${poi.bud ? `　·　${escapeHtml(poi.bud)}` : ''}
             </p>
-            <p class="map-minicard__ext-note">這間目前沒有優惠、也不能線上訂位 😢<br>找有色點的店，訂位出席每人回饋 $3</p>
+            <p class="map-minicard__ext-note">這間目前沒有優惠、也不能線上訂位<br>找有色點的店，訂位出席每人回饋 $3</p>
             <div class="map-minicard__actions">
-                <a class="map-btn map-btn--ghost" data-track="navigation" href="${navigationUrl(poi.lat, poi.lng, poi.n)}" target="_blank" rel="noopener">🧭 導航</a>
+                <a class="map-btn map-btn--ghost" data-track="navigation" href="${navigationUrl(poi.lat, poi.lng, poi.n)}" target="_blank" rel="noopener"><svg class="map-icon" aria-hidden="true"><use href="#icon-navigation"></use></svg>導航</a>
             </div>
         </div>
     `;
@@ -1108,7 +1108,7 @@ function buildSponsorMarker(L, pin) {
     const marker = L.marker([pin.lat, pin.lng], {
         icon: L.divIcon({
             className: 'map-sponsor-wrap',
-            html: '<div class="map-sponsor-pin"><span aria-hidden="true">⭐</span></div>',
+            html: '<div class="map-sponsor-pin"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2.6 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17l-5.7 3 1.2-6.3-4.7-4.4 6.4-.8L12 2.6z"/></svg></span></div>',
             iconSize: [36, 44],
             iconAnchor: [18, 42],
         }),
@@ -1209,7 +1209,7 @@ function updateFavChip() {
     const chip = document.getElementById('chipFav');
     if (!chip) return;
     const n = favCount();
-    chip.textContent = n ? `❤️ 收藏 ${n}` : '❤️ 收藏';
+    chip.innerHTML = `<svg class="map-icon" aria-hidden="true"><use href="#icon-heart"></use></svg>` + `<span class="map-chip__label">${n ? `收藏 ${n}` : '收藏'}</span>`;
     chip.classList.toggle('is-active', activeFilters.favOnly);
     chip.setAttribute('aria-pressed', String(activeFilters.favOnly));
 }
@@ -1219,6 +1219,14 @@ function afterFavChange() {
     updateFavChip();
     if (activeFilters.favOnly) applyFilters();
     else { refreshFavLayer(); if (sheetOpen) renderSheetList(); }
+}
+
+
+// peek 高度單一來源是 CSS 的 --lm-sheet-peek（88px、大字 96px）：JS 檔位計算讀同一個
+// 變數，改高度只動 CSS 一處。舊版把 68 寫死在這裡與 CSS 兩邊，改一漏一就錯位。
+function sheetPeekPx() {
+    const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--lm-sheet-peek'));
+    return Number.isFinite(v) && v > 0 ? v : 88;
 }
 
 function updateCountPill() {
@@ -1260,9 +1268,10 @@ function updateCountPill() {
         if (meta) meta.textContent = '';
     } else {
         pill.textContent = `查看附近 ${total} 間餐廳`;
-        if (meta) meta.textContent = window.matchMedia('(max-width: 360px)').matches
-            ? `回饋 ${cashback} · 優惠 ${deals}`
-            : `${cashback} 間出席回饋 · ${deals} 間有優惠`;
+        // 兩個數字各自上色（優惠橘、回饋青），收合時就能決策要不要拉開（設計 1.5）
+        if (meta) meta.innerHTML = window.matchMedia('(max-width: 360px)').matches
+            ? `<span class="map-sheet__stat--deal">優惠 ${deals}</span><span aria-hidden="true"> · </span><span class="map-sheet__stat--reward">回饋 ${cashback}</span>`
+            : `<span class="map-sheet__stat--deal">${deals} 間有優惠</span><span aria-hidden="true"> · </span><span class="map-sheet__stat--reward">${cashback} 間有出席回饋</span>`;
     }
     if (handle) handle.setAttribute('aria-label', `${sheetOpen ? '收起' : '展開'}餐廳列表：${pill.textContent}`);
     if (sheetOpen) renderSheetList();
@@ -1379,14 +1388,14 @@ function renderSheetList() {
             <button type="button" class="map-sheet__item${pin.id === selectedPinId ? ' is-active' : ''}" data-pin-id="${pin.id}">
                 ${pin.img
                     ? `<img class="map-sheet__thumb" src="${escapeHtml(pin.img)}" alt="" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">`
-                    : '<span class="map-sheet__thumb map-sheet__thumb--empty">🍽️</span>'}
+                    : '<span class="map-sheet__thumb map-sheet__thumb--empty"><svg class="map-icon" aria-hidden="true"><use href="#icon-openrice-bowl"></use></svg></span>'}
                 <span class="map-sheet__item-info">
                     <span class="map-sheet__item-top">
-                        <span class="map-sheet__item-name">${isFav(pin.id) ? '<span class="map-sheet__fav" aria-label="已收藏">❤️</span>' : ''}${escapeHtml(pin.n)}</span>
+                        <span class="map-sheet__item-name">${isFav(pin.id) ? '<span class="map-sheet__fav" aria-label="已收藏"><svg class="map-icon" aria-hidden="true"><use href="#icon-heart-filled"></use></svg></span>' : ''}${escapeHtml(pin.n)}</span>
                         ${dealBadgesHtml(pin)}
                     </span>
                     <span class="map-sheet__item-meta">
-                        ${pin.r ? `⭐ ${formatRating(pin.r)}${pin.rc ? ` (${pin.rc})` : ''}` : ''}${dist ? `　${dist}` : ''}${pin.bud ? `　💰 ${escapeHtml(pin.bud)}` : ''}
+                        ${pin.r ? `★ ${formatRating(pin.r)}${pin.rc ? ` (${pin.rc})` : ''}` : ''}${dist ? `　${dist}` : ''}${pin.bud ? `　${escapeHtml(pin.bud)}` : ''}
                     </span>
                     ${opening && opening.label
                         ? `<span class="map-sheet__item-meta ${opening.openNow ? 'is-open' : ''}">${escapeHtml(opening.label)}</span>`
@@ -1649,14 +1658,14 @@ function showMiniCard(pin, source = 'unknown') {
     // 舊版 96px 照片直欄把右欄壓成窄欄、每行都折行，卡片吃掉 2/3 螢幕（Owner 回報）。
     const walk = walkLabel(pin.lat, pin.lng);
     const metaTop = [
-        pin.r ? `⭐ ${formatRating(pin.r)}${pin.rc ? ` (${pin.rc})` : ''}` : '',
+        pin.r ? `★ ${formatRating(pin.r)}${pin.rc ? ` (${pin.rc})` : ''}` : '',
         tags.length ? escapeHtml(tags.slice(0, 2).join('・')) : '', // 兩個標籤都秀（r46：資訊太少）
         dist ? `${dist}${walk ? `（${walk}）` : ''}` : '',
     ].filter(Boolean).join(' · ');
     body.innerHTML = `
         ${photoStripHtml(pin, 'miniCardStrip')}
         <div class="map-minicard__head">
-            ${pin.img ? '' : '<span class="map-minicard__img map-minicard__img--empty" aria-hidden="true">🍽️</span>'}
+            ${pin.img ? '' : '<span class="map-minicard__img map-minicard__img--empty" aria-hidden="true"><svg class="map-icon" aria-hidden="true"><use href="#icon-openrice-bowl"></use></svg></span>'}
             <div class="map-minicard__info">
                 <h3 class="map-minicard__name">${orLink(pin)
                     ? `<a href="${escapeHtml(orLink(pin))}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(pin.n)}<span class="map-minicard__more"> ›</span></a>`
@@ -1665,10 +1674,10 @@ function showMiniCard(pin, source = 'unknown') {
         </div>
         ${metaTop ? `<p class="map-minicard__meta">${metaTop}</p>` : ''}
         <p class="map-minicard__meta">${opening && opening.label
-            ? `<span class="${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</span>` : ''}${opening && opening.label && pin.bud ? ' · ' : ''}${pin.bud ? `💰 ${escapeHtml(pin.bud)}` : ''}</p>
-        ${pin.ad ? `<p class="map-minicard__meta map-minicard__addr">📍 ${escapeHtml(addrLine(pin.d, pin.ad))}</p>` : ''}
+            ? `<span class="${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</span>` : ''}${opening && opening.label && pin.bud ? ' · ' : ''}${pin.bud ? `${escapeHtml(pin.bud)}` : ''}</p>
+        ${pin.ad ? `<p class="map-minicard__meta map-minicard__addr">${escapeHtml(addrLine(pin.d, pin.ad))}</p>` : ''}
         <div class="map-minicard__badges">
-            ${isStar ? '<span class="map-badge map-badge--star">🌟 今日之星</span>' : ''}${pin.sp ? '<span class="map-badge map-badge--sponsored">精選推薦</span>' : ''}${dealBadgesHtml(pin, { compact: true })}
+            ${isStar ? '<span class="map-badge map-badge--star">今日之星</span>' : ''}${pin.sp ? '<span class="map-badge map-badge--sponsored">精選推薦</span>' : ''}${dealBadgesHtml(pin, { compact: true })}
         </div>
         <div class="map-minicard__parking" id="miniCardParking" hidden></div>
         ${detailLines.length ? `<ul class="map-minicard__offers">${detailLines.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}
@@ -1676,10 +1685,10 @@ function showMiniCard(pin, source = 'unknown') {
         ${isStar ? '<p class="map-minicard__star-note">每天換一間，明天就不是它了</p>' : ''}
         <div class="map-minicard__actions">
             ${orLink(pin) ? `<a class="map-btn ${pin.b ? 'map-btn--primary' : 'map-btn--ghost'} map-btn--full" data-track="booking" data-liff-internal href="${escapeHtml(orLink(pin))}" target="_blank" rel="noopener">${pin.b ? '立即訂位' : '查看餐廳'}</a>` : ''}
-            ${pin.ph ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="phone" href="tel:${escapeHtml(pin.ph)}">📞 電話</a>` : ''}
-            <a class="map-btn map-btn--ghost map-btn--labeled" data-track="navigation" href="${navigationUrl(pin.lat, pin.lng, pin.n)}" target="_blank" rel="noopener">🧭 餐廳導航</a>
-            <button type="button" class="map-btn map-btn--ghost map-btn--labeled map-btn--fav ${isFav(pin.id) ? 'is-fav' : ''}" data-fav aria-pressed="${isFav(pin.id)}">${isFav(pin.id) ? '❤️ 已收藏' : '🤍 收藏'}</button>
-            <button type="button" class="map-btn map-btn--ghost map-btn--labeled" data-share>↗ 分享</button>
+            ${pin.ph ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="phone" href="tel:${escapeHtml(pin.ph)}">電話</a>` : ''}
+            <a class="map-btn map-btn--ghost map-btn--labeled" data-track="navigation" href="${navigationUrl(pin.lat, pin.lng, pin.n)}" target="_blank" rel="noopener"><svg class="map-icon" aria-hidden="true"><use href="#icon-navigation"></use></svg>餐廳導航</a>
+            <button type="button" class="map-btn map-btn--ghost map-btn--labeled map-btn--fav ${isFav(pin.id) ? 'is-fav' : ''}" data-fav aria-pressed="${isFav(pin.id)}">${isFav(pin.id) ? '<svg class="map-icon" aria-hidden="true"><use href="#icon-heart-filled"></use></svg>已收藏' : '<svg class="map-icon" aria-hidden="true"><use href="#icon-heart"></use></svg>收藏'}</button>
+            <button type="button" class="map-btn map-btn--ghost map-btn--labeled" data-share><svg class="map-icon" aria-hidden="true"><use href="#icon-share"></use></svg>分享</button>
         </div>
     `;
 
@@ -1695,8 +1704,8 @@ function showMiniCard(pin, source = 'unknown') {
         const nowFav = toggleFav(pin.id, source);
         favBtn.classList.toggle('is-fav', nowFav);
         favBtn.setAttribute('aria-pressed', String(nowFav));
-        favBtn.textContent = nowFav ? '❤️ 已收藏' : '🤍 收藏';
-        showPillMessage(nowFav ? '已加入收藏 ❤️' : '已移除收藏', 1800);
+        favBtn.innerHTML = nowFav ? '<svg class="map-icon" aria-hidden="true"><use href="#icon-heart-filled"></use></svg>已收藏' : '<svg class="map-icon" aria-hidden="true"><use href="#icon-heart"></use></svg>收藏';
+        showPillMessage(nowFav ? '已加入收藏' : '已移除收藏', 1800);
         afterFavChange();
     });
     const shareBtn = body.querySelector('[data-share]');
@@ -1738,7 +1747,7 @@ function toggleParkingLayer() {
     // 出現前就可以點。LINE webview 冷啟 + 4G 下這段有 1–4 秒。少了這道守衛會先把
     // parkOn 翻掉、chip 點亮（看起來已開啟），接著 map.on(...) 對 null 丟 TypeError，
     // 結果是「亮著但完全沒作用」，而且狀態已經翻反、再按一次也回不來。
-    if (!map) { showPillMessage('地圖還在載入，稍等一下再試 🅿️', 2000); return; }
+    if (!map) { showPillMessage('地圖還在載入，稍等一下再試', 2000); return; }
     parkOn = !parkOn;
     const chip = document.getElementById('chipParking');
     if (chip) { chip.classList.toggle('is-active', parkOn); chip.setAttribute('aria-pressed', String(parkOn)); }
@@ -1771,7 +1780,7 @@ async function refreshParkingLayer() {
     if (!parkOn || !map) return;
     if (map.getZoom() < MIN_PARK_ZOOM) {
         if (parkLayer) { map.removeLayer(parkLayer); parkLayer = null; }
-        showPillMessage('放大一點看停車場 🅿️', 2000);
+        showPillMessage('放大一點看停車場', 2000);
         return;
     }
     if (parkAbort) parkAbort.abort();
@@ -1842,8 +1851,8 @@ async function fillParking(pin, elId = 'miniCardParking') {
     // 停車資訊目前只涵蓋台北市：非台北市的店直接不顯示這行（誠實不清單噪音）
     const inTaipei = /台北市/.test(pin.d || '');
     const ver = (typeof window !== 'undefined' && window.__V) ? window.__V : '?';
-    el.innerHTML = `<span class="map-parking__loading">🅿️ 查附近停車…</span>`;
-    const parkMsg = (t) => { el.innerHTML = `<span class="map-parking__icon" aria-hidden="true">🅿️</span><span class="map-parking__text map-parking__loading">${escapeHtml(t)}</span>`; };
+    el.innerHTML = `<span class="map-parking__icon" aria-hidden="true"><svg class="map-icon" aria-hidden="true"><use href="#icon-parking"></use></svg></span><span class="map-parking__loading">查附近停車…</span>`;
+    const parkMsg = (t) => { el.innerHTML = `<span class="map-parking__icon" aria-hidden="true"><svg class="map-icon" aria-hidden="true"><use href="#icon-parking"></use></svg></span><span class="map-parking__text map-parking__loading">${escapeHtml(t)}</span>`; };
     // 停車查詢「就地」fetch，不 import api.js（靜態會拖垮 map.js、動態在 webview 會卡）。
     // 同源相對路徑：正式站與本機（backend/server.js 同時 serve 靜態檔與 /api）都適用。
     // 原本硬寫 localhost:3000，只要 dev server 不是 3000 埠就整個打不到（實測 3001 全部 ERR_CONNECTION_REFUSED）。
@@ -1865,7 +1874,7 @@ async function fillParking(pin, elId = 'miniCardParking') {
     // （r46 Owner：剩 N 位常被長場名擠到看不見）
     const renderRow = (lot, availInner) => {
         el.innerHTML =
-            '<span class="map-parking__icon" aria-hidden="true">🅿️</span>' +
+            '<span class="map-parking__icon" aria-hidden="true"><svg class="map-icon" aria-hidden="true"><use href="#icon-parking"></use></svg></span>' +
             `<span class="map-parking__stat">${availInner}${Number.isFinite(lot.walkMin) ? `<span class="map-parking__walk">・步行 ${lot.walkMin} 分</span>` : ''}</span>` +
             `<span class="map-parking__text">${escapeHtml(lot.name)}</span>` +
             `<a class="map-parking__nav" href="${navigationUrl(lot.lat, lot.lng, lot.name)}" target="_blank" rel="noopener" data-park-nav aria-label="導航到停車場：${escapeHtml(lot.name)}">停車場導航</a>`;
@@ -2014,7 +2023,7 @@ async function rouletteReveal(decoyPins, body, isCancelled) {
         if (isCancelled && isCancelled()) return; // 使用者中途關閉 → 停止跳動
         const p = decoyPins[i];
         setSpotlightPin(p.lat, p.lng);
-        body.innerHTML = `<p class="map-spotlight__loading map-spotlight__roulette">🎲 ${escapeHtml(p.n)}</p>`;
+        body.innerHTML = `<p class="map-spotlight__loading map-spotlight__roulette">${escapeHtml(p.n)}</p>`;
         await new Promise(r => setTimeout(r, delays[i]));
     }
 }
@@ -2048,8 +2057,8 @@ async function drawSpotlight() {
     // 額度用完：鎖老虎機、不鎖工具（清單/搜尋/迷你卡照常）
     if (diceRemaining() <= 0) {
         const streakDays = getStreak().days;
-        body.innerHTML = `<p class="map-spotlight__loading">🎲 今日 ${diceQuota()} 次手氣用完啦！<br>
-            明天 0 點自動補滿${streakDays < STREAK_BONUS_DAYS ? '，連續來 3 天、每天多送 2 次 🔥' : ''}</p>`;
+        body.innerHTML = `<p class="map-spotlight__loading">今日 ${diceQuota()} 次手氣用完啦！<br>
+            明天 0 點自動補滿${streakDays < STREAK_BONUS_DAYS ? '，連續來 3 天、每天多送 2 次' : ''}</p>`;
         links.innerHTML = '<button type="button" class="map-btn map-btn--primary map-btn--full" id="quotaBrowseBtn">先看看附近有哪些優惠</button>';
         document.getElementById('quotaBrowseBtn').addEventListener('click', () => {
             closeSpotlight();
@@ -2060,7 +2069,7 @@ async function drawSpotlight() {
         return;
     }
 
-    body.innerHTML = '<p class="map-spotlight__loading">🎲 骰子轉動中…</p>';
+    body.innerHTML = '<p class="map-spotlight__loading">骰子轉動中…</p>';
     links.innerHTML = '';
 
     // 取消守衛：使用者可能在輪盤/請求進行中按 ✕，之後不得再渲染、飛鏡頭或留 🎯
@@ -2146,7 +2155,7 @@ async function drawSpotlight() {
         if (isDaikichi) {
             panel.classList.add('is-daikichi');
             consumeDice(-1);
-            showPillMessage('✨ 大吉！這把不算，送你再抽一次', 4000);
+            showPillMessage('大吉！這把不算，送你再抽一次', 4000);
             track('map_daikichi', { or_id: restaurant.or_id, draw_count: decideCount });
         }
         track('map_decide_result', {
@@ -2218,7 +2227,7 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
         ${photoStripHtml({ id: r.or_id, img: heroImage }, 'spotlightStrip')}
         <div class="map-spotlight__info">
             <div class="map-minicard__badges">
-                ${isDaikichi ? '<span class="map-badge map-badge--daikichi">✨ 大吉</span>' : ''}
+                ${isDaikichi ? '<span class="map-badge map-badge--daikichi">大吉</span>' : ''}
                 ${isSponsoredPick ? '<span class="map-badge map-badge--sponsored">精選推薦</span>' : ''}${dealBadges}
             </div>
             ${evidence && evidence.length ? `<p class="map-spotlight__evidence">${escapeHtml(Array.isArray(evidence) ? evidence[0] : evidence)}</p>` : ''}
@@ -2226,10 +2235,10 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
                 ? `<a href="${escapeHtml(orLink(r))}" data-liff-internal target="_blank" rel="noopener">${escapeHtml(r.name)}<span class="map-minicard__more"> ›</span></a>`
                 : escapeHtml(r.name)}</h3>
             <p class="map-minicard__meta">
-                ${r.rating ? `⭐ ${formatRating(r.rating)}${r.review_count ? ` (${r.review_count})` : ''} · ` : ''}${escapeHtml(r.district || '')}${dist ? ` · ${dist}${(w => w ? `（${w}）` : '')(hasCoords ? walkLabel(coords.lat, coords.lng) : '')}` : ''}${r.budget ? ` · 💰 ${escapeHtml(r.budget)}` : ''}
+                ${r.rating ? `★ ${formatRating(r.rating)}${r.review_count ? ` (${r.review_count})` : ''} · ` : ''}${escapeHtml(r.district || '')}${dist ? ` · ${dist}${(w => w ? `（${w}）` : '')(hasCoords ? walkLabel(coords.lat, coords.lng) : '')}` : ''}${r.budget ? ` · ${escapeHtml(r.budget)}` : ''}
             </p>
             ${opening.label ? `<p class="map-minicard__meta ${opening.openNow ? 'is-open' : ''} ${opening.status === 'closed-today' ? 'is-closed' : ''}">${escapeHtml(opening.label)}</p>` : ''}
-            ${r.address ? `<p class="map-minicard__meta map-minicard__addr">📍 ${escapeHtml(addrLine(r.district || r.city, r.address))}</p>` : ''}
+            ${r.address ? `<p class="map-minicard__meta map-minicard__addr">${escapeHtml(addrLine(r.district || r.city, r.address))}</p>` : ''}
             <div class="map-spotlight__parking map-minicard__parking" id="spotlightParking" hidden></div>
             ${tags.length ? `<p class="map-minicard__tags">${tags.map(t => `<span class="map-tag">${escapeHtml(t)}</span>`).join('')}</p>` : ''}
             ${detailLines.length ? `<ul class="map-minicard__offers">${detailLines.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}
@@ -2244,10 +2253,10 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
 
     links.innerHTML = `
         ${orLink(r) ? `<a class="map-btn ${bookable ? 'map-btn--primary' : 'map-btn--ghost'} map-btn--full" data-track="booking" data-liff-internal href="${escapeHtml(orLink(r))}" target="_blank" rel="noopener">${bookable ? '立即訂位' : '查看餐廳'}</a>` : ''}
-        ${r.phone ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="phone" href="tel:${escapeHtml(r.phone)}">📞 電話</a>` : ''}
-        ${hasCoords ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="navigation" href="${navigationUrl(coords.lat, coords.lng, r.name)}" target="_blank" rel="noopener">🧭 餐廳導航</a>` : ''}
-        ${actionPin.id != null ? `<button type="button" class="map-btn map-btn--ghost map-btn--labeled map-btn--fav ${isFav(actionPin.id) ? 'is-fav' : ''}" data-spotlight-fav aria-pressed="${isFav(actionPin.id)}">${isFav(actionPin.id) ? '❤️ 已收藏' : '🤍 收藏'}</button>` : ''}
-        ${actionPin.id != null ? '<button type="button" class="map-btn map-btn--ghost map-btn--labeled" data-spotlight-share>↗ 分享</button>' : ''}
+        ${r.phone ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="phone" href="tel:${escapeHtml(r.phone)}">電話</a>` : ''}
+        ${hasCoords ? `<a class="map-btn map-btn--ghost map-btn--labeled" data-track="navigation" href="${navigationUrl(coords.lat, coords.lng, r.name)}" target="_blank" rel="noopener"><svg class="map-icon" aria-hidden="true"><use href="#icon-navigation"></use></svg>餐廳導航</a>` : ''}
+        ${actionPin.id != null ? `<button type="button" class="map-btn map-btn--ghost map-btn--labeled map-btn--fav ${isFav(actionPin.id) ? 'is-fav' : ''}" data-spotlight-fav aria-pressed="${isFav(actionPin.id)}">${isFav(actionPin.id) ? '<svg class="map-icon" aria-hidden="true"><use href="#icon-heart-filled"></use></svg>已收藏' : '<svg class="map-icon" aria-hidden="true"><use href="#icon-heart"></use></svg>收藏'}</button>` : ''}
+        ${actionPin.id != null ? '<button type="button" class="map-btn map-btn--ghost map-btn--labeled" data-spotlight-share><svg class="map-icon" aria-hidden="true"><use href="#icon-share"></use></svg>分享</button>' : ''}
     `;
     links.querySelectorAll('a[data-track]').forEach(a => {
         a.addEventListener('click', () => {
@@ -2260,8 +2269,8 @@ function renderSpotlight(r, isSponsoredPick, isDaikichi = false) {
         const nowFav = toggleFav(actionPin.id, 'dice');
         favBtn.classList.toggle('is-fav', nowFav);
         favBtn.setAttribute('aria-pressed', String(nowFav));
-        favBtn.textContent = nowFav ? '❤️ 已收藏' : '🤍 收藏';
-        showPillMessage(nowFav ? '已加入收藏 ❤️' : '已移除收藏', 1800);
+        favBtn.innerHTML = nowFav ? '<svg class="map-icon" aria-hidden="true"><use href="#icon-heart-filled"></use></svg>已收藏' : '<svg class="map-icon" aria-hidden="true"><use href="#icon-heart"></use></svg>收藏';
+        showPillMessage(nowFav ? '已加入收藏' : '已移除收藏', 1800);
         afterFavChange();
     });
     const shareBtn = links.querySelector('[data-spotlight-share]');
@@ -2275,7 +2284,7 @@ function setSpotlightPin(lat, lng) {
     spotlightMarker = L.marker([lat, lng], {
         icon: L.divIcon({
             className: 'map-spotlight-pin',
-            html: '<div class="map-spotlight-pin__dot">🎯</div>',
+            html: '<div class="map-spotlight-pin__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg></div>',
             iconSize: [44, 44],
             iconAnchor: [22, 22],
         }),
@@ -2380,7 +2389,7 @@ function locateUser({ silent = false } = {}) {
                     // 定位被拒是最大流失點：不用 alert 擋路，地圖照樣能逛
                     showPillMessage(err && err.code === 1
                         ? '定位被封鎖了，可到 LINE/系統設定開啟，或直接滑地圖逛'
-                        : '拿不到定位，滑動地圖逛逛，或用 🎲 手氣決定', 5000);
+                        : '拿不到定位，滑動地圖逛逛，或用「幫我決定」手氣決定', 5000);
                 }
                 resolve(false);
             },
@@ -2478,7 +2487,14 @@ function searchFallbacks() {
     }).slice(0, 3).map(pin => ({ kind: 'restaurant', name: pin.n, sub: `附近熱門好康・${pin.d || ''}`, pin, fallback: true }));
 }
 
-const SEARCH_ICON = { category: '🍴', district: '🏙️', landmark: '📍', restaurant: '🍽️', recent: '🕘', ext: '⚪' };
+const SEARCH_ICON = {
+    category: '<svg class="map-icon" aria-hidden="true"><use href="#icon-openrice-bowl"></use></svg>',
+    district: '<svg class="map-icon" aria-hidden="true"><use href="#icon-map"></use></svg>',
+    landmark: '<svg class="map-icon" aria-hidden="true"><use href="#icon-pin"></use></svg>',
+    restaurant: '<svg class="map-icon" aria-hidden="true"><use href="#icon-openrice-bowl"></use></svg>',
+    recent: '<svg class="map-icon" aria-hidden="true"><use href="#icon-clock"></use></svg>',
+    ext: '<i class="map-dot map-dot--hollow"></i>',
+};
 
 // ---- 最近搜尋（Google 式：聚焦空白搜尋框時出現）----
 const RECENT_KEY = 'rr_map_recent';
@@ -2709,7 +2725,7 @@ function onMapLongPress(cx, cy) {
     try { if (navigator.vibrate) navigator.vibrate(15); } catch (e) { /* iOS 不支援 */ }
     setSearchFocus('這裡', ll.lat, ll.lng);
     if (sheetOpen) renderSheetList();
-    showPillMessage('已標記「這裡」📍 清單改以此處由近到遠，上拉清單看看', 4000);
+    showPillMessage('已標記「這裡」，清單改以此處由近到遠，上拉清單看看', 4000);
     track('map_longpress_anchor', {});
 }
 
@@ -2898,7 +2914,7 @@ function wireControls() {
                 try {
                     if (!sessionStorage.getItem('rr_map_deals_hint_shown')) {
                         sessionStorage.setItem('rr_map_deals_hint_shown', '1');
-                        showPillMessage('👆 上拉底部清單，加碼優惠一次看完', 5000);
+                        showPillMessage('上拉底部清單，加碼優惠一次看完', 5000);
                     }
                 } catch (e) { /* ignore */ }
             }
@@ -2909,7 +2925,7 @@ function wireControls() {
     const chipFav = document.getElementById('chipFav');
     chipFav.addEventListener('click', () => {
         if (!activeFilters.favOnly && favCount() === 0) {
-            showPillMessage('還沒有收藏～點店家卡片的 🤍 就能存起來', 3500);
+            showPillMessage('還沒有收藏～點店家卡片的「收藏」就能存起來', 3500);
             return;
         }
         activeFilters.favOnly = !activeFilters.favOnly;
@@ -2970,7 +2986,7 @@ function wireControls() {
     if (themeToggle) {
         themeToggle.addEventListener('click', toggleTheme);
         const dark = isDarkTheme();
-        themeToggle.textContent = dark ? '☀️' : '🌙';
+        themeToggle.innerHTML = dark ? '<svg class="map-icon map-icon--20" aria-hidden="true"><use href="#icon-sun"></use></svg>' : '<svg class="map-icon map-icon--20" aria-hidden="true"><use href="#icon-moon"></use></svg>';
         themeToggle.setAttribute('aria-pressed', String(dark));
         themeToggle.setAttribute('aria-label', dark ? '切換為淺色外觀' : '切換為深色外觀');
     }
@@ -3033,11 +3049,11 @@ function wireControls() {
     let peekSafeInset = null; // 開機必在 peek：反推 safe-area-inset-bottom 的實際 px（CSS env 無法直接讀）
     const sheetDetents = () => {
         const H = sheetEl.getBoundingClientRect().height;
-        if (peekSafeInset == null) peekSafeInset = Math.max(0, H - 68 - sheetTyNow());
+        if (peekSafeInset == null) peekSafeInset = Math.max(0, H - sheetPeekPx() - sheetTyNow());
         return {
             full: 0,
             half: Math.max(0, H - Math.min(window.innerHeight * 0.55, 480)),
-            peek: H - 68 - peekSafeInset,
+            peek: H - sheetPeekPx() - peekSafeInset,
         };
     };
 
@@ -3254,7 +3270,7 @@ export async function initMapPage() {
         let onboarded = true;
         try { onboarded = !!localStorage.getItem(ONBOARD_KEY); } catch (e) { /* ignore */ }
         if (streak.days >= 2 && firstBootToday && onboarded) {
-            setTimeout(() => showPillMessage(`🔥 連續 ${streak.days} 天報到！今天有 ${diceQuota()} 次抽選等你用`, 5000), 2200);
+            setTimeout(() => showPillMessage(`連續 ${streak.days} 天報到！今天有 ${diceQuota()} 次抽選等你用`, 5000), 2200);
         }
 
         map.on('moveend', () => {
@@ -3310,7 +3326,7 @@ export async function initMapPage() {
         try {
             if (!localStorage.getItem(ONBOARD_KEY)) {
                 localStorage.setItem(ONBOARD_KEY, '1');
-                setTimeout(() => showPillMessage('💵 訂位出席就有現金回饋！紅點＝套餐優惠、金點＝訂位優惠，點店家看詳情', 8000), 1200);
+                setTimeout(() => showPillMessage('訂位出席就有現金回饋！紅點＝套餐優惠、黃點＝訂位優惠，點店家看詳情', 8000), 1200);
             }
         } catch (e) { /* private mode: 略過 */ }
 
@@ -3365,7 +3381,7 @@ export async function initMapPage() {
         if (canvas) {
             canvas.innerHTML = `
                 <div class="map-error">
-                    <p>😥 地圖載入失敗</p>
+                    <p>地圖載入失敗</p>
                     <button type="button" class="map-btn map-btn--primary" onclick="location.reload()">重新載入</button>
                 </div>`;
         }
