@@ -30,6 +30,34 @@ const TIER = {
 
 const ONBOARD_KEY = 'rr_map_onboarded_v1';
 
+// ---- 觸控讓位（r68）：Owner 實機回報「拖地圖時因載入卡頓，LIFF 被下拉關掉」----
+// 原理：LINE 的下拉手勢是原生層。主執行緒被長任務卡住時，touchmove 來不及被網頁
+// 消化，原生手勢就會接管。所以「載入期的重活」必須 (1) 切片、(2) 手指在螢幕上時
+// 完全暫停——重活永遠讓位給手勢。
+let touchActiveCount = 0;
+let lastTouchEndAt = 0;
+document.addEventListener('touchstart', () => { touchActiveCount++; }, { passive: true, capture: true });
+document.addEventListener('touchend', () => {
+    touchActiveCount = Math.max(0, touchActiveCount - 1);
+    lastTouchEndAt = Date.now();
+}, { passive: true, capture: true });
+document.addEventListener('touchcancel', () => {
+    touchActiveCount = Math.max(0, touchActiveCount - 1);
+    lastTouchEndAt = Date.now();
+}, { passive: true, capture: true });
+
+// 批次工作切片間呼叫：手指在螢幕上（或剛離開 200ms 內，慣性平移期）就等，
+// 否則讓一個 macrotask 給事件迴圈。等待用輪詢（100ms）而非事件，避免監聽器堆積。
+function yieldToTouch() {
+    return new Promise((resolve) => {
+        const tick = () => {
+            if (touchActiveCount > 0 || Date.now() - lastTouchEndAt < 200) setTimeout(tick, 100);
+            else setTimeout(resolve, 0);
+        };
+        tick();
+    });
+}
+
 // ---- 遊戲化（八角框架黑帽，詳見 _redesign/gamification-octalysis.md）----
 const DICE_BASE_QUOTA = 10;    // 每日抽選額度（CD6 稀缺：籌碼經濟）
 const DICE_STREAK_BONUS = 2;   // 連續 ≥3 天 → 每日 +2（CD8 損失：斷了就沒）
@@ -899,14 +927,17 @@ function mrtDotsHtml(lines) {
         .join('');
 }
 
-function buildMrtLayer(L, stations) {
+async function buildMrtLayer(L, stations) {
     if (!map || !stations || !stations.length) return;
-    mrtLayer = L.layerGroup(
-        stations
-            .filter(s => Number.isFinite(s.lat) && Number.isFinite(s.lng) && s.n)
-            .map(s => anchorMarker(L, s, 'map-mrt-wrap', 'map-mrt-label',
-                `${mrtDotsHtml(s.lines)}${escapeHtml(s.n)}`))
-    ).addTo(map);
+    const list = stations.filter(s => Number.isFinite(s.lat) && Number.isFinite(s.lng) && s.n);
+    mrtLayer = L.layerGroup();
+    let n = 0;
+    for (const s of list) {
+        if (++n % 60 === 0) await yieldToTouch();   // r68：批間讓位（見 yieldToTouch）
+        mrtLayer.addLayer(anchorMarker(L, s, 'map-mrt-wrap', 'map-mrt-label',
+            `${mrtDotsHtml(s.lines)}${escapeHtml(s.n)}`));
+    }
+    if (map) mrtLayer.addTo(map);
 }
 
 // landmarks.json brands（麥當勞/星巴克…分店座標）：認路靠招牌。
@@ -949,11 +980,15 @@ function syncBrandLayer() {
     }
 }
 
-function buildExtLayer(L) {
+async function buildExtLayer(L) {
     if (!extPois.length || !map) return;
     extLayer = L.layerGroup();
     extMarkers = [];
+    // r68：1,600+ 顆一次同步建會是手機上數百 ms 的長任務，正好砸在使用者開始拖地圖
+    // 的時間點（idle 鏈約在開機後 1-3 秒跑）。切片 150/批、批間讓位給觸控。
+    let sliceCount = 0;
     for (const poi of extPois) {
+        if (++sliceCount % 150 === 0) await yieldToTouch();
         const m = L.circleMarker([poi.lat, poi.lng], {
             radius: 4,
             color: '#9A948C',
@@ -3211,7 +3246,8 @@ export async function initMapPage() {
         }
         map.addLayer(clusterGroup);
         applyFilters();
-        buildLandmarkLayer(L); // 地標錨點（商圈/捷運站名，z14–16 顯示）
+        // 地標錨點移入下方 idle 鏈（r68）：非首屏關鍵，從開機同步塊拿掉，
+        // 縮短「使用者第一次觸控前」的長任務（實測開機塊 364ms@桌機、手機 3-10 倍）。
 
         // 外部 POI（1,262 顆灰點，只在 z≥16 顯示）延後載入：不與首屏搶頻寬/CPU。
         // 首繪後 idle 再抓 + 建層（~1,700 個 circleMarker，靠 preferCanvas 畫在單一 canvas
@@ -3219,11 +3255,11 @@ export async function initMapPage() {
         // 失敗不影響地圖（選配資料）。
         const loadExternalPois = () => fetch(new URL('../data/external_pois.json', import.meta.url))
             .then(r => (r.ok ? r.json() : null))
-            .then(extRes => {
+            .then(async (extRes) => {
                 extPois = (extRes && extRes.pois) || [];
                 if (!extPois.length || !map) return;
-                buildExtLayer(L);      // 未合作餐廳（灰空心點，z≥16 顯示）
-                updateCountPill();     // 補上「含未合作」的總數
+                await buildExtLayer(L); // 未合作餐廳（灰空心點，z≥16 顯示）；r68 切片建置
+                updateCountPill();      // 補上「含未合作」的總數
             })
             .catch(() => { /* 選配資料，靜默失敗 */ });
         // 知名地標（策展夜市/廟宇 + OSM 品牌/百貨）：接在 ext 後載——品牌 vs OpenRice
@@ -3240,12 +3276,18 @@ export async function initMapPage() {
         // 同為選配資料，抓不到就靜默略過，地圖照常運作。
         const loadMrt = () => fetch(new URL('../data/mrt_stations.json', import.meta.url))
             .then(r => (r.ok ? r.json() : null))
-            .then(res => {
+            .then(async (res) => {
                 if (!res || !map) return;
-                buildMrtLayer(L, res.stations || []);
+                await buildMrtLayer(L, res.stations || []);   // r68 切片建置
             })
             .catch(() => { /* 選配資料，靜默失敗 */ });
-        const loadOverlays = () => { loadMrt().then(loadExternalPois).then(loadLandmarks); };
+        const loadOverlays = async () => {
+            // r68：每步之間讓位——手指在螢幕上時整條鏈暫停，重活永遠不跟手勢搶主執行緒
+            await yieldToTouch(); await loadMrt();
+            await yieldToTouch(); buildLandmarkLayer(L);   // 地標（自開機塊移入）
+            await yieldToTouch(); await loadExternalPois();
+            await yieldToTouch(); await loadLandmarks();
+        };
         if ('requestIdleCallback' in window) requestIdleCallback(loadOverlays, { timeout: 3000 });
         else setTimeout(loadOverlays, 800);
 
