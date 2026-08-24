@@ -1259,6 +1259,18 @@ function afterFavChange() {
 
 // peek 高度單一來源是 CSS 的 --lm-sheet-peek（88px、大字 96px）：JS 檔位計算讀同一個
 // 變數，改高度只動 CSS 一處。舊版把 68 寫死在這裡與 CSS 兩邊，改一漏一就錯位。
+// r69 遙測：回報 LINE 下拉手勢守衛的實際狀態（applied / not-in-client / api-missing / error）。
+// Owner 實機在多輪修復後仍能重現下拉縮小——與其繼續猜，直接從 user_events 看
+// 全體用戶的生效率與重申次數。開機 6 秒後送一次（等 init+首批重申都發生過）。
+setTimeout(() => {
+    try {
+        const g = window.__swipeGuard;
+        track('map_swipe_guard', g
+            ? { state: g.state, applies: g.applies }
+            : { state: 'guard-not-installed' });  // init 沒 resolve 或跑的是舊版 index.html
+    } catch (e) { /* 遙測失敗無妨 */ }
+}, 6000);
+
 function sheetPeekPx() {
     const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--lm-sheet-peek'));
     return Number.isFinite(v) && v > 0 ? v : 88;

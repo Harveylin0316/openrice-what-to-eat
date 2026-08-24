@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="style.css">
     <!-- 生活地圖頁樣式（Leaflet 本體由 map.js 動態載入）。?v 破 webview 快取：
          改到 map.css 時，跟下方 __V 一起 bump，讓新樣式確實下發到用戶（不吃舊快取）。 -->
-    <link rel="stylesheet" href="map.css?v=r68">
+    <link rel="stylesheet" href="map.css?v=r69">
     <!-- 圖磚 CDN 先握手（DNS+TLS）：首張地圖圖磚更快出現（tileLayer 在 Leaflet 載完才連太晚） -->
     <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin>
     <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com">
@@ -66,7 +66,7 @@
         } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
 
         // __V：關鍵路徑破快取版本（單一來源，body 開機腳本讀這個）。
-        window.__V = 'r68';
+        window.__V = 'r69';
         // modulepreload：JS 模組鏈原本逐層發現（router→map→shared→constants 串行 4 層 RTT），
         // 首繪前全部並行預抓+預編譯 → 實測 pins 就緒時間大幅提前。舊 webview 不支援也只是忽略提示。
         try {
@@ -537,12 +537,37 @@
           // 一拖就把整個 LIFF 關掉（Owner 實機回報）。掛在這裡的另一個理由：
           // 本檔是 must-revalidate、必定下發最新版；app.js 會被 LINE WebView 硬快取。
           // 重複呼叫無害（app.js 那次是備援），LIFF 外/舊版 LINE 則靜默略過。
+          // 關 LINE 下拉手勢——「持續重申」版（r69）。
+          // 單次呼叫在部分 LINE 版本會被重置（鍵盤開合、切背景再回來、view 重新展開），
+          // Owner 實機在 r67/r68 後仍能重現下拉縮小。改為：init 後立刻關一次，
+          // 之後在 visibilitychange/pageshow/focus、以及每次 touchstart（節流 3 秒）
+          // 都再關一次——保證「任何一次手勢開始前」設定必定是關的。呼叫是冪等的、極輕。
+          // 狀態記在 window.__swipeGuard，map.js 會回報遙測（map_swipe_guard 事件），
+          // 讓我們能從 user_events 確認全體用戶的實際生效率，而不是繼續猜。
           window.__liffInitPromise.then(function () {
-            try {
-              if (sdk.isInClient() && typeof sdk.setVerticalSwipeEnabled === 'function') {
+            var guard = { state: 'unknown', applies: 0, lastAt: 0 };
+            window.__swipeGuard = guard;
+            function applySwipeGuard() {
+              try {
+                if (!sdk.isInClient()) { guard.state = 'not-in-client'; return; }
+                if (typeof sdk.setVerticalSwipeEnabled !== 'function') { guard.state = 'api-missing'; return; }
                 sdk.setVerticalSwipeEnabled(false);
-              }
-            } catch (e) { /* 舊版 LINE 不支援 */ }
+                guard.state = 'applied';
+                guard.applies++;
+                guard.lastAt = Date.now();
+              } catch (e) { guard.state = 'error:' + (e && e.message || e); }
+            }
+            applySwipeGuard();
+            document.addEventListener('visibilitychange', function () {
+              if (document.visibilityState === 'visible') applySwipeGuard();
+            });
+            window.addEventListener('pageshow', applySwipeGuard);
+            window.addEventListener('focus', applySwipeGuard);
+            var lastReassert = 0;
+            document.addEventListener('touchstart', function () {
+              var now = Date.now();
+              if (now - lastReassert > 3000) { lastReassert = now; applySwipeGuard(); }
+            }, { passive: true, capture: true });
           }).catch(function () { /* init 失敗時 app.js 端有各自的錯誤處理 */ });
           await Promise.race([
             window.__liffInitPromise,

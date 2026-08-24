@@ -2029,3 +2029,16 @@ body.is-map-page { overscroll-behavior: none; }
 .map-card-close, .map-sort-chip, .map-search__item, .map-search__clear {
   touch-action: manipulation;
 }
+
+
+/* ═══ 手勢起點封鎖（r69）：Owner 實機在 API 防護後仍能下拉縮小 LIFF。
+ * 縱向滑動「從哪裡起手」決定原生手勢會不會被餵到：chips 橫捲條原本 touch-action
+ * 預設值容許縱向 pan 起手（外漏給 LINE）；純點擊鈕的 manipulation 同樣容許 pan。
+ * 改為：chips 只准橫向、搜尋列與各按鈕一律拒當縱滑起點（tap 不受影響）。═══ */
+.map-chips { touch-action: pan-x; }
+.map-search { touch-action: none; }
+.map-search__input { touch-action: auto; }   /* 輸入框保留原生行為（點擊聚焦、長按選字） */
+.map-locate-btn, .map-theme-btn, .map-textsize-btn,
+.map-fab, .map-card-close, .map-chip {
+  touch-action: none;   /* 覆蓋上方 manipulation：純點擊元件拒絕成為滑動手勢起點 */
+}
