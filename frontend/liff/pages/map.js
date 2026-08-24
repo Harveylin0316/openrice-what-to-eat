@@ -46,6 +46,24 @@ document.addEventListener('touchcancel', () => {
     lastTouchEndAt = Date.now();
 }, { passive: true, capture: true });
 
+// ---- scroll-pin（r71）：LINE 下拉縮小只在 webview 捲動位於頂端時觸發。
+// 頁面保留 2px 捲動空間（見 map.css body.is-map-page），這裡把 scrollTop 永遠
+// 釘在 1——contentOffset 恆不在頂端，原生手勢就沒有觸發條件。與 r70 攔截器
+// 是組合技：攔截器擋住頁面被實際捲動，scrollTop 恆定 1 不會漂移；
+// 鍵盤開合、視口變化等原生行為若把它擠回 0，scroll/resize 監聽立刻釘回。
+function pinPageScroll() {
+    const se = document.scrollingElement || document.documentElement;
+    if (se.scrollTop < 1 && se.scrollHeight > se.clientHeight) se.scrollTop = 1;
+}
+window.addEventListener('scroll', pinPageScroll, { passive: true });
+window.addEventListener('resize', pinPageScroll, { passive: true });
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') pinPageScroll();
+});
+setTimeout(pinPageScroll, 0);       // 開機即釘（等 body.is-map-page class 與版面就緒）
+setTimeout(pinPageScroll, 500);
+setTimeout(pinPageScroll, 2000);
+
 // ---- LINE 下拉手勢攔截（r70）：遙測證實 iOS 上 setVerticalSwipeEnabled 是
 // api-missing（API 不存在），r54 以來從未生效過。改用網頁端硬解：
 // non-passive touchmove 的 preventDefault() 會強制 WebKit 取消原生 pan——
@@ -1304,8 +1322,8 @@ setTimeout(() => {
     try {
         const g = window.__swipeGuard;
         track('map_swipe_guard', g
-            ? { state: g.state, applies: g.applies, interceptor: true }
-            : { state: 'guard-not-installed', interceptor: true });  // interceptor＝r70 網頁端攔截已裝  // init 沒 resolve 或跑的是舊版 index.html
+            ? { state: g.state, applies: g.applies, interceptor: true, scroll_top: (document.scrollingElement || document.documentElement).scrollTop, scrollable: (document.scrollingElement || document.documentElement).scrollHeight - (document.scrollingElement || document.documentElement).clientHeight }
+            : { state: 'guard-not-installed', interceptor: true, scroll_top: (document.scrollingElement || document.documentElement).scrollTop, scrollable: (document.scrollingElement || document.documentElement).scrollHeight - (document.scrollingElement || document.documentElement).clientHeight });  // interceptor＝r70 網頁端攔截已裝  // init 沒 resolve 或跑的是舊版 index.html
     } catch (e) { /* 遙測失敗無妨 */ }
 }, 6000);
 

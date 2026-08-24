@@ -2042,3 +2042,18 @@ body.is-map-page { overscroll-behavior: none; }
 .map-fab, .map-card-close, .map-chip {
   touch-action: none;   /* 覆蓋上方 manipulation：純點擊元件拒絕成為滑動手勢起點 */
 }
+
+
+/* ═══ scroll-pin（r71）：iOS LINE 下拉縮小的最終解 ═══
+ * 事實鏈：liff.setVerticalSwipeEnabled 在 SDK 2.22.3～2.30.0 全版本都不存在
+ *（r54 抄了一個以訛傳訛的 API 名，typeof 防禦讓它靜默假裝運作）；r70 證實
+ * preventDefault 也擋不住（LINE 的縮小是獨立原生手勢辨識器，不看網頁事件）。
+ * 但它「只在 webview contentOffset 位於頂端時」觸發——所以給頁面保留 2px
+ * 可捲空間、用 JS 永遠釘在 scrollTop=1：offset 恆不在頂端，手勢永不觸發。
+ * .map-root 是 position:fixed，body 這 2px 對視覺零影響。
+ * 注意：這裡刻意覆蓋上方 r 系列的 body overflow:hidden。 */
+body.is-map-page {
+  overflow: visible;
+  height: calc(100vh + 2px);
+  height: calc(100dvh + 2px);
+}
