@@ -46,6 +46,44 @@ document.addEventListener('touchcancel', () => {
     lastTouchEndAt = Date.now();
 }, { passive: true, capture: true });
 
+// ---- LINE 下拉手勢攔截（r70）：遙測證實 iOS 上 setVerticalSwipeEnabled 是
+// api-missing（API 不存在），r54 以來從未生效過。改用網頁端硬解：
+// non-passive touchmove 的 preventDefault() 會強制 WebKit 取消原生 pan——
+// LINE 的下拉縮小跟著原生 pan 走，pan 被取消就不會觸發。這條不受主執行緒
+// 卡頓影響（non-passive 監聽器，WebKit 必須等它執行完才能決定原生捲動）。
+//
+// 白名單（允許原生「縱向」捲動的區域）之外，縱向主導的單指手勢一律 preventDefault：
+// - 地圖畫布：Leaflet 用自己的 listener 讀 touch 做平移，不依賴原生捲動 → 不受影響
+// - sheet 把手拖曳：自訂 JS 讀 clientY → 不受影響
+// - chips / 照片帶的「橫向」捲動：|dx|>|dy| 的手勢放行 → 保留
+// - 白名單內（卡片內文、清單全開、搜尋結果…）：正常捲動；唯「已在頂端還往下拉」
+//   的 rubber-band 才攔（那正是外漏成 LINE 手勢的路徑）
+const NATIVE_SCROLL_WHITELIST = '.map-sheet__list, .map-minicard__body, .map-spotlight__body, .map-search__results, .map-photoviewer, input, textarea';
+let gestureScrollEl = null;      // 本次手勢命中的白名單捲動元素（null＝非白名單起點）
+let gestureMultiTouch = false;   // 多指（縮放）整段放行給 Leaflet
+let gestureStartX = 0, gestureStartY = 0;
+document.addEventListener('touchstart', (e) => {
+    gestureMultiTouch = e.touches.length > 1;
+    if (gestureMultiTouch) return;
+    const t = e.touches[0];
+    gestureStartX = t.clientX; gestureStartY = t.clientY;
+    gestureScrollEl = (e.target instanceof Element) ? e.target.closest(NATIVE_SCROLL_WHITELIST) : null;
+}, { passive: true, capture: true });
+document.addEventListener('touchmove', (e) => {
+    if (gestureMultiTouch || e.touches.length > 1) return;  // pinch 縮放交給 Leaflet
+    if (!e.cancelable) return;                              // 原生已接手（理論上不會，保險）
+    const t = e.touches[0];
+    const dx = t.clientX - gestureStartX;
+    const dy = t.clientY - gestureStartY;
+    if (gestureScrollEl) {
+        // 白名單捲區：只攔「已到頂還往下拉」的 rubber-band
+        if (dy > 0 && gestureScrollEl.scrollTop <= 0) e.preventDefault();
+        return;
+    }
+    // 非白名單起點：縱向主導就攔（橫向主導放行，chips/照片帶的原生橫捲保留）
+    if (Math.abs(dy) >= Math.abs(dx)) e.preventDefault();
+}, { passive: false, capture: true });
+
 // 批次工作切片間呼叫：手指在螢幕上（或剛離開 200ms 內，慣性平移期）就等，
 // 否則讓一個 macrotask 給事件迴圈。等待用輪詢（100ms）而非事件，避免監聽器堆積。
 function yieldToTouch() {
@@ -1266,8 +1304,8 @@ setTimeout(() => {
     try {
         const g = window.__swipeGuard;
         track('map_swipe_guard', g
-            ? { state: g.state, applies: g.applies }
-            : { state: 'guard-not-installed' });  // init 沒 resolve 或跑的是舊版 index.html
+            ? { state: g.state, applies: g.applies, interceptor: true }
+            : { state: 'guard-not-installed', interceptor: true });  // interceptor＝r70 網頁端攔截已裝  // init 沒 resolve 或跑的是舊版 index.html
     } catch (e) { /* 遙測失敗無妨 */ }
 }, 6000);
 
