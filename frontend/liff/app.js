@@ -78,6 +78,16 @@ async function initLiffBackground() {
             window.__liffInitPromise,
             new Promise((_, reject) => setTimeout(() => reject(new Error('LIFF init 逾時')), 12000)),
         ]);
+        // 關掉 LINE「下拉縮小/關閉 LIFF」手勢——必須排在 getProfile「之前」：
+        // getProfile 最多再等 4 秒，冷啟頭幾秒正是使用者最會下拉地圖的時候，
+        // 晚一秒都是風險（Owner 實機回報一拖就整個 LIFF 被關）。
+        // 主防護已內聯在 index.html 登入閘門（init resolve 即掛、must-revalidate 保證下發），
+        // 這裡是 app.js 舊快取情境下的備援，重複呼叫無害。
+        try {
+            if (liff.isInClient() && typeof liff.setVerticalSwipeEnabled === 'function') {
+                liff.setVerticalSwipeEnabled(false);
+            }
+        } catch (e) { /* 舊版 LINE 不支援：維持原生行為 */ }
         if (liff.isLoggedIn()) {
             try {
                 liffProfile = await Promise.race([
@@ -88,14 +98,6 @@ async function initLiffBackground() {
                 console.warn('取用戶資料失敗/逾時，略過:', e);
             }
         }
-        // 關掉 LINE「下拉縮小/關閉 LIFF」手勢（r54 Owner：長按往下拉常誤退出）。
-        // 地圖是全螢幕手勢應用（拖曳/長按/拉抬清單都是垂直手勢），與這個系統手勢天生打架；
-        // 離開走右上角 ✕，跟 Google Maps 一樣不會「滑一滑就不見」。
-        try {
-            if (liff.isInClient() && typeof liff.setVerticalSwipeEnabled === 'function') {
-                liff.setVerticalSwipeEnabled(false);
-            }
-        } catch (e) { /* 舊版 LINE 不支援：維持原生行為 */ }
         setUserContext({
             line_id: liffProfile?.userId || null,
             is_in_line: liff.isInClient(),

@@ -1999,3 +1999,33 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 .map-dot--menu { background: var(--lm-pin-menu); }
 .map-dot--offer { background: var(--lm-pin-offer); }
 .map-dot--cashback { background: var(--lm-pin-cashback); }
+
+/* ═══ 觸控手勢防護（r67）：Owner 實機回報「拖地圖往下拉會把整個 LIFF 關掉」。
+ * 主修在 index.html 登入閘門（setVerticalSwipeEnabled(false) 提早到 init resolve 即刻），
+ * 以下是 CSS 層的整組配套——任何可捲區到頂/底都不把手勢外漏給 LINE 的系統手勢。═══ */
+
+/* 地圖畫布：長按是自訂手勢（長按定錨），不要跳 iOS 放大鏡/選字/callout */
+.map-canvas {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* 地圖頁整體：禁 rubber-band 與 Android pull-to-refresh（頁面本身不該捲動） */
+body.is-map-page { overscroll-behavior: none; }
+
+/* 各可捲動區：捲到邊界不外漏（sheet list 與照片帶原本就有，補齊其餘） */
+.map-minicard__body { overscroll-behavior: contain; }
+.map-spotlight__body { overscroll-behavior: contain; } /* 捲動的是 __body，外層是 overflow:hidden */
+.map-search__results { overscroll-behavior: contain; }
+.map-chips { overscroll-behavior-x: contain; }
+.map-photoviewer { overscroll-behavior: contain; }
+
+/* 互動元件：touch-action manipulation 消 iOS 雙擊縮放判定延遲與誤觸。
+ * 只加在「純點擊」元件——地圖畫布（Leaflet 手勢）、sheet 把手與清單項
+ *（拖曳/上滑拉抬是 JS 自訂手勢，把手原本就是 touch-action:none，蓋掉會被
+ * 瀏覽器搶走 pan）、輸入框（要能選字）都刻意排除。 */
+.map-chip, .map-btn, .map-fab,
+.map-locate-btn, .map-theme-btn, .map-textsize-btn,
+.map-card-close, .map-sort-chip, .map-search__item, .map-search__clear {
+  touch-action: manipulation;
+}

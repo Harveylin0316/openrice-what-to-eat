@@ -2,7 +2,10 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- 鎖頁面縮放（地圖 app 慣例，同 Google Maps）：pinch 是「縮地圖」的手勢，
+         若手指落在 chips/卡片上會把整頁放大爆版，且與 LINE 手勢疊加更易誤操作。
+         可及性由右側 Aa 大字模式承擔（50-60 歲核心族群實測夠用）。 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="color-scheme" content="light">
     <title>OpenRice 好康地圖</title>
     <!-- 正式環境 LIFF ID（新 provider 的 Login channel，2026-07 切換）。
@@ -19,7 +22,7 @@
     <link rel="stylesheet" href="style.css">
     <!-- 生活地圖頁樣式（Leaflet 本體由 map.js 動態載入）。?v 破 webview 快取：
          改到 map.css 時，跟下方 __V 一起 bump，讓新樣式確實下發到用戶（不吃舊快取）。 -->
-    <link rel="stylesheet" href="map.css?v=r66">
+    <link rel="stylesheet" href="map.css?v=r67">
     <!-- 圖磚 CDN 先握手（DNS+TLS）：首張地圖圖磚更快出現（tileLayer 在 Leaflet 載完才連太晚） -->
     <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin>
     <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com">
@@ -63,7 +66,7 @@
         } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
 
         // __V：關鍵路徑破快取版本（單一來源，body 開機腳本讀這個）。
-        window.__V = 'r66';
+        window.__V = 'r67';
         // modulepreload：JS 模組鏈原本逐層發現（router→map→shared→constants 串行 4 層 RTT），
         // 首繪前全部並行預抓+預編譯 → 實測 pins 就緒時間大幅提前。舊 webview 不支援也只是忽略提示。
         try {
@@ -528,6 +531,19 @@
           if (!window.__liffInitPromise) {
             window.__liffInitPromise = sdk.init({ liffId: window.LIFF_ID });
           }
+          // 立刻在 init resolve 的第一時間關掉 LINE「下拉縮小/關閉」手勢。
+          // 原本只在 app.js 的背景初始化裡呼叫，排在 init(最多12s)+getProfile(最多4s)
+          // 之後——冷啟頭幾秒正是使用者最會下拉地圖的時候，防護還沒生效，
+          // 一拖就把整個 LIFF 關掉（Owner 實機回報）。掛在這裡的另一個理由：
+          // 本檔是 must-revalidate、必定下發最新版；app.js 會被 LINE WebView 硬快取。
+          // 重複呼叫無害（app.js 那次是備援），LIFF 外/舊版 LINE 則靜默略過。
+          window.__liffInitPromise.then(function () {
+            try {
+              if (sdk.isInClient() && typeof sdk.setVerticalSwipeEnabled === 'function') {
+                sdk.setVerticalSwipeEnabled(false);
+              }
+            } catch (e) { /* 舊版 LINE 不支援 */ }
+          }).catch(function () { /* init 失敗時 app.js 端有各自的錯誤處理 */ });
           await Promise.race([
             window.__liffInitPromise,
             new Promise(function (_, rej) { setTimeout(function () { rej(new Error('連線逾時')); }, GATE.INIT_TIMEOUT_MS); })
