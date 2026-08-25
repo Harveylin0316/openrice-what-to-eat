@@ -1315,15 +1315,22 @@ function afterFavChange() {
 
 // peek 高度單一來源是 CSS 的 --lm-sheet-peek（88px、大字 96px）：JS 檔位計算讀同一個
 // 變數，改高度只動 CSS 一處。舊版把 68 寫死在這裡與 CSS 兩邊，改一漏一就錯位。
-// r69 遙測：回報 LINE 下拉手勢守衛的實際狀態（applied / not-in-client / api-missing / error）。
-// Owner 實機在多輪修復後仍能重現下拉縮小——與其繼續猜，直接從 user_events 看
-// 全體用戶的生效率與重申次數。開機 6 秒後送一次（等 init+首批重申都發生過）。
+// 遙測：scroll-pin 健康度（r71 起）。事件名沿用 map_swipe_guard 不改，
+// 好跟 r69/r70 那幾筆「api-missing」的歷史紀錄放在同一條時間線上比較。
+// 看什麼：pinned 應為 true、scroll_top 應為 1、scrollable 應為 2。
+// 若哪天大量出現 pinned=false，代表 iOS/LINE 改了行為或 CSS 被覆蓋，
+// 下拉關閉 LIFF 的災情會跟著回來——這是唯一的早期警訊來源。
 setTimeout(() => {
     try {
-        const g = window.__swipeGuard;
-        track('map_swipe_guard', g
-            ? { state: g.state, applies: g.applies, interceptor: true, scroll_top: (document.scrollingElement || document.documentElement).scrollTop, scrollable: (document.scrollingElement || document.documentElement).scrollHeight - (document.scrollingElement || document.documentElement).clientHeight }
-            : { state: 'guard-not-installed', interceptor: true, scroll_top: (document.scrollingElement || document.documentElement).scrollTop, scrollable: (document.scrollingElement || document.documentElement).scrollHeight - (document.scrollingElement || document.documentElement).clientHeight });  // interceptor＝r70 網頁端攔截已裝  // init 沒 resolve 或跑的是舊版 index.html
+        const se = document.scrollingElement || document.documentElement;
+        const scrollable = se.scrollHeight - se.clientHeight;
+        track('map_swipe_guard', {
+            fix: 'scroll-pin',
+            scroll_top: se.scrollTop,
+            scrollable,
+            pinned: se.scrollTop >= 1 && scrollable >= 1,
+            interceptor: true,   // r70 網頁端 touchmove 攔截（與 scroll-pin 是組合技）
+        });
     } catch (e) { /* 遙測失敗無妨 */ }
 }, 6000);
 

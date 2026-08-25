@@ -78,16 +78,9 @@ async function initLiffBackground() {
             window.__liffInitPromise,
             new Promise((_, reject) => setTimeout(() => reject(new Error('LIFF init 逾時')), 12000)),
         ]);
-        // 關掉 LINE「下拉縮小/關閉 LIFF」手勢——必須排在 getProfile「之前」：
-        // getProfile 最多再等 4 秒，冷啟頭幾秒正是使用者最會下拉地圖的時候，
-        // 晚一秒都是風險（Owner 實機回報一拖就整個 LIFF 被關）。
-        // 主防護已內聯在 index.html 登入閘門（init resolve 即掛、must-revalidate 保證下發），
-        // 這裡是 app.js 舊快取情境下的備援，重複呼叫無害。
-        try {
-            if (liff.isInClient() && typeof liff.setVerticalSwipeEnabled === 'function') {
-                liff.setVerticalSwipeEnabled(false);
-            }
-        } catch (e) { /* 舊版 LINE 不支援：維持原生行為 */ }
+        // 註：這裡原本有 liff.setVerticalSwipeEnabled(false) 的備援呼叫。
+        // r71 查證 LIFF SDK 原始碼確認該 API 不存在（見 index.html 同段說明），已移除。
+        // 下拉關閉 LIFF 的真正解法是 scroll-pin（map.js 的 pinPageScroll）。
         if (liff.isLoggedIn()) {
             try {
                 liffProfile = await Promise.race([

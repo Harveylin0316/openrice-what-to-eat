@@ -2000,9 +2000,12 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 .map-dot--offer { background: var(--lm-pin-offer); }
 .map-dot--cashback { background: var(--lm-pin-cashback); }
 
-/* ═══ 觸控手勢防護（r67）：Owner 實機回報「拖地圖往下拉會把整個 LIFF 關掉」。
- * 主修在 index.html 登入閘門（setVerticalSwipeEnabled(false) 提早到 init resolve 即刻），
- * 以下是 CSS 層的整組配套——任何可捲區到頂/底都不把手勢外漏給 LINE 的系統手勢。═══ */
+/* ═══ 觸控手勢防護（r67 加入；r71 更正說明）：
+ * Owner 實機回報「拖地圖往下拉會把整個 LIFF 關掉」。
+ * ⚠️ 這段原本寫「主修在 index.html 的 setVerticalSwipeEnabled」——那是錯的，
+ * 該 API 根本不存在（r71 查 SDK 原始碼確認）。真正的主修是本檔下方的 scroll-pin。
+ * 以下這組仍然保留、且仍有價值：可捲區到頂/底不外漏、長按不跳 iOS 選單、
+ * 純點擊元件不當滑動起點——它們讓 scroll-pin 的 scrollTop 不會被意外捲走。═══ */
 
 /* 地圖畫布：長按是自訂手勢（長按定錨），不要跳 iOS 放大鏡/選字/callout */
 .map-canvas {
