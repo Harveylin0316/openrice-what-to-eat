@@ -54,7 +54,7 @@ test('critical LIFF cache-buster versions stay aligned', () => {
   assert.ok(cssVersion, 'map.css version is missing');
   assert.ok(jsVersion, 'window.__V is missing');
   assert.equal(cssVersion, jsVersion);
-  assert.match(html, /router\.js\?v=' \+ window\.__V/);
+  assert.match(html, /import\('\/liff\/pages\/router\.js\?v=' \+ window\.__V/);
 });
 
 test('LIFF deep links keep every relative asset rooted at /liff/', () => {
@@ -71,6 +71,8 @@ test('LIFF deep links keep every relative asset rooted at /liff/', () => {
   const documentBase = new URL('/liff/', deepLink);
   assert.equal(new URL('pages/router.js', documentBase).pathname, '/liff/pages/router.js');
   assert.equal(new URL('openrice-logo.png', documentBase).pathname, '/liff/openrice-logo.png');
+  assert.doesNotMatch(html, /import\('\.\/pages\/router\.js/);
+  assert.match(html, /src="\/liff\/app\.js\?v=r\d+"/);
 });
 
 test('LIFF decision UX keeps the five core guidance improvements', () => {

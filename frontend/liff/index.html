@@ -19,27 +19,27 @@
          不必依賴被 LINE WebView 硬快取的 app.js。換 channel 時只改這一行即可。
          舊 channel（已停用）：2008944358-649rLhGj -->
     <script>window.LIFF_ID = '2007974193-JJfJNq2h';</script>
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
-    <link rel="preload" as="style" href="style.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="/liff/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/liff/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/liff/favicon-180.png">
+    <link rel="preload" as="style" href="/liff/style.css">
+    <link rel="stylesheet" href="/liff/style.css">
     <!-- 生活地圖頁樣式（Leaflet 本體由 map.js 動態載入）。?v 破 webview 快取：
          改到 map.css 時，跟下方 __V 一起 bump，讓新樣式確實下發到用戶（不吃舊快取）。 -->
-    <link rel="stylesheet" href="map.css?v=r73">
+    <link rel="stylesheet" href="/liff/map.css?v=r74">
     <!-- 圖磚 CDN 先握手（DNS+TLS）：首張地圖圖磚更快出現（tileLayer 在 Leaflet 載完才連太晚） -->
     <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin>
     <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com">
     <!-- 首屏關鍵資源提早抓，壓平 module 瀑布：Leaflet(本地、版本釘死)與 pin 資料在 module chain
          解析期間就並行下載，不必等到 map.js 執行 loadLeaflet 才開始。URL 與程式內解析路徑一致、
          無 ?v 版本耦合（vendor/data 本就不帶版本），故不會重複下載。 -->
-    <link rel="preload" as="script" href="vendor/leaflet/leaflet.js">
-    <link rel="preload" as="style" href="vendor/leaflet/leaflet.css">
-    <link rel="preload" as="script" href="vendor/leaflet/leaflet.markercluster.js">
-    <link rel="preload" as="style" href="vendor/leaflet/MarkerCluster.css">
-    <link rel="preload" as="style" href="vendor/leaflet/MarkerCluster.Default.css">
+    <link rel="preload" as="script" href="/liff/vendor/leaflet/leaflet.js">
+    <link rel="preload" as="style" href="/liff/vendor/leaflet/leaflet.css">
+    <link rel="preload" as="script" href="/liff/vendor/leaflet/leaflet.markercluster.js">
+    <link rel="preload" as="style" href="/liff/vendor/leaflet/MarkerCluster.css">
+    <link rel="preload" as="style" href="/liff/vendor/leaflet/MarkerCluster.Default.css">
     <!-- pin 資料是首屏必需：preload（高優先）取代 prefetch（低優先、行動網路常被跳過） -->
-    <link rel="preload" as="fetch" href="data/map_pins.json">
+    <link rel="preload" as="fetch" href="/liff/data/map_pins.json">
     <!-- 首繪前判定目標頁：地圖為預設首頁時，隱藏舊版外殼避免「今天吃什麼」閃現
          （router 載入完成後會移除 data-boot 接手控制） -->
     <script>
@@ -70,16 +70,16 @@
         } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
 
         // __V：關鍵路徑破快取版本（單一來源，body 開機腳本讀這個）。
-        window.__V = 'r73';
+        window.__V = 'r74';
         // modulepreload：JS 模組鏈原本逐層發現（router→map→shared→constants 串行 4 層 RTT），
         // 首繪前全部並行預抓+預編譯 → 實測 pins 就緒時間大幅提前。舊 webview 不支援也只是忽略提示。
         try {
             var V = window.__V;
             var mods = [
-                'pages/router.js?v=' + V,
-                'pages/map.js?v=' + V,
-                'pages/components/liff-features.js?v=' + V,
-                'shared/api.js', 'shared/utils.js', 'shared/tracker.js', 'shared/constants.js',
+                '/liff/pages/router.js?v=' + V,
+                '/liff/pages/map.js?v=' + V,
+                '/liff/pages/components/liff-features.js?v=' + V,
+                '/liff/shared/api.js', '/liff/shared/utils.js', '/liff/shared/tracker.js', '/liff/shared/constants.js',
             ];
             for (var i = 0; i < mods.length; i++) {
                 var l = document.createElement('link');
@@ -235,7 +235,7 @@
 
     <div class="container">
         <header class="header">
-            <img src="openrice-logo.png" alt="OpenRice 開飯喇" class="partner-logo">
+            <img src="/liff/openrice-logo.png" alt="OpenRice 開飯喇" class="partner-logo">
             <h1>OpenRice 好康地圖</h1>
             <p class="subtitle">附近合作餐廳、訂位優惠一次看</p>
         </header>
@@ -405,7 +405,7 @@
         </main>
 
         <footer class="footer">
-            <img src="openrice-logo.png" alt="OpenRice 開飯喇" class="footer-logo">
+            <img src="/liff/openrice-logo.png" alt="OpenRice 開飯喇" class="footer-logo">
             <p class="footer-line1">亞洲最大餐廳指南</p>
             <p class="footer-line2">食記、評分、訂位、優惠一站搞定</p>
         </footer>
@@ -596,7 +596,9 @@
         window.__gateDoneAt = Date.now();
 
         // __V 已在 head 內聯定義（單一來源；也供 modulepreload 用）
-        import('./pages/router.js?v=' + window.__V).then(function (m) {
+        // iOS LINE WebView 曾無視 <base>，把相對 dynamic import 解析到 LIFF 追加路徑；
+        // 啟動模組一律使用 origin-absolute URL，不能改回 ./pages/...。
+        import('/liff/pages/router.js?v=' + window.__V).then(function (m) {
           if (window.__rrBooted) return;
           window.__rrBooted = true;
           var el = gateEl();
@@ -634,6 +636,6 @@
       })();
     </script>
     <!-- app.js 只負責 LINE 背景初始化（拿 profile / 分享用），與地圖開機無關 -->
-    <script type="module" src="app.js"></script>
+    <script type="module" src="/liff/app.js?v=r74"></script>
 </body>
 </html>
