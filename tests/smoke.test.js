@@ -57,6 +57,22 @@ test('critical LIFF cache-buster versions stay aligned', () => {
   assert.match(html, /router\.js\?v=' \+ window\.__V/);
 });
 
+test('LIFF deep links keep every relative asset rooted at /liff/', () => {
+  const html = fs.readFileSync(path.join(root, 'frontend/liff/index.html'), 'utf8');
+  const baseIndex = html.indexOf('<base href="/liff/">');
+  const firstRelativeAssetIndex = html.search(/(?:src|href)="(?!https?:|\/|#)[^"]+"/);
+
+  assert.ok(baseIndex >= 0, 'missing /liff/ base URL for tracked and SPA deep links');
+  assert.ok(
+    firstRelativeAssetIndex < 0 || baseIndex < firstRelativeAssetIndex,
+    'the base URL must be declared before relative CSS, image and module references'
+  );
+  const deepLink = new URL('https://example.com/liff/lt/1?utm_source=richmenu');
+  const documentBase = new URL('/liff/', deepLink);
+  assert.equal(new URL('pages/router.js', documentBase).pathname, '/liff/pages/router.js');
+  assert.equal(new URL('openrice-logo.png', documentBase).pathname, '/liff/openrice-logo.png');
+});
+
 test('LIFF decision UX keeps the five core guidance improvements', () => {
   const mapJs = fs.readFileSync(path.join(root, 'frontend/liff/pages/map.js'), 'utf8');
   const mapCss = fs.readFileSync(path.join(root, 'frontend/liff/map.css'), 'utf8');
