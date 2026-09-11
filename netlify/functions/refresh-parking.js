@@ -4,8 +4,15 @@
 // 抓失敗只記 log、不擋（parking 端仍有 live fetch fallback，不影響正確性）。
 const AVAIL_URL = 'https://tcgbusfs.blob.core.windows.net/blobtcmsv/TCMSV_allavailable.json';
 
-exports.handler = async () => {
+exports.handler = async (event) => {
   try {
+    // 本專案仍採 Netlify Lambda compatibility handler（exports.handler）。在這個模式下
+    // Blobs context 不會自動注入，必須先用 invocation event 連線；只安裝套件仍會在
+    // production 報 MissingBlobsEnvironmentError。
+    const { connectLambda, getStore } = await import('@netlify/blobs');
+    if (!event || !event.blobs) throw new Error('Netlify Blobs invocation context missing');
+    connectLambda(event);
+
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 20000);
     let json;
@@ -21,7 +28,6 @@ exports.handler = async () => {
     for (const p of parks) map[String(p.id)] = Number(p.availablecar);
     if (!Object.keys(map).length) throw new Error('avail 0 筆，放棄寫入（保留上一版）');
 
-    const { getStore } = await import('@netlify/blobs');
     await getStore('parking').setJSON('avail', { at: Date.now(), map, count: Object.keys(map).length });
     return { statusCode: 200, body: `ok ${Object.keys(map).length}` };
   } catch (e) {

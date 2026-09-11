@@ -61,6 +61,15 @@ async function fetchJson(url, ms, label) {
 let descCache = { at: 0, lots: null };
 let availCache = { at: 0, map: null };
 
+// Netlify 的 exports.handler 屬於 Lambda compatibility mode；Blobs SDK 需要先從每次
+// invocation event 取得 site/token context。只在 event 有 blobs payload 時初始化，讓
+// 本機 unit tests（精簡假 event）仍可測不需 Blob 的 validation branches。
+async function connectBlobContext(event) {
+  if (!event || !event.blobs) return;
+  const { connectLambda } = await import('@netlify/blobs');
+  connectLambda(event);
+}
+
 // 建置時預烤的靜態停車場資料（名稱/座標/總車位）。有內容就用它 → 免在 runtime 抓 2.4MB
 // desc（省 ~3.4s/次，尤其 cold start）。缺檔/空檔 → fallback 成即時抓取（正確性不受影響）。
 // require 靜態解析：已提交 placeholder 保證檔案永遠存在，bundler 一定打包、絕不 build 失敗。
@@ -145,6 +154,7 @@ async function probe(url, ms, label) {
 }
 
 exports.handler = async (event) => {
+  await connectBlobContext(event);
   const q = event.queryStringParameters || {};
   // 注意：Number('') === 0 且 isFinite(0) 為真 → 空字串會被當成座標 0 通過驗證。
   // 先擋掉「缺參數/空字串」，避免 ?lat=&lng= 被誤判為 (0,0) 靜默回空清單。

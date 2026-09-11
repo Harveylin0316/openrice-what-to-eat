@@ -105,6 +105,8 @@ test('search tracks completed intent and offers recovery without storing query t
 
 test('map list count, parking feedback and production blob dependency stay trustworthy', () => {
   const mapJs = fs.readFileSync(path.join(root, 'frontend/liff/pages/map.js'), 'utf8');
+  const parkingJs = fs.readFileSync(path.join(root, 'netlify/functions/parking.js'), 'utf8');
+  const refreshParkingJs = fs.readFileSync(path.join(root, 'netlify/functions/refresh-parking.js'), 'utf8');
   const pkg = readJson('package.json');
 
   assert.match(mapJs, /const rows = sheetRowsInView\(\)/);
@@ -113,6 +115,8 @@ test('map list count, parking feedback and production blob dependency stay trust
   assert.match(mapJs, /目前以台北市為主/);
   assert.match(mapJs, /停車資料暫時載入失敗/);
   assert.ok(pkg.dependencies && pkg.dependencies['@netlify/blobs'], '@netlify/blobs must be installed from the repository root for Netlify bundling');
+  assert.match(parkingJs, /connectLambda\(event\)/, 'legacy parking handler must initialize its Blob invocation context');
+  assert.match(refreshParkingJs, /connectLambda\(event\)/, 'scheduled legacy handler must initialize its Blob invocation context');
 });
 
 test('generated map data has valid counts, unique ids and coordinates', () => {
