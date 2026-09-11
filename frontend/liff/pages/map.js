@@ -1344,29 +1344,17 @@ function updateCountPill() {
     const meta = document.getElementById('mapCountMeta');
     const handle = document.getElementById('sheetHandle');
     if (!pill || !map) return;
-    const bounds = map.getBounds();
-    const now = new Date();
-    let partnerInView = 0; // 合作店（有座標、走篩選）
+    // 摘要數字就是「展開後清單」的數字。舊版另外把地圖上的外部灰點算進 total，
+    // 會出現收合列 142 間、展開清單只有 41 間；使用者會直接以為資料壞掉。
+    // 共用 sheetRowsInView() 後，篩選、地圖範圍與清單永遠只有一種口徑。
+    const rows = sheetRowsInView();
     let cashback = 0;      // 可訂位＝出席回饋現金（基本盤）
     let deals = 0;         // 套餐/訂位優惠（加碼）
-    for (const pin of allPins) {
-        if (!pinPassesFilters(pin, now)) continue;
-        if (!bounds.contains([pin.lat, pin.lng])) continue;
-        partnerInView++;
+    for (const pin of rows) {
         if (pin.b) cashback++;
         if (pin.t === 'menu' || pin.t === 'offer') deals++;
     }
-    // 總數要含「暫無優惠」的未合作店（用戶眼中都是餐廳）：
-    // 僅在灰點真的顯示（z≥16）、且未套用會排除它們的篩選時併入
-    let extInView = 0;
-    const extShown = extLayer && map.hasLayer(extLayer);
-    if (extShown && !extFilteredOut()) {
-        for (const poi of extPois) {
-            if (!extMatchesCat(poi)) continue; // 有品類篩選時只算符合的灰點（與地圖顯示一致）
-            if (bounds.contains([poi.lat, poi.lng])) extInView++;
-        }
-    }
-    const total = partnerInView + extInView;
+    const total = rows.length;
     if (total === 0) {
         const filtered = activeFilters.deals || activeFilters.open || activeFilters.bookable
             || activeFilters.budget || activeFilters.favOnly;
@@ -1422,6 +1410,9 @@ function setSheetState(state) {
     if (state === 'peek') track('map_sheet_close', {});
     else if (was === 'peek') track('map_sheet_open', {});
     if (state === 'full') track('map_sheet_full', {});
+    // iOS/小螢幕展開抽屜時可視地圖範圍可能在下一幀才穩定；再用清單的共同口徑
+    // 刷一次摘要，避免標題說 0 家但展開後其實有店。
+    if (state !== 'peek') requestAnimationFrame(() => updateCountPill());
 }
 
 function setSheetOpen(open) {
@@ -1839,6 +1830,7 @@ function closeMiniCard() {
 
 // ---- 停車圖層（🅿️ 停車 chip：一鍵在地圖上看可視範圍內所有停車場）----
 const MIN_PARK_ZOOM = 15; // 街區層級才顯示，避免整個台北的停車場蓋滿畫面
+let parkingFirstLoadPending = false;
 
 // 無即時感測器的場 → 不用灰色「即時不明」，改成中性藍「size」+ 顯示總車位「共 N 格」（一定知道，實用）。
 function parkAvailClass(a, total) {
@@ -1863,6 +1855,8 @@ function toggleParkingLayer() {
     if (chip) { chip.classList.toggle('is-active', parkOn); chip.setAttribute('aria-pressed', String(parkOn)); }
     track('map_parking_layer', { on: parkOn });
     if (parkOn) {
+        parkingFirstLoadPending = true;
+        showPillMessage('正在載入附近停車位…', 5000);
         refreshParkingLayer();
         map.on('moveend', scheduleParkingRefresh);
         map.on('zoomend', scheduleParkingRefresh);
@@ -1870,6 +1864,7 @@ function toggleParkingLayer() {
         map.off('moveend', scheduleParkingRefresh);
         map.off('zoomend', scheduleParkingRefresh);
         if (parkAbort) parkAbort.abort();
+        parkingFirstLoadPending = false;
         setParkingChipLoading(false);
         if (parkLayer) { map.removeLayer(parkLayer); parkLayer = null; }
     }
@@ -1911,13 +1906,27 @@ async function refreshParkingLayer() {
         lots = data.lots || [];
     } catch (err) {
         if (err && err.name === 'AbortError') return; // 被新的抓取取代：讓新的那次負責關 loading
-        return; // 靜默：圖層抓不到不干擾地圖
+        if (parkingFirstLoadPending) {
+            parkingFirstLoadPending = false;
+            showPillMessage('停車資料暫時載入失敗，請稍後再試', 4000);
+        }
+        track('map_parking_layer_error', { reason: String(err && err.message || 'unknown').slice(0, 40) });
+        return;
     } finally {
         // 只有「還是自己這次抓取」才關 loading：被 abort 換掉時交給接手的那次，避免提前熄燈
         if (parkAbort === thisAbort) setParkingChipLoading(false);
     }
     if (!parkOn) return; // 抓的途中被關掉
     renderParkingMarkers(window.L, lots);
+    if (parkingFirstLoadPending) {
+        parkingFirstLoadPending = false;
+        showPillMessage(
+            lots.length
+                ? `已顯示 ${lots.length} 個停車場`
+                : '這個範圍目前沒有停車資料；目前以台北市為主',
+            lots.length ? 2200 : 5000
+        );
+    }
 }
 
 function renderParkingMarkers(L, lots) {
@@ -2567,15 +2576,45 @@ function searchMatches(query) {
     const catRows = catHit
         ? [{ kind: 'category', name: query.trim(), sub: `${catHit.count} 間餐廳`, set: catHit.set }]
         : [];
+    // 地點先按完整名稱相關性排序並去重。產生資料偶爾會同名重複（曾出現兩個「板橋區」），
+    // 搜尋介面不該把來源資料的雜訊直接丟給使用者。
+    const seenPlaces = new Set();
     const placeHits = allPlaces
         .filter(p => tokens.every(t => normalizeSearchText(`${p.n}${p.d || ''}`).includes(t)))
+        .sort((a, b) => {
+            const an = normalizeSearchText(a.n), bn = normalizeSearchText(b.n);
+            const score = n => n === q ? 3 : n.startsWith(q) ? 2 : n.includes(q) ? 1 : 0;
+            return score(bn) - score(an) || (b.c || 0) - (a.c || 0);
+        })
+        .filter(p => {
+            const key = normalizeSearchText(p.n);
+            if (seenPlaces.has(key)) return false;
+            seenPlaces.add(key);
+            return true;
+        })
         .slice(0, 4)
-        .map(p => ({ kind: p.t, name: p.n, sub: p.t === 'district' ? p.d : `${p.c} 間餐廳`, lat: p.lat, lng: p.lng }));
+        .map(p => ({
+            kind: p.t,
+            name: p.n,
+            // 舊版顯示 p.c，但它是產生資料時的地點索引估值，與使用者眼前地圖範圍不同。
+            // 改成動作說明，點入後再用同一份清單口徑顯示即時數量。
+            sub: p.t === 'district' ? `${p.d || '行政區'}・查看附近餐廳` : '地標・查看附近餐廳',
+            lat: p.lat,
+            lng: p.lng,
+        }));
+    const hasPlaceHit = placeHits.length > 0;
     const pinHits = allPins
         .filter(p => {
             const cats = (p.ct || []).map(i => allCats[i] || '').join('');
-            const haystack = normalizeSearchText(`${p.n}${p.d || ''}${p.ad || ''}${(p.tg || []).join('')}${cats}`);
+            // 已有地點命中時，不讓地址門牌的偶然數字把無關餐廳拉進來（例如「台北101」
+            // 曾命中地址剛好有 101 號的大安區餐廳）。沒有地點命中時仍保留地址搜尋能力。
+            const haystack = normalizeSearchText(`${p.n}${p.d || ''}${hasPlaceHit ? '' : (p.ad || '')}${(p.tg || []).join('')}${cats}`);
             return tokens.every(t => haystack.includes(t));
+        })
+        .sort((a, b) => {
+            const an = normalizeSearchText(a.n), bn = normalizeSearchText(b.n);
+            const score = n => n === q ? 4 : n.startsWith(q) ? 3 : n.includes(q) ? 2 : 0;
+            return score(bn) - score(an) || (b.r || 0) - (a.r || 0);
         })
         .slice(0, Math.max(3, 8 - placeHits.length - catRows.length))
         .map(p => ({ kind: 'restaurant', name: p.n, sub: p.d, pin: p }));
@@ -2661,12 +2700,20 @@ function renderSearchResults(matches, query = '') {
         }
         return;
     }
-    list.innerHTML = matches.map((m, i) => `
-        <li><button type="button" class="map-search__item" data-idx="${i}">
+    const groupFor = kind => kind === 'category' ? '分類'
+        : (kind === 'district' || kind === 'landmark') ? '地點'
+            : (kind === 'restaurant' || kind === 'ext') ? '餐廳' : '最近使用';
+    let lastGroup = '';
+    list.innerHTML = matches.map((m, i) => {
+        const group = groupFor(m.kind);
+        const heading = group === lastGroup ? '' : `<li class="map-search__group" role="presentation">${group}</li>`;
+        lastGroup = group;
+        return `${heading}<li><button type="button" class="map-search__item" data-idx="${i}">
             <span aria-hidden="true">${SEARCH_ICON[m.kind]}</span>
             <span class="map-search__item-name">${escapeHtml(m.name)}</span>
             <span class="map-search__item-sub">${escapeHtml(m.sub || '')}</span>
-        </button></li>`).join('');
+        </button></li>`;
+    }).join('');
     list.hidden = false;
     list.querySelectorAll('.map-search__item').forEach(btn => {
         btn.addEventListener('click', () => selectSearchResult(matches[Number(btn.dataset.idx)]));

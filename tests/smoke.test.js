@@ -98,7 +98,21 @@ test('search tracks completed intent and offers recovery without storing query t
   assert.match(mapJs, /used_fallback/);
   assert.match(mapJs, /附近熱門好康/);
   assert.match(mapJs, /normalizeSearchText/);
+  assert.match(mapJs, /class="map-search__group"/);
+  assert.match(mapJs, /地標・查看附近餐廳/);
   assert.doesNotMatch(mapJs, /track\('map_search',\s*\{[\s\S]{0,200}query:/);
+});
+
+test('map list count, parking feedback and production blob dependency stay trustworthy', () => {
+  const mapJs = fs.readFileSync(path.join(root, 'frontend/liff/pages/map.js'), 'utf8');
+  const pkg = readJson('package.json');
+
+  assert.match(mapJs, /const rows = sheetRowsInView\(\)/);
+  assert.doesNotMatch(mapJs, /const total = partnerInView \+ extInView/);
+  assert.match(mapJs, /正在載入附近停車位/);
+  assert.match(mapJs, /目前以台北市為主/);
+  assert.match(mapJs, /停車資料暫時載入失敗/);
+  assert.ok(pkg.dependencies && pkg.dependencies['@netlify/blobs'], '@netlify/blobs must be installed from the repository root for Netlify bundling');
 });
 
 test('generated map data has valid counts, unique ids and coordinates', () => {

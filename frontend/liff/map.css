@@ -384,6 +384,13 @@ body.is-map-page { overflow: hidden; }
   max-height: 50vh;
   overflow-y: auto;
 }
+.map-search__group {
+  padding: 9px 12px 3px;
+  color: var(--lm-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
 .map-search__item {
   display: flex;
   align-items: center;
@@ -1717,6 +1724,7 @@ body[data-page]:not([data-page="map"]) .container { padding-bottom: 84px; }
 :root[data-textsize="lg"] .map-search__input { font-size: 18px; }
 :root[data-textsize="lg"] .map-search__item-name { font-size: 16px; }
 :root[data-textsize="lg"] .map-search__item-sub { font-size: 15px; }
+:root[data-textsize="lg"] .map-search__group { font-size: 14px; }
 :root[data-textsize="lg"] .map-minicard__name { font-size: 19px; }
 :root[data-textsize="lg"] .map-spotlight__name { font-size: 22px; }
 :root[data-textsize="lg"] .map-spotlight__evidence { font-size: 15px; }
