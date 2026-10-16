@@ -1,0 +1,46 @@
+name: 底圖存活檢查
+
+# 為什麼有這支：2026-09 CARTO 改成強制 API key，沒帶 key 的圖磚全部變成
+# 「API KEY REQUIRED」浮水印。pin、搜尋都正常，只有底圖壞，地圖靜靜壞了約三週才被發現。
+#
+# 做法：用正式環境同一把 key，抽兩張「不同位置」的圖磚。正常圖磚內容一定不同；
+# 佔位圖（缺 key、key 失效、超過額度）則每張都一模一樣。兩張相同 = 底圖壞了 → 本 job 失敗，
+# GitHub 會自動寄失敗通知信給 repo 擁有者，不需要另外設郵件帳密。
+#
+# key 直接從 frontend/liff/index.html 讀（window.CARTO_KEY），換 key 後這裡不用改。
+
+on:
+  schedule:
+    - cron: '30 0 * * *'    # 每日 00:30 UTC = 08:30 台北
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 檢查淺色與深色底圖
+        run: |
+          set -euo pipefail
+          KEY=$(grep -oE "window.CARTO_KEY = '[^']*'" frontend/liff/index.html | sed -E "s/.*'([^']*)'/\1/")
+          if [ -z "$KEY" ]; then
+            echo "::error::index.html 的 window.CARTO_KEY 是空的，底圖會變成浮水印"
+            exit 1
+          fi
+          fail=0
+          for style in voyager dark_all; do
+            # 台北車站一帶與信義區，兩個不同位置
+            a=$(curl -sf "https://a.basemaps.cartocdn.com/rastertiles/$style/15/27441/14025.png?key=$KEY" | md5sum | cut -d' ' -f1)
+            b=$(curl -sf "https://a.basemaps.cartocdn.com/rastertiles/$style/15/27447/14029.png?key=$KEY" | md5sum | cut -d' ' -f1)
+            echo "$style: $a / $b"
+            if [ "$a" = "$b" ]; then
+              echo "::error::$style 兩張不同位置的圖磚內容相同，判定為佔位圖（key 失效、被停用或超過額度）。到 https://carto.com/basemaps/apikey 檢查。"
+              fail=1
+            fi
+          done
+          [ "$fail" = 0 ] && echo "底圖正常"
+          exit $fail
