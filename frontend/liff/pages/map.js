@@ -475,7 +475,15 @@ function loadLeaflet() {
 const TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 const TILE_DARK = 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png';
 function isDarkTheme() { return document.documentElement.dataset.theme === 'dark'; }
-function tileUrl() { return isDarkTheme() ? TILE_DARK : TILE_LIGHT; }
+// CARTO 自 2026-09 起底圖必須帶 API key，否則每張圖磚都回「API KEY REQUIRED」浮水印
+// （整張地圖只剩 pin、沒有街道）。key 放在 index.html <head> 的 window.CARTO_KEY——
+// 那檔是 must-revalidate，換 key 只改那一行、不必 bump 版本。商業用途每月 100 萬次內免費，
+// 好康地圖實測用量遠低於此（2026-10 估最多約 7 萬次/月）。
+function tileUrl() {
+    const base = isDarkTheme() ? TILE_DARK : TILE_LIGHT;
+    const key = window.CARTO_KEY;
+    return key ? `${base}?key=${encodeURIComponent(key)}` : base;
+}
 function resolveTheme() {
     let pref = null;
     try { pref = localStorage.getItem('rr_theme'); } catch (e) { /* private mode */ }

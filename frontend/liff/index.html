@@ -19,6 +19,10 @@
          不必依賴被 LINE WebView 硬快取的 app.js。換 channel 時只改這一行即可。
          舊 channel（已停用）：2008944358-649rLhGj -->
     <script>window.LIFF_ID = '2007974193-JJfJNq2h';</script>
+    <!-- CARTO 底圖 API key（2026-09 起必填，缺了整張底圖變「API KEY REQUIRED」浮水印）。
+         申請：https://carto.com/basemaps/apikey（免帳號、填 email 一分鐘到信箱）。
+         商業用途每月 100 萬次請求內免費。換 key 只改這一行。 -->
+    <script>window.CARTO_KEY = '';</script>
     <link rel="icon" type="image/png" sizes="32x32" href="/liff/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/liff/favicon-16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/liff/favicon-180.png">
@@ -26,7 +30,7 @@
     <link rel="stylesheet" href="/liff/style.css">
     <!-- 生活地圖頁樣式（Leaflet 本體由 map.js 動態載入）。?v 破 webview 快取：
          改到 map.css 時，跟下方 __V 一起 bump，讓新樣式確實下發到用戶（不吃舊快取）。 -->
-    <link rel="stylesheet" href="/liff/map.css?v=r75">
+    <link rel="stylesheet" href="/liff/map.css?v=r76">
     <!-- 圖磚 CDN 先握手（DNS+TLS）：首張地圖圖磚更快出現（tileLayer 在 Leaflet 載完才連太晚） -->
     <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin>
     <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com">
@@ -70,7 +74,7 @@
         } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
 
         // __V：關鍵路徑破快取版本（單一來源，body 開機腳本讀這個）。
-        window.__V = 'r75';
+        window.__V = 'r76';
         // modulepreload：JS 模組鏈原本逐層發現（router→map→shared→constants 串行 4 層 RTT），
         // 首繪前全部並行預抓+預編譯 → 實測 pins 就緒時間大幅提前。舊 webview 不支援也只是忽略提示。
         try {
