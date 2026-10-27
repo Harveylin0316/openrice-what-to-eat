@@ -30,7 +30,7 @@
     <link rel="stylesheet" href="/liff/style.css">
     <!-- 生活地圖頁樣式（Leaflet 本體由 map.js 動態載入）。?v 破 webview 快取：
          改到 map.css 時，跟下方 __V 一起 bump，讓新樣式確實下發到用戶（不吃舊快取）。 -->
-    <link rel="stylesheet" href="/liff/map.css?v=r76">
+    <link rel="stylesheet" href="/liff/map.css?v=r77">
     <!-- 圖磚 CDN 先握手（DNS+TLS）：首張地圖圖磚更快出現（tileLayer 在 Leaflet 載完才連太晚） -->
     <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin>
     <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com">
@@ -74,7 +74,7 @@
         } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
 
         // __V：關鍵路徑破快取版本（單一來源，body 開機腳本讀這個）。
-        window.__V = 'r76';
+        window.__V = 'r77';
         // modulepreload：JS 模組鏈原本逐層發現（router→map→shared→constants 串行 4 層 RTT），
         // 首繪前全部並行預抓+預編譯 → 實測 pins 就緒時間大幅提前。舊 webview 不支援也只是忽略提示。
         try {
@@ -93,9 +93,11 @@
         } catch (e) { /* 提示失敗無妨 */ }
     })();
     </script>
+    <!-- LIFF 2.31.2: fixes CVE-2026-112148 (affected 2.20.0–2.31.0).
+         Keep the fixed version explicit; never restore 2.22.3 from old copies. -->
     <!-- LINE LIFF SDK：async 非阻塞載入，就算 line-scdn 慢/掛也不會拖住畫面渲染；
          app.js 的 waitForLiffSdk() 會輪詢等它就緒（地圖本來就不依賴 LINE）。 -->
-    <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js" async></script>
+    <script src="https://static.line-scdn.net/liff/edge/versions/2.31.2/sdk.js" async></script>
 </head>
 <body>
     <!-- Reusable SVG icon sprite -->
@@ -640,6 +642,6 @@
       })();
     </script>
     <!-- app.js 只負責 LINE 背景初始化（拿 profile / 分享用），與地圖開機無關 -->
-    <script type="module" src="/liff/app.js?v=r75"></script>
+    <script type="module" src="/liff/app.js?v=r77"></script>
 </body>
 </html>

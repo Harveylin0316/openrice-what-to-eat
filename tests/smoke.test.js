@@ -237,3 +237,17 @@ test('shared/utils.js stays identical across both copies and keeps the review-co
     '高評價門檻（rating>=4 且 review_count>=5）不見了'
   );
 });
+
+
+test('published LIFF entry cannot load the vulnerable SDK release range', () => {
+  const html = fs.readFileSync(path.join(root, 'frontend/liff/index.html'), 'utf8');
+  const loaders = [...html.matchAll(/<script\b[^>]*src="https:\/\/static\.line-scdn\.net\/liff\/edge\/versions\/(\d+)\.(\d+)\.(\d+)\/sdk\.js"[^>]*>/g)];
+  assert.equal(loaders.length, 1, 'one explicit SDK must serve both the login gate and background tracker');
+  const [, major, minor, patch] = loaders[0].map(String);
+  assert.equal(Number(major), 2);
+  assert.ok(Number(minor) > 31 || (Number(minor) === 31 && Number(patch) >= 1),
+    'CVE-2026-112148 requires LIFF 2.31.1 or later');
+  assert.match(loaders[0][0], /\sasync[\s>]/, 'SDK must not block map rendering');
+  const revision = html.match(/window\.__V\s*=\s*'(r\d+)'/)[1];
+  assert.ok(html.includes(`/liff/app.js?v=${revision}`), 'background LIFF boot module must refresh with the entry');
+});
