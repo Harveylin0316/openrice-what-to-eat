@@ -29,6 +29,11 @@ function loadRestaurantDatabase() {
 }
 
 function _loadRestaurantDatabaseUncached() {
+  // Explicit JSON import lets both Netlify and Workers bundle the identical snapshot.
+  // Keep the existing filesystem paths as a compatibility fallback for local tools.
+  if (!process.env.RESTAURANT_DB_PATH) {
+    return applyCityAllowlist(require('../../restaurants_database.json'));
+  }
   // 如果設置了環境變數，優先使用它（Netlify Functions）
   if (process.env.RESTAURANT_DB_PATH && fs.existsSync(process.env.RESTAURANT_DB_PATH)) {
     console.log(`Found database via env var: ${process.env.RESTAURANT_DB_PATH}`);

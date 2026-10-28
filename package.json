@@ -6,10 +6,15 @@
     "@netlify/blobs": "^10.7.0"
   },
   "scripts": {
+    "build:cloudflare": "node scripts/build-cloudflare.mjs",
+    "deploy:cloudflare": "npm run build:cloudflare && wrangler deploy",
     "test": "node --test tests/*.test.js",
     "check": "find frontend backend netlify/functions -name '*.js' -not -path '*/vendor/*' -not -path '*/node_modules/*' -print0 | xargs -0 -n1 -I{} sh -c 'node --input-type=module --check < \"$1\" || { echo \"SYNTAX ERROR in $1\" >&2; exit 1; }' _ {}"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "wrangler": "4.153.0"
   }
 }

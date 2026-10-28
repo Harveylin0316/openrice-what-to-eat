@@ -104,25 +104,27 @@ async function getLots() {
 
 // 讀「排程每分鐘背景寫入 Blobs」的即時空位（跨 instance、us-east-2 同區、快）。
 // 這是讓「每個使用者（含冷啟第一次）都快」的關鍵：使用者不必等跨太平洋抓 461KB。
-async function readAvailBlob() {
+async function readAvailBlob(store) {
   try {
+    if (store) return await store.read();
     const { getStore } = await import('@netlify/blobs');
     const c = await getStore('parking').get('avail', { type: 'json' });
     if (c && c.map && (Date.now() - c.at) < BLOB_AVAIL_TTL) return c; // {at, map}
   } catch (e) { /* Blobs 不可用/空/過期 → 交由呼叫端 live fetch */ }
   return null;
 }
-async function writeAvailBlob(map) {
+async function writeAvailBlob(map, store) {
   try {
+    if (store) return await store.write(map);
     const { getStore } = await import('@netlify/blobs');
     await getStore('parking').setJSON('avail', { at: Date.now(), map, count: Object.keys(map).length });
   } catch (e) { /* 寫失敗無妨：排程才是主要寫入者 */ }
 }
 
-async function getAvail() {
+async function getAvail(store) {
   if (availCache.map && Date.now() - availCache.at < AVAIL_TTL) return availCache.map;
   // 1) 優先讀排程寫入的 Blobs（快 + ≤1 分新鮮）。以 blob 的資料時戳當快取時戳 → AVAIL_TTL 直接界定資料年齡。
-  const blob = await readAvailBlob();
+  const blob = await readAvailBlob(store);
   if (blob) { availCache = { at: blob.at, map: blob.map }; return blob.map; }
   // 2) fallback（Blobs 尚未暖機/排程異常）：即時抓一次，順手寫回 Blobs 自我修復（不 await，不擋回應）。
   const json = await fetchJson(AVAIL_URL, 6000, 'avail');
@@ -130,7 +132,8 @@ async function getAvail() {
   const map = {};
   for (const p of parks) map[String(p.id)] = Number(p.availablecar);
   availCache = { at: Date.now(), map };
-  writeAvailBlob(map);
+  if (store) await writeAvailBlob(map, store);
+  else writeAvailBlob(map);
   return map;
 }
 
@@ -153,7 +156,7 @@ async function probe(url, ms, label) {
   }
 }
 
-exports.handler = async (event) => {
+exports.handler = async (event, context = {}) => {
   await connectBlobContext(event);
   const q = event.queryStringParameters || {};
   // 注意：Number('') === 0 且 isFinite(0) 為真 → 空字串會被當成座標 0 通過驗證。
@@ -165,7 +168,7 @@ exports.handler = async (event) => {
 
   if (q.debug) {
     const baked = getBakedLots();
-    const blob = await readAvailBlob();
+    const blob = await readAvailBlob(context.parkingStore);
     // 感測器覆蓋率：全部停車場中，有多少「回報了有效即時車位數」→ 量化「即時不明」的規模。
     let coverage = null;
     if (baked && blob && blob.map) {
@@ -196,7 +199,7 @@ exports.handler = async (event) => {
   if (q.warm) {
     let lotsN = 0, avail = false;
     try { lotsN = (await getLots()).length; } catch (e) { /* baked 缺→忽略 */ }
-    try { await getAvail(); avail = !!(availCache.map); } catch (e) { /* 即時空位失敗→忽略 */ }
+    try { await getAvail(context.parkingStore); avail = !!(availCache.map); } catch (e) { /* 即時空位失敗→忽略 */ }
     return { statusCode: 200, headers, body: JSON.stringify({ ok: true, warm: true, lots: lotsN, avail }) };
   }
 
@@ -213,7 +216,7 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify({ success: false, lots: [], error: 'desc失敗' }) };
     }
     let avail = {};
-    try { avail = await getAvail(); } catch (err) { /* 即時空位失敗 → 全標無即時 */ }
+    try { avail = await getAvail(context.parkingStore); } catch (err) { /* 即時空位失敗 → 全標無即時 */ }
     const MAX_LAYER = 300;
     const inb = [];
     for (const lot of lots) {
@@ -247,7 +250,7 @@ exports.handler = async (event) => {
 
   // 完整版：加抓即時空位（avail 掛了仍以「無即時」顯示停車場，不擋卡片）。
   let avail = {};
-  try { avail = await getAvail(); } catch (e) { /* 即時空位失敗 → 全部標為無即時 */ }
+  try { avail = await getAvail(context.parkingStore); } catch (e) { /* 即時空位失敗 → 全部標為無即時 */ }
   return { statusCode: 200, headers, body: JSON.stringify({ success: true, lots: nearestLots(lots, lat, lng, avail), scanned: lots.length }) };
 };
 

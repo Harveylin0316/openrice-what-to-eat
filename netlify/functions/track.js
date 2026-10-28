@@ -5,7 +5,7 @@
 let supabaseRequest = null;
 const crypto = require('crypto');
 try {
-  ({ supabaseRequest } = require('./supabase/client'));
+  ({ supabaseRequest } = require('../../supabase/client'));
 } catch (err) {
   console.log('[track] Supabase client 未找到:', err.message);
 }

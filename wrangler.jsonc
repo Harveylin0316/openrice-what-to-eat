@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "openrice-life-map",
+  "main": "cloudflare/worker.mjs",
+  "compatibility_date": "2026-10-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": false },
+  "assets": {
+    "directory": "./dist-cloudflare",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "vars": {
+    "CLOUDFLARE_MIGRATION": "1",
+    "MIGRATION_MODE": "live",
+    "NODE_ENV": "production"
+  },
+  "kv_namespaces": [{ "binding": "PARKING_CACHE", "id": "b8ffc812340c4a74bca185e0c2fb63ba" }],
+  "triggers": { "crons": ["*/2 * * * *"] }
+}

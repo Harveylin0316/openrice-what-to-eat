@@ -19,6 +19,7 @@ function applyCityAllowlist(data) {
 // 覆蓋 loadRestaurantDatabase 函數以使用正確的路徑
 // 在 Netlify Functions 中，嘗試從模組導入數據庫
 function loadRestaurantDatabase() {
+  if (process.env.CLOUDFLARE_MIGRATION) return applyCityAllowlist(require('./database'));
   console.log('loadRestaurantDatabase called');
   console.log('__dirname:', __dirname);
   console.log('process.cwd():', process.cwd());
@@ -228,7 +229,10 @@ function getLocationOptions() {
 }
 
 // 設置環境變數，讓 recommendation.js 知道數據庫文件的位置
-process.env.RESTAURANT_DB_PATH = path.join(__dirname, 'restaurants_database.json');
+// Workers bundles the JSON snapshot; it has no deployed Lambda filesystem.
+if (!process.env.CLOUDFLARE_MIGRATION) {
+  process.env.RESTAURANT_DB_PATH = path.join(__dirname, 'restaurants_database.json');
+}
 
 // 使用 recommendation 模組中的函數
 const { recommendRestaurants } = recommendationModule;
@@ -380,7 +384,7 @@ exports.handler = async (event, context) => {
       // 獲取地區選項
       try {
         console.log('Getting location options...');
-        console.log('__dirname:', __dirname);
+        console.log('__dirname:', typeof __dirname === 'undefined' ? 'bundled' : __dirname);
         console.log('process.cwd():', process.cwd());
         
         // 列出 __dirname 目錄中的所有文件

@@ -10,7 +10,7 @@ let supabase = null;
 try {
   // 構建腳本會將 supabase 複製到 netlify/functions/supabase/
   // 所以這裡使用相對路徑 ./supabase/client
-  const supabaseModule = require('./supabase/client');
+  const supabaseModule = require('../../supabase/client');
   console.log('Supabase 模組已載入:', typeof supabaseModule);
   console.log('Supabase 模組內容:', Object.keys(supabaseModule || {}));
   

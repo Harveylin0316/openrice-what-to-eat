@@ -1,0 +1,36 @@
+name: cloudflare-map-deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+  # GITHUB_TOKEN pushes made by map-data-refresh do not trigger push workflows.
+  workflow_run:
+    workflows: [map-data-refresh]
+    types: [completed]
+permissions:
+  contents: read
+concurrency:
+  group: cloudflare-map-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    # Enable only after Hen authorizes a scoped deployment token. No personal
+    # Wrangler OAuth credential is copied into GitHub or committed to the repo.
+    if: vars.CLOUDFLARE_AUTODEPLOY == 'true' && (github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run check
+      - run: npm run deploy:cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: a74934f0fbc3b775b135be2a10ea9997
