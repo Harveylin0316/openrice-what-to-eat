@@ -2,12 +2,12 @@ import restaurants from '../netlify/functions/restaurants.js';
 import parking from '../netlify/functions/parking.js';
 import admin from '../netlify/functions/admin.js';
 import track from '../netlify/functions/track.js';
-import { parkingStore, refreshParking } from './parking-store.mjs';
+import { parkingStore } from './parking-store.mjs';
 
 const json = (data, status = 200) => Response.json(data, { status, headers: { 'Cache-Control': 'no-store' } });
 export async function handle(request, env, ctx, cache = caches.default) {
   const url = new URL(request.url), p = url.pathname;
-  if (p === '/healthz') return json({ ok: true, service: 'openrice-life-map', mode: env.MIGRATION_MODE, parkingCache: env.PARKING_CACHE ? 'shared' : 'edge-fallback' });
+  if (p === '/healthz') return json({ ok: true, service: 'openrice-life-map', mode: env.MIGRATION_MODE, parkingCache: 'edge-on-demand' });
   // This legacy endpoint can create users even on GET and lacks verified LINE
   // identity. Do not silently migrate it into an active prize-writing service.
   if (/^\/api\/lottery(?:\/|$)/.test(p)) return json({ error: '抽獎功能尚待 LINE 身分與獎品流程驗收；目前不扣次數、不發獎。' }, 503);
@@ -29,7 +29,7 @@ export async function handle(request, env, ctx, cache = caches.default) {
     if (!handler) return json({ error: 'Not found' }, 404);
     if ((p.startsWith('/api/admin/') || p === '/api/track') && (!env.SUPABASE_URL || !env.SUPABASE_KEY)) return json({ error: '資料連線尚未設定' }, 503);
     try {
-      const r = await handler(event, { parkingStore: parkingStore(env, cache) });
+      const r = await handler(event, { parkingStore: parkingStore(cache) });
       const headers = new Headers(r.headers);
       if (p.startsWith('/api/admin') || p === '/api/track') headers.set('Cache-Control', 'no-store');
       return new Response(request.method === 'HEAD' || r.statusCode === 204 ? null : r.body, { status: r.statusCode, headers });
@@ -54,9 +54,4 @@ export async function handle(request, env, ctx, cache = caches.default) {
   if (p.startsWith('/liff/')) headers.set('Cache-Control', p.startsWith('/liff/vendor/') ? 'public, max-age=31536000, immutable' : p.startsWith('/liff/data/') ? 'public, max-age=300' : 'public, max-age=0, must-revalidate');
   return new Response(response.body, { status: response.status, headers });
 }
-export default {
-  fetch: handle,
-  async scheduled(_controller, env, ctx) {
-    ctx.waitUntil(refreshParking(parkingStore(env, caches.default)).catch(() => console.error('Parking refresh unavailable; live fallback retained')));
-  }
-};
+export default { fetch: handle };

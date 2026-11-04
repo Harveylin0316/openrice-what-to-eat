@@ -43,12 +43,43 @@ test('Workers restaurant routes read bundled canonical catalog', async () => {
 test('Workers cache keeps original timestamps and rejects empty parking snapshots', async () => {
   const { parkingStore, refreshParking } = await import('../cloudflare/parking-store.mjs');
   let value;
-  const kv = { get: async () => value, put: async (_key, text) => { value = JSON.parse(text); } };
-  const store = parkingStore({ PARKING_CACHE: kv }, cache);
+  const edgeCache = {
+    match: async () => value ? value.clone() : undefined,
+    put: async (_key, response) => { value = response.clone(); }
+  };
+  const store = parkingStore(edgeCache);
   await assert.rejects(store.write({}));
   await refreshParking(store, async () => Response.json({ data: { park: [{ id: '1', availablecar: 4 }] } }));
   assert.equal((await store.read()).map['1'], 4);
-  value.at = Date.now() - 301000;
+  assert.equal(value.headers.get('Cache-Control'), 'public, max-age=60');
+  const stale = await value.json();
+  stale.at = Date.now() - 301000;
+  value = Response.json(stale);
   assert.equal(await store.read(), null);
   await assert.rejects(refreshParking(store, async () => new Response('', { status: 500 })));
+});
+
+test('Cloudflare standby has no shared KV bindings or background parking writes', async () => {
+  const fs = require('node:fs');
+  const config = JSON.parse(fs.readFileSync(require.resolve('../wrangler.jsonc'), 'utf8').replace(/^\s*\/\/.*$/gm, ''));
+  assert.deepEqual(config.kv_namespaces, []);
+  assert.deepEqual(config.triggers.crons, []);
+  assert.equal((await loaded).default.scheduled, undefined);
+  const health = await call('/healthz', {}, { ...env, get PARKING_CACHE() { throw new Error('KV must not be accessed'); } });
+  assert.equal((await health.json()).parkingCache, 'edge-on-demand');
+});
+
+test('Cold edge parking cache is a miss and a warm cache preserves its source timestamp', async () => {
+  const { parkingStore } = await import('../cloudflare/parking-store.mjs');
+  let value;
+  const store = parkingStore({
+    match: async () => value?.clone(),
+    put: async (_key, response) => { value = response.clone(); }
+  });
+  assert.equal(await store.read(), null);
+  await store.write({ '42': 7 });
+  const first = await store.read();
+  const second = await store.read();
+  assert.equal(second.at, first.at);
+  assert.equal(second.map['42'], 7);
 });

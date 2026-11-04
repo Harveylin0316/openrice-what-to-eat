@@ -17,6 +17,8 @@
     "MIGRATION_MODE": "live",
     "NODE_ENV": "production"
   },
-  "kv_namespaces": [{ "binding": "PARKING_CACHE", "id": "b8ffc812340c4a74bca185e0c2fb63ba" }],
-  "triggers": { "crons": ["*/2 * * * *"] }
+  // Public parking data uses the edge Cache API on demand. An idle standby
+  // must not spend the account's shared daily KV write allowance.
+  "kv_namespaces": [],
+  "triggers": { "crons": [] }
 }

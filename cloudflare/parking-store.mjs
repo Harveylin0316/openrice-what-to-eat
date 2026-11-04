@@ -1,19 +1,17 @@
 export const AVAIL_URL = 'https://tcgbusfs.blob.core.windows.net/blobtcmsv/TCMSV_allavailable.json';
 const KEY = 'https://openrice-life-map.internal/parking/avail';
-export function parkingStore(env, cache) {
+export function parkingStore(cache) {
   return {
     async read() {
-      const data = env.PARKING_CACHE
-        ? await env.PARKING_CACHE.get('avail', 'json')
-        : await cache.match(KEY).then(r => r ? r.json() : null);
+      const response = await cache.match(KEY);
+      const data = response ? await response.json() : null;
       // Match Netlify's stale limit. Never reset age when re-caching old data.
       return data?.map && Date.now() - data.at < 300000 ? data : null;
     },
     async write(map) {
       if (!Object.keys(map).length) throw new Error('Empty parking feed');
       const data = { at: Date.now(), map, count: Object.keys(map).length };
-      if (env.PARKING_CACHE) await env.PARKING_CACHE.put('avail', JSON.stringify(data), { expirationTtl: 300 });
-      else await cache.put(KEY, new Response(JSON.stringify(data), { headers: { 'Cache-Control': 'public, max-age=60', 'Content-Type': 'application/json' } }));
+      await cache.put(KEY, new Response(JSON.stringify(data), { headers: { 'Cache-Control': 'public, max-age=60', 'Content-Type': 'application/json' } }));
     }
   };
 }
